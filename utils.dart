@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 int parseHexByte(String source, int index) {
   assert(index + 2 <= source.length);
   int digit1 = hexDigitValue(source.codeUnitAt(index));
@@ -17,11 +20,15 @@ int hexDigitValue(int char) {
   return -1;
 }
 
+ByteData convert2ByteData(String data){
+  return ByteData.sublistView(Utf8Encoder().convert(data));
+}
+
 String hex2String(String hex){
   int len = hex.length ~/ 2;
   String s = '';
-  for(int i = 0; i <= len; i++){
-    s += String.fromCharCode(int.tryParse(hex.substring(0, 2), radix: 16));
+  for(int i = 0; i < len * 2; i += 2){
+    s += String.fromCharCode(int.tryParse(hex.substring(i, i + 2), radix: 16));
   }
   return s;
 }

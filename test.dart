@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'binchunk/reader.dart';
+import 'utils.dart';
 
 void main(){
   //String to hex
@@ -9,5 +12,7 @@ void main(){
   String hex = '4c';
   print(String.fromCharCode(int.tryParse(hex, radix: 16)));
 
-  print(Reader('034c7561').readString());
+  print(Reader('044c7561').readString());
+
+  print(ByteData.sublistView(convert2ByteData('014c'), 1, 2));
 }

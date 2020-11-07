@@ -4,53 +4,91 @@ import 'dart:typed_data';
 import 'reader.dart';
 
 class Header {
-  ByteData signature;
-  ByteData version;
-  ByteData format;
-  ByteData luacData;
-  ByteData cintSize;
-  ByteData sizetSize;
-  ByteData instructionSize;
-  ByteData luaIntegerSize;
-  ByteData luaNumberSize;
-  Int64 luacInt;
-  double luacNum;
+  final ByteData signature;
+  final ByteData version;
+  final ByteData format;
+  final ByteData luacData;
+  final ByteData cintSize;
+  final ByteData sizetSize;
+  final ByteData instructionSize;
+  final ByteData luaIntegerSize;
+  final ByteData luaNumberSize;
+  final Int64 luacInt;
+  final double luacNum;
+
+  Header(
+      this.signature,
+      this.version,
+      this.format,
+      this.luacData,
+      this.cintSize,
+      this.sizetSize,
+      this.instructionSize,
+      this.luaIntegerSize,
+      this.luaNumberSize,
+      this.luacInt,
+      this.luacNum
+      );
 }
 
 class Upvalue {
-  String inStack;
-  String idx;
+  final String inStack;
+  final String idx;
+
+  Upvalue(this.inStack, this.idx);
 }
 
 class LocVar {
-  String varName;
-  int startPC;
-  int endPC;
+  final String varName;
+  final int startPC;
+  final int endPC;
+
+  LocVar(this.varName, this.startPC, this.endPC);
 }
 
 class ProtoType {
-  String source;
-  Uint32 lineDefined;
-  Uint32 lastLineDefined;
-  ByteData numParams;
-  ByteData isVararg;
-  ByteData maxStackSize;
-  List<Uint32> code;
-  List constants;
-  List<Upvalue> upvalues;
-  List<ProtoType> protos;
-  List<Uint32> lineInfo;
-  List<LocVar> locVars;
-  List<String> upvaluesName;
+  final String source;
+  final int lineDefined;
+  final int lastLineDefined;
+  final String numParams;
+  final String isVararg;
+  final String maxStackSize;
+  final List<int> code;
+  final List constants;
+  final List<Upvalue> upvalues;
+  final List<ProtoType> protos;
+  final List<int> lineInfo;
+  final List<LocVar> locVars;
+  final List<String> upvaluesName;
+
+  ProtoType(
+      this.source,
+      this.lineDefined,
+      this.lastLineDefined,
+      this.numParams,
+      this.isVararg,
+      this.maxStackSize,
+      this.code,
+      this.constants,
+      this.upvalues,
+      this.protos,
+      this.lineInfo,
+      this.locVars,
+      this.upvaluesName
+      );
 }
 
 class BinaryChunk {
-  Header header;
-  String sizeUpvalues;
-  ProtoType mainFunc;
+  final Header header;
+  final String sizeUpvalues;
+  final ProtoType mainFunc;
+
+  BinaryChunk(this.header, this.sizeUpvalues, this.mainFunc);
 }
 
 ProtoType unDump(String data){
-  Reader reader = Reader('');
-
+  Reader reader = Reader(data);
+  reader.checkHeader();
+  reader.readByte();
+  return reader.readProto('');
 }
