@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
-import 'reader.dart';
+import '../reader.dart';
 
 class Header {
   final ByteData signature;
@@ -86,7 +86,7 @@ class BinaryChunk {
 
 ProtoType unDump(Uint8List data) {
   Reader reader = Reader(data);
-  reader.checkHeader();
+  print(reader.checkHeader());
   reader.readByte();
   return reader.readProto('');
 }
