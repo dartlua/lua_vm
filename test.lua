@@ -5,6 +5,6 @@
 -- Time: 22:12
 -- To change this template use File | Settings | File Templates.
 --
-function main()
+function Main()
     print('hello')
 end

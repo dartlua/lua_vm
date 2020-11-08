@@ -36,3 +36,15 @@ String hex2String(String hex){
 int hex2Int(String hex){
   return int.parse(hex, radix: 16);
 }
+
+String uint8List2String(Uint8List uint8list){
+  String s = '';
+  uint8list.forEach((element) {
+    s += (element.toRadixString(16).padLeft(2, '0'));
+  });
+  return s;
+}
+
+String byteData2String(ByteData b){
+  return uint8List2String(b.buffer.asUint8List());
+}

@@ -27,8 +27,7 @@ class Header {
       this.luaIntegerSize,
       this.luaNumberSize,
       this.luacInt,
-      this.luacNum
-      );
+      this.luacNum);
 }
 
 class Upvalue {
@@ -74,8 +73,7 @@ class ProtoType {
       this.protos,
       this.lineInfo,
       this.locVars,
-      this.upvaluesName
-      );
+      this.upvaluesName);
 }
 
 class BinaryChunk {
@@ -86,7 +84,7 @@ class BinaryChunk {
   BinaryChunk(this.header, this.sizeUpvalues, this.mainFunc);
 }
 
-ProtoType unDump(String data){
+ProtoType unDump(Uint8List data) {
   Reader reader = Reader(data);
   reader.checkHeader();
   reader.readByte();
