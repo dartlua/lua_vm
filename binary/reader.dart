@@ -84,7 +84,6 @@ class Reader {
   List readConstants() {
     List constants = [];
     var len = readUint32();
-    print('constants length: $len');
     for (int i = 0; i < len; i++) {
       constants.add(readConstant());
     }
@@ -161,7 +160,7 @@ class Reader {
   ProtoType readProto(String parentSource) {
     String source = readString();
     if (source == '') source = parentSource;
-    print('source file: $source');
+    print('\nsource file: $source');
     return ProtoType(
         source,
         readUint32(),

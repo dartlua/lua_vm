@@ -7,8 +7,8 @@ class LuaValue extends Object{
 }
 
 LuaType typeOf(LuaValue val){
+  if(val == null)return LuaType(LUA_TNIL);
   final type = val.luaValue;
-  if(type == null)return LuaType(LUA_TNIL);
   if(type is bool)return LuaType(LUA_TBOOLEAN);
   if(type is int)return LuaType(LUA_TNUMBER);
   if(type is double)return LuaType(LUA_TNUMBER);

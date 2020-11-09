@@ -62,4 +62,4 @@ class LuaStack{
   }
 }
 
-LuaStack newLuaStack(int size) => LuaStack(<LuaValue>[], 0);
+LuaStack newLuaStack(int size) => LuaStack(List<LuaValue>(size), 0);

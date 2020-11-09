@@ -152,7 +152,7 @@ class LuaState{
   }
 
   void pushNull() => stack.push(null);
-  void pushBool(bool b) => stack.push(LuaValue(null));
+  void pushBool(bool b) => stack.push(LuaValue(b));
   void pushInt(int i) => stack.push(LuaValue(i));
   void pushNumber(double d) => stack.push(LuaValue(d));
   void pushString(String s) => stack.push(LuaValue(s));
