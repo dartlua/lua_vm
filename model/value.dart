@@ -20,3 +20,10 @@ class LuaType {
   int luaType;
   LuaType(int this.luaType);
 }
+
+bool convert2Boolean(LuaValue val){
+  var v = val.luaValue;
+  if(v == null)return false;
+  if(v is bool)return v;
+  return true;
+}

@@ -146,3 +146,11 @@ const LUA_TTABLE = 5;
 const LUA_TFUNCTION = 6;
 const LUA_TUSERDATA = 7;
 const LUA_TTHREAD = 8;
+
+class StackUnderflowError implements Error {
+  @pragma("vm:entry-point")
+  const StackUnderflowError();
+  String toString() => "Stack Underflow";
+
+  StackTrace get stackTrace => null;
+}

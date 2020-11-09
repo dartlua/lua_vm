@@ -1,3 +1,4 @@
+import '../constants.dart';
 import 'value.dart';
 
 class LuaStack{
@@ -47,7 +48,17 @@ class LuaStack{
       slots[absIdx - 1] = val;
       return;
     }
-    throw IndexError(absIdx, slots);
+    throw StackUnderflowError();//IndexError(absIdx, slots);
+  }
+
+  void reverse(int from, int to){
+    while(from < to){
+      var temp = slots[from];
+      slots[from] = slots[to];
+      slots[to] = temp;
+      from++;
+      to--;
+    }
   }
 }
 
