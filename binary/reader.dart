@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import '../constants.dart';
 import '../utils.dart';
-import 'binary_chunk.dart';
+import 'chunk.dart';
 
 class Reader {
   Uint8List data;
