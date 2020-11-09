@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
-import '../reader.dart';
+import 'reader.dart';
 
 class Header {
   final ByteData signature;

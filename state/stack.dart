@@ -1,5 +1,5 @@
 import '../constants.dart';
-import 'value.dart';
+import '../api/value.dart';
 
 class LuaStack{
   List<LuaValue> slots;

@@ -1,5 +1,5 @@
 //for check chunk
-import 'model/op_code.dart';
+import 'vm/op_code.dart';
 
 const LUA_SIGNATURE = '1b4c7561'; //\x1bLua
 const LUAC_VERSION = '53';

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'model/binary_chunk.dart';
+import 'binary/binary_chunk.dart';
 
 Future<void> main() async {
   final fileBytes =

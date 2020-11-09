@@ -1,5 +1,5 @@
 import '../constants.dart';
-import 'stack.dart';
+import '../state/stack.dart';
 import 'value.dart';
 
 class LuaState{
