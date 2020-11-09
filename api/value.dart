@@ -22,8 +22,36 @@ class LuaType {
 }
 
 bool convert2Boolean(LuaValue val){
-  var v = val.luaValue;
-  if(v == null)return false;
-  if(v is bool)return v;
+  dynamic v = val.luaValue;
+  if(v == null) return false;
+  if(v is bool) return v;
+  if(v is int) return v == 0 ? false : true;
   return true;
+}
+
+double convert2Float(LuaValue val){
+  dynamic value = val.luaValue;
+  if(value is double) return value;
+  if(value is int) return value.toDouble();
+  if(value is String) return double.parse(value);
+  if(value is bool) return value ? 1.0 : 0.0;
+  throw TypeError();
+}
+
+String convert2String(LuaValue val){
+  dynamic value = val.luaValue;
+  if(value is String)return value;
+  if(value is int)return value.toString();
+  if(value is double)return value.toString();
+  if(value is bool)return value ? 'true' : 'false';
+  throw TypeError();
+}
+
+int convert2Int(LuaValue val){
+  dynamic value = val.luaValue;
+  if(value is String)return int.parse(value);
+  if(value is double)return value.round();
+  if(value is int)return value;
+  if(value is bool)return value ? 1 : 0;
+  throw TypeError();
 }

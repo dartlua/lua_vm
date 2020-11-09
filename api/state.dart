@@ -1,4 +1,6 @@
 import '../constants.dart';
+import '../operation/arith.dart';
+import '../operation/operator.dart';
 import '../state/stack.dart';
 import 'value.dart';
 
@@ -105,57 +107,47 @@ class LuaState{
   bool isNoneOrNull(int idx) => type(idx).luaType <= LUA_TNIL;
   bool isBool(int idx) => type(idx) == LuaType(LUA_TBOOLEAN);
   bool isInt(int idx) => stack.get(idx).luaValue is int;
-  bool isNumber(int idx) => toNumberX(idx)[1];
+  bool isNumber(int idx) => stack.get(idx).luaValue is double;
   bool isString(int idx) =>
       type(idx) == LuaType(LUA_TSTRING) || type(idx) == LuaType(LUA_TNUMBER);
 
   bool toBool(int idx) => convert2Boolean(stack.get(idx));
 
-  int toInt(int idx) => toIntX(idx)[0];
+  int toInt(int idx) => convert2Int(stack.get(idx));
 
-  //return [int, bool]
-  List toIntX(int idx){
-    //todo: 类型转换待商権
-    LuaValue val = stack.get(idx);
-    dynamic value = val.luaValue;
-    if(value is String)return [int.parse(value), true];
-    if(value is double)return [value.round(), true];
-    if(value is int)return [value, true];
-    if(value is bool)return [value ? 1 : 0, true];
-    return [0, false];
-  }
+  double toNumber(int idx) => convert2Float(stack.get(idx));
 
-  double toNumber(int idx) => toNumberX(idx)[0];
-
-  //return [double, bool]
-  List toNumberX(int idx){
-    LuaValue val = stack.get(idx);
-    dynamic value = val.luaValue;
-    if(value is double)return [value, true];
-    if(value is String)return [double.parse(value), true];
-    if(value is int)return [value.roundToDouble(), true];
-    if(value is bool)return [value ? 1.toDouble() : 0.toDouble(), true];
-    return [0.0, false];
-  }
-
-  String toStr(int idx) => toStrX(idx)[0];
-
-  //return [String, bool]
-  List toStrX(int idx){
-    LuaValue val = stack.get(idx);
-    dynamic value = val.luaValue;
-    if(value is String)return [value, true];
-    if(value is int)return [value.toString(), true];
-    if(value is double)return [value.toString(), true];
-    if(value is bool)return [value ? 'true' : 'false', true];
-    return ['', false];
-  }
+  String toStr(int idx) => convert2String(stack.get(idx));
 
   void pushNull() => stack.push(null);
   void pushBool(bool b) => stack.push(LuaValue(b));
   void pushInt(int i) => stack.push(LuaValue(i));
   void pushNumber(double d) => stack.push(LuaValue(d));
   void pushString(String s) => stack.push(LuaValue(s));
+
+  void arith(ArithOp op){
+    LuaValue a;
+    LuaValue b;
+    b = stack.pop();
+    if(op != LUA_OPUNM && op != LUA_OPBNOT){
+      a = stack.pop();
+    }else{
+      a = b;
+    }
+
+    Operator operator = operators[op.arithOp];
+    LuaValue result = _arith(a, b , operator);
+    if(result != null){
+      stack.push(result);
+    }
+    throw UnsupportedError('unsupported arith!');
+  }
+}
+
+LuaValue _arith(LuaValue a, LuaValue b, Operator op){
+  if(op.floatFunc == null) return op.intFunc(convert2Int(a), convert2Int(b));
+  if(op.intFunc == null) return op.intFunc(convert2Int(a), convert2Int(b));
+  return op.floatFunc(convert2Float(a), convert2Float(b));
 }
 
 LuaState newLuaState() => LuaState(newLuaStack(20));

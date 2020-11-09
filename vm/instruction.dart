@@ -1,4 +1,5 @@
 import '../constants.dart';
+import 'op_code.dart';
 
 class Instruction{
   int instruction;
