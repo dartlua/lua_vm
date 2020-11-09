@@ -48,3 +48,5 @@ String uint8List2String(Uint8List uint8list){
 String byteData2String(ByteData b){
   return uint8List2String(b.buffer.asUint8List());
 }
+
+int byte2Int(ByteData b) => b.getInt8(0);

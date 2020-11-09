@@ -50,9 +50,9 @@ class ProtoType {
   final int lineDefined;
   final int lastLineDefined;
   final String numParams;
-  final String isVararg;
+  final int isVararg;
   final String maxStackSize;
-  final List<int> code;
+  final List<int> codes;
   final List constants;
   final List<Upvalue> upvalues;
   final List<ProtoType> protos;
@@ -67,7 +67,7 @@ class ProtoType {
       this.numParams,
       this.isVararg,
       this.maxStackSize,
-      this.code,
+      this.codes,
       this.constants,
       this.upvalues,
       this.protos,

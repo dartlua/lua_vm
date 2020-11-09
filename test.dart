@@ -6,5 +6,18 @@ Future<void> main() async {
       await File('luac.out').readAsBytes();
 
   //print(byteData2String(fileBytes.buffer.asByteData()));
-  print(unDump(fileBytes));
+  listProto(unDump(fileBytes));
+}
+
+void listProto(ProtoType protoType){
+  printHeader(protoType);
+  for(var i in protoType.protos){
+    listProto(i);
+  }
+}
+
+void printHeader(ProtoType p) {
+  String funcType = 'main';
+  if(p.lineDefined > 0)funcType = 'function';
+  print('\n$funcType <${p.source}, ${p.lineDefined}, ${p.lastLineDefined}>, (${p.codes.length} instructions)');
 }

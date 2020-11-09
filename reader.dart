@@ -17,14 +17,14 @@ class Reader {
 
   int readUint32() {
     Uint8List n = data.sublist(0, 4);
-    print('readUint32: ${byteData2String(n.buffer.asByteData())}');
+    //print('readUint32: ${byteData2String(n.buffer.asByteData())}');
     data = data.sublist(4);
     return n.buffer.asByteData().getUint32(0, Endian.little);
   }
 
   int readUint64() {
     Uint8List n = data.sublist(0, 8);
-    print('readUint64: ${byteData2String(n.buffer.asByteData())}');
+    //print('readUint64: ${byteData2String(n.buffer.asByteData())}');
     data = data.sublist(8);
     return n.buffer.asByteData().getUint64(0, Endian.little);
   }
@@ -68,7 +68,7 @@ class Reader {
     if (readByte().getUint8(0) != LUA_NUMBER_SIZE) return 'wrong lua num size';
     if (readLuaInteger() != LUAC_INT) return 'endianness mismatch';
     if (readLuaNumber() != LUAC_NUM) return 'format mismatch';
-    return 'all ok';
+    return 'check header: all ok';
   }
 
   List<int> readCode() {
@@ -87,8 +87,8 @@ class Reader {
     print('constants length: $len');
     for (int i = 0; i < len; i++) {
       constants.add(readConstant());
-      print(constants);
     }
+    print('constants: $constants');
     return constants;
   }
 
@@ -160,14 +160,14 @@ class Reader {
 
   ProtoType readProto(String parentSource) {
     String source = readString();
-    print(source);
     if (source == '') source = parentSource;
+    print('source file: $source');
     return ProtoType(
         source,
         readUint32(),
         readUint32(),
         byteData2String(readByte()),
-        byteData2String(readByte()),
+        byte2Int(readByte()),
         byteData2String(readByte()),
         readCode(),
         readConstants(),
