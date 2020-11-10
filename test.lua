@@ -5,6 +5,9 @@
 -- Time: 22:12
 -- To change this template use File | Settings | File Templates.
 --
-function Main()
-    print('hello')
+local sum = 0
+for i = 1, 100 do
+    if i % 2 == 0 then
+        sum = sum + i
+    end
 end

@@ -1,3 +1,4 @@
+import '../binary/chunk.dart';
 import '../constants.dart';
 import '../operation/arith.dart';
 import '../operation/operator.dart';
@@ -7,10 +8,26 @@ import 'value.dart';
 
 class LuaState{
   LuaStack stack;
+  ProtoType proto;
+  int pc;
 
-  LuaState(LuaStack this.stack);
+  LuaState(LuaStack this.stack, ProtoType this.proto, int this.pc);
 
   int getTop() => stack.top;
+
+  int PC() => pc;
+
+  void addPC(int n) => pc += n;
+
+  int fetch(){
+    int i = proto.codes[pc];
+    pc++;
+    return i;
+  }
+
+  void getConst(int idx) => stack.push(LuaValue(proto.constants[idx]));
+
+  void getRK(int rk) => rk > 0xff ? getConst(rk & 0xff) : pushValue(rk + 1);
 
   int absIndex(int idx) => stack.absIndex(idx);
 
@@ -181,4 +198,5 @@ LuaValue _arith(LuaValue a, LuaValue b, Operator op){
   return LuaValue(op.floatFunc(convert2Float(a), convert2Float(b)));
 }
 
-LuaState newLuaState() => LuaState(newLuaStack(20));
+LuaState newLuaState(int stackSize, ProtoType proto) =>
+    LuaState(newLuaStack(stackSize), proto, 0);

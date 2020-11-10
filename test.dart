@@ -4,14 +4,19 @@ import 'api/state.dart';
 import 'binary/chunk.dart';
 import 'constants.dart';
 import 'operation/arith.dart';
+import 'vm/instruction.dart';
+import 'vm/vm.dart';
 
 Future<void> main() async {
+  //测试读取binary
   final fileBytes =
       await File('luac.out').readAsBytes();
 
   //print(byteData2String(fileBytes.buffer.asByteData()));
   //listProto(unDump(fileBytes));
-  LuaState luaState = newLuaState();
+
+  //测试luastack和state
+  /*LuaState luaState = newLuaState();
   luaState.pushInt(1);
   luaState.pushString('2.0');
   luaState.pushString('3.0');
@@ -27,30 +32,33 @@ Future<void> main() async {
   luaState.concat(3);
   printState(luaState);
   luaState.pushBool(luaState.compare(1, 2, CompareOp(LUA_OPEQ)));
-  printState(luaState);
+  printState(luaState);*/
+
+ //测试lua vm
+  luaMain(unDump(fileBytes));
 }
 
-void printState(LuaState luaState){
+void luaMain(ProtoType proto){
+  int nRegs = int.parse(proto.maxStackSize);
+  LuaState ls = newLuaState(nRegs + 8, proto);
+  ls.setTop(nRegs);
+  while(true){
+    int pc = ls.PC();
+    Instruction instruction = Instruction(ls.fetch());
+    if(instruction.opCode() != OP_RETURN){
+      instruction.execute(LuaVM(ls));
+      print('${pc + 1} ${instruction.opName()}');
+    }else break;
+  }
+}
+
+String state(LuaState luaState){
   int top = luaState.getTop();
   List p = [];
   for(int i = 1;i <= top;i++){
     p.add(luaState.stack.get(i).luaValue);
-    /*
-    switch(t.luaType){
-      case LUA_TBOOLEAN:
-        p.add(luaState.toBool(i));
-        break;
-      case LUA_TNUMBER:
-        p.add(luaState.stack.get(i));
-        break;
-      case LUA_TSTRING:
-        p.add(luaState.toStr(i));
-        break;
-      default:
-        p.add(luaState.typeName(t));
-    }*/
   }
-  print(json.encode(p));
+  return json.encode(p);
 }
 
 void listProto(ProtoType protoType){
