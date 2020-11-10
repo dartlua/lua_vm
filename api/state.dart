@@ -105,7 +105,7 @@ class LuaState{
   bool isInt(int idx) => stack.get(idx).luaValue is int;
   bool isNumber(int idx) => stack.get(idx).luaValue is double;
   bool isString(int idx) =>
-      type(idx) == LuaType(LUA_TSTRING) || type(idx) == LuaType(LUA_TNUMBER);
+      type(idx).luaType == LUA_TSTRING || type(idx).luaType == LUA_TNUMBER;
 
   bool toBool(int idx) => convert2Boolean(stack.get(idx));
 

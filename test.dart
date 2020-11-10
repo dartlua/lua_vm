@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
 import 'api/state.dart';
-import 'api/value.dart';
 import 'binary/chunk.dart';
 import 'constants.dart';
 import 'operation/arith.dart';
@@ -34,22 +34,23 @@ void printState(LuaState luaState){
   int top = luaState.getTop();
   List p = [];
   for(int i = 1;i <= top;i++){
-    LuaType t = luaState.type(i);
+    p.add(luaState.stack.get(i).luaValue);
+    /*
     switch(t.luaType){
       case LUA_TBOOLEAN:
         p.add(luaState.toBool(i));
         break;
       case LUA_TNUMBER:
-        p.add(luaState.toNumber(i));
+        p.add(luaState.stack.get(i));
         break;
       case LUA_TSTRING:
         p.add(luaState.toStr(i));
         break;
       default:
         p.add(luaState.typeName(t));
-    }
+    }*/
   }
-  print(p);
+  print(json.encode(p));
 }
 
 void listProto(ProtoType protoType){

@@ -8,11 +8,11 @@ class LuaValue extends Object{
 
 LuaType typeOf(LuaValue val){
   if(val == null)return LuaType(LUA_TNIL);
-  final type = val.luaValue;
-  if(type is bool)return LuaType(LUA_TBOOLEAN);
-  if(type is int)return LuaType(LUA_TNUMBER);
-  if(type is double)return LuaType(LUA_TNUMBER);
-  if(type is String)return LuaType(LUA_TSTRING);
+  final value = val.luaValue;
+  if(value is bool)return LuaType(LUA_TBOOLEAN);
+  if(value is int)return LuaType(LUA_TNUMBER);
+  if(value is double)return LuaType(LUA_TNUMBER);
+  if(value is String)return LuaType(LUA_TSTRING);
   throw TypeError();
 }
 

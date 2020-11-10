@@ -33,7 +33,7 @@ class LuaStack{
 
   bool isValid(int idx){
     int absIdx = absIndex(idx);
-    return idx > 0 && absIdx <= top;
+    return absIdx > 0 && absIdx <= top;
   }
 
   LuaValue get(int idx){
