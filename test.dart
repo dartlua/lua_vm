@@ -11,14 +11,23 @@ Future<void> main() async {
   //print(byteData2String(fileBytes.buffer.asByteData()));
   //listProto(unDump(fileBytes));
   LuaState luaState = newLuaState();
-  luaState.pushInt(2);
-  luaState.pushNull();
-  printState(luaState);
   luaState.pushBool(true);
   printState(luaState);
-  luaState.pushString('1231');
+  luaState.pushInt(10);
   printState(luaState);
-  luaState.pushInt(22);
+  luaState.pushNull();
+  printState(luaState);
+  luaState.pushString('hello');
+  printState(luaState);
+  luaState.pushValue(-4);
+  printState(luaState);
+  luaState.replace(3);
+  printState(luaState);
+  luaState.setTop(6);
+  printState(luaState);
+  luaState.remove(-3);
+  printState(luaState);
+  luaState.setTop(-5);
   printState(luaState);
 }
 

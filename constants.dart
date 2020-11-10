@@ -103,7 +103,7 @@ class StackUnderflowError implements Error {
 }
 
 
-const LUA_OPADD = 0; // +
+const LUA_OPADD = 0;        // +
 const LUA_OPSUB = 1;        // -
 const LUA_OPMUL = 2;        // *
 const LUA_OPMOD = 3;        // %
@@ -113,14 +113,13 @@ const LUA_OPIDIV = 6;       // //
 const LUA_OPBAND = 7;       // &
 const LUA_OPBOR = 8;        // |
 const LUA_OPBXOR = 9;       // ~
-const LUA_OPSHL = 10;        // <<
-const LUA_OPSHR = 11;        // >>
-const LUA_OPUNM = 12;        // -
-const LUA_OPBNOT = 13;       // ~
+const LUA_OPSHL = 10;       // <<
+const LUA_OPSHR = 11;       // >>
+const LUA_OPUNM = 12;       // -
+const LUA_OPBNOT = 13;      // ~
 
 
 /* comparison functions */
-
 const LUA_OPEQ = 0; // ==
-const LUA_OPLT = 1;       // <
-const LUA_OPLE = 2;       // <=
+const LUA_OPLT = 1; // <
+const LUA_OPLE = 2; // <=

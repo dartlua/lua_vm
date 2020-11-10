@@ -1,6 +1,7 @@
 import '../constants.dart';
 import '../operation/arith.dart';
 import '../operation/operator.dart';
+import '../operation/compare.dart';
 import '../state/stack.dart';
 import 'value.dart';
 
@@ -60,15 +61,10 @@ class LuaState{
 
   void setTop(int idx){
     int newTop = stack.absIndex(idx);
-    if(newTop < 0)throw StackUnderflowError();
+    if(newTop < 0) throw StackUnderflowError();
     int n = stack.top - newTop;
-    if(n > 0){
-      for(int i = 0;i < n;i++){
-        stack.pop();
-      }
-    }else if(n < 0){
-      pushNull();//stack.push(null);
-    }
+    if(n > 0) for(int i = 0;i < n;i++) stack.pop();
+    else if(n < 0) for(int i = 0;i > n;i--) pushNull();
   }
 
   String typeName(LuaType tp){
@@ -141,6 +137,27 @@ class LuaState{
       stack.push(result);
     }
     throw UnsupportedError('unsupported arith!');
+  }
+
+  bool compare(int idx1, int idx2, CompareOp op){
+    LuaValue a = stack.get(idx1);
+    LuaValue b = stack.get(idx2);
+    switch(op.compareOp){
+      case LUA_OPEQ:
+        return eq(a, b);
+      case LUA_OPLT:
+        return lt(a, b);
+      case LUA_OPLE:
+        return le(a, b);
+      default:
+        throw UnsupportedError('Unsupported Compare Operation');
+    }
+  }
+
+  void len(int idx){
+    LuaValue val = stack.get(idx);
+    //todo: bool的长度有待商権
+    stack.push(LuaValue(val.luaValue.toString().length));
   }
 }
 
