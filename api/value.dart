@@ -49,7 +49,7 @@ String convert2String(LuaValue val){
 
 int convert2Int(LuaValue val){
   dynamic value = val.luaValue;
-  if(value is String)return int.parse(value);
+  if(value is String)return num.parse(value).toInt();
   if(value is double)return value.round();
   if(value is int)return value;
   if(value is bool)return value ? 1 : 0;

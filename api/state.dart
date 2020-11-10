@@ -125,7 +125,7 @@ class LuaState{
     LuaValue a;
     LuaValue b;
     b = stack.pop();
-    if(op != LUA_OPUNM && op != LUA_OPBNOT){
+    if(op.arithOp != LUA_OPUNM && op.arithOp != LUA_OPBNOT){
       a = stack.pop();
     }else{
       a = b;
@@ -133,10 +133,8 @@ class LuaState{
 
     Operator operator = operators[op.arithOp];
     LuaValue result = _arith(a, b , operator);
-    if(result != null){
-      stack.push(result);
-    }
-    throw UnsupportedError('unsupported arith!');
+    if(result != null) stack.push(result);
+    else throw UnsupportedError('unsupported arith!');
   }
 
   bool compare(int idx1, int idx2, CompareOp op){
@@ -159,12 +157,28 @@ class LuaState{
     //todo: bool的长度有待商権
     stack.push(LuaValue(val.luaValue.toString().length));
   }
+
+  void concat(int n){
+    if(n == 0) stack.push(LuaValue(''));
+    else if(n >= 2){
+      for(int i = 1;i < n;i++){
+        if(isString(-1) && isString(-2)){
+          String s2 = toStr(-1);
+          String s1 = toStr(-2);
+          stack.pop();
+          stack.pop();
+          stack.push(LuaValue(s1 + s2));
+          continue;
+        }
+      }
+    }
+  }
 }
 
 LuaValue _arith(LuaValue a, LuaValue b, Operator op){
-  if(op.floatFunc == null) return op.intFunc(convert2Int(a), convert2Int(b));
-  if(op.intFunc == null) return op.intFunc(convert2Int(a), convert2Int(b));
-  return op.floatFunc(convert2Float(a), convert2Float(b));
+  if(op.floatFunc == null) return LuaValue(op.intFunc(convert2Int(a), convert2Int(b)));
+  if(op.intFunc != null) return LuaValue(op.intFunc(convert2Int(a), convert2Int(b)));
+  return LuaValue(op.floatFunc(convert2Float(a), convert2Float(b)));
 }
 
 LuaState newLuaState() => LuaState(newLuaStack(20));

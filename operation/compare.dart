@@ -27,10 +27,10 @@ bool le(LuaValue a, LuaValue b){
   dynamic aa = a.luaValue;
   dynamic bb = b.luaValue;
   if(aa is String) bb is String
-      ? (aa.compareTo(bb) == 1 ? true : false)
+      ? (aa.compareTo(bb) < 1 ? true : false)
       : throw UnsupportedError('Unsupported comparision between String and ${bb.runtimeType}');
-  if(aa is int) bb is int ? aa > bb : aa.toDouble() > bb;
-  if(aa is double) bb is double ? aa > bb : aa > bb.toDouble();
+  if(aa is int) bb is int ? aa <= bb : aa.toDouble() <= bb;
+  if(aa is double) bb is double ? aa <= bb : aa <= bb.toDouble();
   throw UnsupportedError('Unsupported comparison between '
       '${aa.runtimeType} and ${bb.runtimeType}');
 }

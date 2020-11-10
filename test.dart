@@ -3,6 +3,7 @@ import 'api/state.dart';
 import 'api/value.dart';
 import 'binary/chunk.dart';
 import 'constants.dart';
+import 'operation/arith.dart';
 
 Future<void> main() async {
   final fileBytes =
@@ -11,23 +12,21 @@ Future<void> main() async {
   //print(byteData2String(fileBytes.buffer.asByteData()));
   //listProto(unDump(fileBytes));
   LuaState luaState = newLuaState();
-  luaState.pushBool(true);
+  luaState.pushInt(1);
+  luaState.pushString('2.0');
+  luaState.pushString('3.0');
+  luaState.pushNumber(4.0);
   printState(luaState);
-  luaState.pushInt(10);
+
+  luaState.arith(ArithOp(LUA_OPADD));
   printState(luaState);
-  luaState.pushNull();
+  luaState.arith(ArithOp(LUA_OPBNOT));
   printState(luaState);
-  luaState.pushString('hello');
+  luaState.len(2);
   printState(luaState);
-  luaState.pushValue(-4);
+  luaState.concat(3);
   printState(luaState);
-  luaState.replace(3);
-  printState(luaState);
-  luaState.setTop(6);
-  printState(luaState);
-  luaState.remove(-3);
-  printState(luaState);
-  luaState.setTop(-5);
+  luaState.pushBool(luaState.compare(1, 2, CompareOp(LUA_OPEQ)));
   printState(luaState);
 }
 
