@@ -65,7 +65,7 @@ List<OpCode> opCodes = [
   OpCode(0, 1, OpArgR, OpArgN, IAsBx, 'FORPREP', forPrep),
   OpCode(0, 0, OpArgN, OpArgU, IABC, 'TFORCALL', null),
   OpCode(0, 1, OpArgR, OpArgN, IAsBx, 'TFORLOOP', null),
-  OpCode(0, 0, OpArgU, OpArgU, IABC, 'SETLIST', null),
+  OpCode(0, 0, OpArgU, OpArgU, IABC, 'SETLIST', setList),
   OpCode(0, 1, OpArgU, OpArgN, IABx, 'CLOSURE', null),
   OpCode(0, 1, OpArgU, OpArgN, IABC, 'VARARG', null),
   OpCode(0, 0, OpArgU, OpArgU, IAx, 'EXTRAARG', null)
