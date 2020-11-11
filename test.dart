@@ -5,6 +5,7 @@ import 'api/state.dart';
 import 'binary/chunk.dart';
 import 'constants.dart';
 import 'operation/arith.dart';
+import 'operation/math.dart';
 import 'vm/instruction.dart';
 import 'vm/vm.dart';
 

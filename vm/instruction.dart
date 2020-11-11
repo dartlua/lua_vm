@@ -11,14 +11,14 @@ class Instruction{
   int opCode() => instruction & 0x3f;
 
   List<int> ABC() => [
-    (instruction >> 6) & 0xff,
-    (instruction >> 14) & 0x1ff,
-    (instruction >> 23) & 0x1ff
+    instruction >> 6 & 0xff,
+    instruction >> 23 & 0x1ff,
+    instruction >> 14 & 0x1ff,
   ];
 
   List<int> ABx() => [
-    (instruction >> 6) & 0xff,
-    (instruction >> 14)
+    instruction >> 6 & 0xff,
+    instruction >> 14
   ];
 
   List<int> AsBx() {
@@ -45,9 +45,7 @@ class Instruction{
 
 void move(Instruction i, LuaVM vm){
   List l = i.ABC();
-  int a = l[0] + 1;
-  int b = l[1] + 1;
-  vm.luaState.copy(b, a);
+  vm.luaState.copy(l[1] + 1, l[0] + 1);
 }
 
 void jmp(Instruction i, LuaVM vm){

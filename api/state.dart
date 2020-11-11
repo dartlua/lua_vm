@@ -36,24 +36,13 @@ class LuaState{
     return true;
   }
 
-  void pop(int n){
-    setTop(-n - 1);
-  }
+  void pop(int n) => setTop(-n - 1);
 
-  void copy(int fromIdx, int toIdx){
-    LuaValue val = stack.get(fromIdx);
-    stack.set(toIdx, val);
-  }
+  void copy(int fromIdx, int toIdx) => stack.set(toIdx, stack.get(fromIdx));
 
-  void pushValue(int idx){
-    LuaValue val = stack.get(idx);
-    stack.push(val);
-  }
+  void pushValue(int idx) => stack.push(stack.get(idx));
 
-  void replace(int idx){
-    LuaValue val = stack.pop();
-    stack.set(idx, val);
-  }
+  void replace(int idx) => stack.set(idx, stack.pop());
 
   void insert(int idx) => rotate(idx, 1);
 
@@ -171,8 +160,17 @@ class LuaState{
 
   void len(int idx){
     LuaValue val = stack.get(idx);
-    //todo: bool的长度有待商権
-    stack.push(LuaValue(val.luaValue.toString().length));
+    if(val == null){
+      throw TypeError();
+    }
+    dynamic value = val.luaValue;
+    if(value is bool){
+      throw TypeError();
+    }
+    if(value is List || value is Map){
+      stack.push(LuaValue(value.length));
+    }
+    stack.push(LuaValue(value.toString().length));
   }
 
   void concat(int n){
