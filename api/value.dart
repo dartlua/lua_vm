@@ -1,4 +1,5 @@
 import '../constants.dart';
+import 'table.dart';
 
 class LuaValue extends Object{
   dynamic luaValue;
@@ -13,6 +14,7 @@ LuaType typeOf(LuaValue val){
   if(value is int)return LuaType(LUA_TNUMBER);
   if(value is double)return LuaType(LUA_TNUMBER);
   if(value is String)return LuaType(LUA_TSTRING);
+  if(val is LuaTable)return LuaType(LUA_TTABLE);
   throw TypeError();
 }
 

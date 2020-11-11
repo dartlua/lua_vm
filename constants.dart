@@ -123,3 +123,5 @@ const LUA_OPBNOT = 13;      // ~
 const LUA_OPEQ = 0; // ==
 const LUA_OPLT = 1; // <
 const LUA_OPLE = 2; // <=
+
+const LFIELDS_PER_FLUSH = 50;

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'api/state.dart';
+import 'api/table.dart';
 import 'binary/chunk.dart';
 import 'constants.dart';
 import 'operation/arith.dart';
@@ -59,7 +60,8 @@ String state(LuaState luaState){
   int top = luaState.getTop();
   List p = [];
   for(int i = 1;i <= top;i++){
-    p.add(luaState.stack.get(i)?.luaValue);
+    dynamic value = luaState.stack.get(i)?.luaValue;
+    p.add(value is LuaTable ? 'table' : value);
   }
   return json.encode(p);
 }

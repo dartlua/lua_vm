@@ -1,5 +1,6 @@
 import '../constants.dart';
 import '../operation/arith.dart';
+import '../operation/fpb.dart';
 import 'op_code.dart';
 import 'vm.dart';
 
@@ -187,5 +188,42 @@ void forLoop(Instruction i, LuaVM vm){
       || !isPositiveStep && vm.luaState.compare(a + 1, a, CompareOp(LUA_OPLE))){
     vm.luaState.addPC(l[1]);
     vm.luaState.copy(a, a + 3);
+  }
+}
+
+void newTable(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  vm.luaState.createTable(fb2Int(l[1]), fb2Int(l[2]));
+  vm.luaState.replace(l[0] + 1);
+}
+
+void getTable(Instruction i , LuaVM vm){
+  List l = i.ABC();
+  vm.luaState.getRK(l[2]);
+  vm.luaState.getTable(l[1] + 1);
+  vm.luaState.replace(l[0] + 1);
+}
+
+void setTable(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  vm.luaState.getRK(l[1]);
+  vm.luaState.getRK(l[2]);
+  vm.luaState.setTable(l[0] + 1);
+}
+
+void setList(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  int a = l[0] + 1;
+  int b = l[1];
+  int c = l[2];
+
+  if(c > 0) c -= 1;
+  else c = Instruction(vm.luaState.fetch()).Ax();
+
+  int idx = c * LFIELDS_PER_FLUSH;
+  for(int j = 1; j <= b; j++){
+    idx++;
+    vm.luaState.pushValue(a + j);
+    vm.luaState.setI(a, idx);
   }
 }

@@ -4,6 +4,7 @@ import '../operation/arith.dart';
 import '../operation/operator.dart';
 import '../operation/compare.dart';
 import '../state/stack.dart';
+import 'table.dart';
 import 'value.dart';
 
 class LuaState{
@@ -187,6 +188,68 @@ class LuaState{
         }
       }
     }
+  }
+
+  void createTable(int nArr, int nRec){
+    stack.push(LuaValue(newLuaTable(nArr, nRec)));
+  }
+
+  void newTable(){
+    createTable(0, 0);
+  }
+
+  LuaType getTable(int idx){
+    LuaValue t = stack.get(idx);
+    LuaValue k = stack.pop();
+    return _getTable(t, k);
+  }
+
+  LuaType _getTable(LuaValue t, LuaValue k){
+    dynamic value = t.luaValue;
+    if(value is LuaTable){
+      LuaValue v = value.get(k);
+      stack.push(v);
+      return typeOf(v);
+    }
+    throw TypeError();
+  }
+
+  LuaType getField(int idx, String k){
+    LuaValue t = stack.get(idx);
+    return _getTable(t, LuaValue(k));
+  }
+
+  LuaType getI(int idx, int i){
+    LuaValue t = stack.get(idx);
+    return _getTable(t, LuaValue(i));
+  }
+
+  void setTable(int idx){
+    LuaValue t = stack.get(idx);
+    LuaValue v = stack.pop();
+    LuaValue k = stack.pop();
+    _setTable(t, k ,v);
+  }
+
+  void _setTable(LuaValue t, LuaValue k, LuaValue v){
+    dynamic table = t.luaValue;
+    if(table is LuaTable){
+      table.put(k, v);
+      return;
+    }
+    throw TypeError();
+  }
+
+  void setField(int idx, String k){
+    LuaValue t = stack.get(idx);
+    LuaValue v = stack.pop();
+    _setTable(t, LuaValue(k) ,v);
+  }
+
+  void setI(int idx, int i){
+    LuaValue t = stack.get(idx);
+    LuaValue v = stack.pop();
+    _setTable(t, LuaValue(i), v);
   }
 }
 
