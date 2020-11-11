@@ -168,8 +168,15 @@ class LuaState{
     if(value is bool){
       throw TypeError();
     }
-    if(value is List || value is Map){
-      stack.push(LuaValue(value.length));
+    if(value is LuaTable){
+      if(value.list != null){
+        stack.push(LuaValue(value.list.length));
+        return;
+      }
+      if(value.map != null){
+        stack.push(LuaValue(value.map.length));
+        return;
+      }
     }
     stack.push(LuaValue(value.toString().length));
   }
