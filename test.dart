@@ -42,12 +42,13 @@ void luaMain(ProtoType proto){
   int nRegs = int.parse(proto.maxStackSize);
   LuaState ls = newLuaState(nRegs + 8, proto);
   ls.setTop(nRegs);
+  print('');
   while(true){
-    int pc = ls.PC();
+    int pc = ls.pc;
     Instruction instruction = Instruction(ls.fetch());
     if(instruction.opCode() != OP_RETURN){
       instruction.execute(LuaVM(ls));
-      print('${pc + 1} ${instruction.opName()}');
+      print('[$pc] ${instruction.opName()} ${state(ls)}');
     }else break;
   }
 }
@@ -56,7 +57,7 @@ String state(LuaState luaState){
   int top = luaState.getTop();
   List p = [];
   for(int i = 1;i <= top;i++){
-    p.add(luaState.stack.get(i).luaValue);
+    p.add(luaState.stack.get(i)?.luaValue);
   }
   return json.encode(p);
 }

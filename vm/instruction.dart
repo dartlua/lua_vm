@@ -38,7 +38,6 @@ class Instruction{
 
   void execute(LuaVM vm){
     Function action = opCodes[opCode()].action;
-    print(opCode());
     if(action != null) action(Instruction(instruction), vm);
     else throw UnsupportedError('unsupported Operation: ${opName()}');
   }
