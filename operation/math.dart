@@ -1,11 +1,6 @@
-int IFloorDiv(int a, int b){
-  if(a > 0 && b > 0 || a < 0 && b > 0 || a % b == 0){
-    return a ~/ b;
-  }
-  return (a ~/ b) - 1;
-}
+int IFloorDiv(int a, int b) => (a / b).floor();
 
-double FFloorDiv(double a, double b) => (a / b).floor().toDouble();
+double FFloorDiv(double a, double b) => (a / b).floorToDouble();
 
 int IMod(int a, int b) => a - IFloorDiv(a, b) * b;
 
