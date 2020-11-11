@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'api/state.dart';
 import 'binary/chunk.dart';
 import 'constants.dart';
@@ -34,7 +35,7 @@ Future<void> main() async {
   luaState.pushBool(luaState.compare(1, 2, CompareOp(LUA_OPEQ)));
   printState(luaState);*/
 
- //测试lua vm
+  //测试lua vm
   luaMain(unDump(fileBytes));
 }
 

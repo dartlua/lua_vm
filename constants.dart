@@ -79,8 +79,8 @@ const OpArgR = 2;
 const OpArgK = 3;
 
 //MAXARG
-const MAXARG_Bx = 1 << 18 - 1;
-const MAXARG_sBx = MAXARG_Bx >> 1;
+const int MAXARG_Bx = 262143;
+const int MAXARG_sBx = 131071;
 
 //LUA_TYPE
 const LUA_TNONE = -1;
