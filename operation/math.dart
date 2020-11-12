@@ -16,7 +16,7 @@ int shiftRight(int a, int n){
   return shiftLeft(a, n);
 }
 
-//return [double, bool]
+//return [int, bool]
 List float2Int(double f){
   int i = f.toInt();
   return [i, i.toDouble() == f];

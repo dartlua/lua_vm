@@ -1,6 +1,8 @@
+import '../operation/math.dart';
 import 'value.dart';
 
 class LuaTable{
+  //todo: fix lua table class
   Map<LuaValue, LuaValue> map;
   List<LuaValue> list;
 
@@ -9,7 +11,8 @@ class LuaTable{
   LuaValue get(LuaValue key){
     LuaValue _key = _float2Int(key);
     dynamic value = _key.luaValue;
-    if(value is int) return list[value - 1];
+    if(value is int)
+      if(value >= 1 && value <= list.length) return list[value - 1];
     return map[value];
   }
 
@@ -51,24 +54,29 @@ class LuaTable{
 
   void _expandList(){
     for(int idx = list.length + 1; true; idx++){
-      if(list.elementAt(idx) != null){
-        list.removeAt(idx);
+      if(map.length >= idx){
+        LuaValue val = map[map.keys.elementAt(idx)];
+        map.remove(val);
+        list.add(val);
       }else break;
     }
   }
 }
 
 LuaTable newLuaTable(int nArr, int nRec){
-  if(nArr > 0) return LuaTable(list: List<LuaValue>(nArr));
-  if(nRec > 0) return LuaTable(map: Map<LuaValue, LuaValue>());
-  throw ArgumentError('nArr or nRec must > 0');
+  LuaTable t = LuaTable();
+  if(nArr > 0) t.list = List<LuaValue>(nArr);
+  if(nRec > 0) t.map = Map<LuaValue, LuaValue>();
+  return t;
 }
-
 
 LuaValue _float2Int(LuaValue key){
   if(key == null) throw ArgumentError('key can be null');
   dynamic value = key.luaValue;
   if(value is int) return LuaValue(value);
-  if(value is double) return LuaValue(value.toInt());
+  if(value is double) {
+    List l = float2Int(value);
+    if(l[1]) return LuaValue(l[0]);
+  }
   return key;
 }
