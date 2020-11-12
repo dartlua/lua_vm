@@ -3,7 +3,7 @@ import '../constants.dart';
 import '../operation/arith.dart';
 import '../operation/operator.dart';
 import '../operation/compare.dart';
-import '../state/stack.dart';
+import 'stack.dart';
 import 'table.dart';
 import 'value.dart';
 
