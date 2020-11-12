@@ -170,7 +170,11 @@ class LuaState{
     }
     if(value is LuaTable){
       if(value.map != null){
-        stack.push(LuaValue(value.map.length));
+        int count = 0;
+        for(int i = 0; i < value.map.length; i++)
+          if(value.map[i] != null)
+            count++;
+        stack.push(LuaValue(count));
         return;
       }
     }
