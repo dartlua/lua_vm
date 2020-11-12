@@ -293,7 +293,7 @@ void return_(Instruction i, LuaVM vm){
   if(b == 1){}
   else if(b > 1){
     vm.luaState.checkStack(b - 1);
-    for(int i = a; i < a + b - 2; i++) vm.luaState.pushValue(i);
+    for(int i = a; i <= a + b - 2; i++) vm.luaState.pushValue(i);
   } else _fixStack(a, vm);
 }
 

@@ -24,7 +24,7 @@ class LuaState{
   int fetch(){
     print(stack.pc);
     int i = stack.closure.proto.codes[stack.pc];
-    stack.pc++;
+    stack.addPC(1);
     return i;
   }
 
@@ -332,11 +332,8 @@ class LuaState{
     stack.pushN(stack.varargs, n);
   }
 
-  void loadProto(int idx){
-    ProtoType proto = stack.closure.proto.protos[idx];
-    LuaClosure closure = newLuaClosure(proto);
-    stack.push(LuaValue(closure));
-  }
+  void loadProto(int idx) =>
+    stack.push(LuaValue(newLuaClosure(stack.closure.proto.protos[idx])));
 }
 
 LuaValue _arith(LuaValue a, LuaValue b, Operator op){
