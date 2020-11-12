@@ -9,15 +9,15 @@ class LuaValue extends Object{
 }
 
 LuaType typeOf(LuaValue val){
-  if(val == null)return LuaType(LUA_TNIL);
+  if(val == null) return LuaType(LUA_TNIL);
   final value = val.luaValue;
   if(value == null) return LuaType(LUA_TNIL);
   if(value is LuaClosure) return LuaType(LUA_TFUNCTION);
-  if(value is bool)return LuaType(LUA_TBOOLEAN);
-  if(value is int)return LuaType(LUA_TNUMBER);
-  if(value is double)return LuaType(LUA_TNUMBER);
-  if(value is String)return LuaType(LUA_TSTRING);
-  if(val is LuaTable)return LuaType(LUA_TTABLE);
+  if(value is bool) return LuaType(LUA_TBOOLEAN);
+  if(value is int) return LuaType(LUA_TNUMBER);
+  if(value is double) return LuaType(LUA_TNUMBER);
+  if(value is String) return LuaType(LUA_TSTRING);
+  if(val is LuaTable) return LuaType(LUA_TTABLE);
   throw TypeError();
 }
 
@@ -45,18 +45,18 @@ double convert2Float(LuaValue val){
 
 String convert2String(LuaValue val){
   dynamic value = val.luaValue;
-  if(value is String)return value;
-  if(value is int)return value.toString();
-  if(value is double)return value.toString();
-  if(value is bool)return value ? 'true' : 'false';
+  if(value is String) return value;
+  if(value is int) return value.toString();
+  if(value is double) return value.toString();
+  if(value is bool) return value ? 'true' : 'false';
   throw TypeError();
 }
 
 int convert2Int(LuaValue val){
   dynamic value = val.luaValue;
-  if(value is String)return num.parse(value).toInt();
-  if(value is double)return value.round();
-  if(value is int)return value;
-  if(value is bool)return value ? 1 : 0;
+  if(value is String) return num.parse(value).toInt();
+  if(value is double) return value.round();
+  if(value is int) return value;
+  if(value is bool) return value ? 1 : 0;
   throw TypeError();
 }
