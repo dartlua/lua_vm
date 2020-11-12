@@ -20,7 +20,6 @@ class LuaState{
   int getTop() => stack.top;
 
   int fetch(){
-    print(stack.pc);
     int i = stack.closure.proto.codes[stack.pc];
     stack.addPC(1);
     return i;

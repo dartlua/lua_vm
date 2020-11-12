@@ -12,10 +12,7 @@ class LuaStack{
 
   LuaStack(List<LuaValue> this.slots, int this.top);
 
-  void addPC(int n) {
-    print('n: $n');
-    pc += n;
-  }
+  void addPC(int n) => pc += n;
 
   void check(int n){
     int free = slots.length - top;
