@@ -169,10 +169,6 @@ class LuaState{
       throw TypeError();
     }
     if(value is LuaTable){
-      if(value.list != null){
-        stack.push(LuaValue(value.list.length));
-        return;
-      }
       if(value.map != null){
         stack.push(LuaValue(value.map.length));
         return;
