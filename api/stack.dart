@@ -12,7 +12,10 @@ class LuaStack{
 
   LuaStack(List<LuaValue> this.slots, int this.top);
 
-  void addPC(int n) => pc += n;
+  void addPC(int n) {
+    print('n: $n');
+    pc += n;
+  }
 
   void check(int n){
     int free = slots.length - top;
@@ -20,21 +23,21 @@ class LuaStack{
   }
 
   void push(LuaValue val){
-    if(top == slots.length)throw StackOverflowError();
+    if(top == slots.length) throw StackOverflowError();
     slots[top] = val;
     top++;
   }
 
   LuaValue pop(){
-    if(top < 1)throw RangeError('now top value: $top');
+    if(top < 1) throw RangeError('now top value: $top');
     top--;
-    var luaValue = slots[top];
-    slots[top] = null;
+    LuaValue luaValue = slots[top];
+    slots[top] = LuaValue(null);
     return luaValue;
   }
 
   int absIndex(int idx){
-    if(idx > 0)return idx;
+    if(idx > 0) return idx;
     return idx + top + 1;
   }
 
@@ -45,7 +48,7 @@ class LuaStack{
 
   LuaValue get(int idx){
     int absIdx = absIndex(idx);
-    if(absIdx > 0 && absIdx <= top)return slots[absIdx - 1];
+    if(absIdx > 0 && absIdx <= top) return slots[absIdx - 1];
     return null;
   }
 

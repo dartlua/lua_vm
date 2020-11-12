@@ -19,8 +19,6 @@ class LuaState{
 
   int getTop() => stack.top;
 
-  int PC() => stack.pc;
-
   int fetch(){
     print(stack.pc);
     int i = stack.closure.proto.codes[stack.pc];
@@ -108,10 +106,10 @@ class LuaState{
     return LuaType(LUA_TNONE);
   }
 
-  bool isNone(int idx) => type(idx) == LuaType(LUA_TNONE);
-  bool isNull(int idx) => type(idx) == LuaType(LUA_TNIL);
+  bool isNone(int idx) => type(idx).luaType == LUA_TNONE;
+  bool isNull(int idx) => type(idx).luaType == LUA_TNIL;
   bool isNoneOrNull(int idx) => type(idx).luaType <= LUA_TNIL;
-  bool isBool(int idx) => type(idx) == LuaType(LUA_TBOOLEAN);
+  bool isBool(int idx) => type(idx).luaType == LUA_TBOOLEAN;
   bool isInt(int idx) => stack.get(idx).luaValue is int;
   bool isNumber(int idx) => stack.get(idx).luaValue is double;
   bool isString(int idx) =>
@@ -125,7 +123,7 @@ class LuaState{
 
   String toStr(int idx) => convert2String(stack.get(idx));
 
-  void pushNull() => stack.push(null);
+  void pushNull() => stack.push(LuaValue(null));
   void pushBool(bool b) => stack.push(LuaValue(b));
   void pushInt(int i) => stack.push(LuaValue(i));
   void pushNumber(double d) => stack.push(LuaValue(d));
@@ -148,6 +146,7 @@ class LuaState{
   }
 
   bool compare(int idx1, int idx2, CompareOp op){
+    if(!stack.isValid(idx1) || !stack.isValid(idx2)) return false;
     LuaValue a = stack.get(idx1);
     LuaValue b = stack.get(idx2);
     switch(op.compareOp){
