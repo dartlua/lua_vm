@@ -49,9 +49,9 @@ class ProtoType {
   final String source;
   final int lineDefined;
   final int lastLineDefined;
-  final String numParams;
+  final int numParams;
   final int isVararg;
-  final String maxStackSize;
+  final int maxStackSize;
   final List<int> codes;
   final List constants;
   final List<Upvalue> upvalues;

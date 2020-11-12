@@ -51,7 +51,7 @@ void move(Instruction i, LuaVM vm){
 
 void jmp(Instruction i, LuaVM vm){
   List l = i.AsBx();
-  vm.luaState.addPC(l[1]);
+  vm.luaState.stack.addPC(l[1]);
   if(l[0] != 0) throw UnsupportedError('todo!');
 }
 
@@ -69,7 +69,7 @@ void loadBool(Instruction i , LuaVM vm){
   List l = i.ABC();
   vm.luaState.pushBool(l[1] != 0);
   vm.luaState.replace(l[0] + 1);
-  if(l[2] != 0) vm.luaState.addPC(1);
+  if(l[2] != 0) vm.luaState.stack.addPC(1);
 }
 
 void loadK(Instruction i, LuaVM vm){
@@ -138,7 +138,7 @@ void _compare(Instruction i , LuaVM vm, CompareOp op){
   
   vm.luaState.getRK(l[1]);
   vm.luaState.getRK(l[2]);
-  if(vm.luaState.compare(-2, -1, op) != (l[0] != 0)) vm.luaState.addPC(1);
+  if(vm.luaState.compare(-2, -1, op) != (l[0] != 0)) vm.luaState.stack.addPC(1);
   vm.luaState.pop(2);
 }
 
@@ -157,12 +157,12 @@ void testSet(Instruction i , LuaVM vm){
   int b = l[1] + 1;
   if(vm.luaState.toBool(b) == (l[2] != 0))
     vm.luaState.copy(b, l[0] + 1);
-  else vm.luaState.addPC(1);
+  else vm.luaState.stack.addPC(1);
 }
 
 void test(Instruction i, LuaVM vm){
   List l = i.ABC();
-  if(vm.luaState.toBool(l[0] + 1) != (l[2] != 0)) vm.luaState.addPC(1);
+  if(vm.luaState.toBool(l[0] + 1) != (l[2] != 0)) vm.luaState.stack.addPC(1);
 }
 
 void forPrep(Instruction i, LuaVM vm){
@@ -172,7 +172,7 @@ void forPrep(Instruction i, LuaVM vm){
   vm.luaState.pushValue(a + 2);
   vm.luaState.arith(ArithOp(LUA_OPSUB));
   vm.luaState.replace(a);
-  vm.luaState.addPC(l[1]);
+  vm.luaState.stack.addPC(l[1]);
 }
 
 void forLoop(Instruction i, LuaVM vm){
@@ -186,7 +186,7 @@ void forLoop(Instruction i, LuaVM vm){
   bool isPositiveStep = vm.luaState.toNumber(a + 2) >= 0;
   if(isPositiveStep && vm.luaState.compare(a, a + 1, CompareOp(LUA_OPLE))
       || !isPositiveStep && vm.luaState.compare(a + 1, a, CompareOp(LUA_OPLE))){
-    vm.luaState.addPC(l[1]);
+    vm.luaState.stack.addPC(l[1]);
     vm.luaState.copy(a, a + 3);
   }
 }
@@ -220,10 +220,106 @@ void setList(Instruction i, LuaVM vm){
   if(c > 0) c -= 1;
   else c = Instruction(vm.luaState.fetch()).Ax();
 
+  bool bIsZero = b == 0;
+  if(bIsZero){
+    b = vm.luaState.toInt(-1) - a - 1;
+    vm.luaState.pop(1);
+  }
+
   int idx = c * LFIELDS_PER_FLUSH;
   for(int j = 1; j <= b; j++){
     idx++;
     vm.luaState.pushValue(a + j);
     vm.luaState.setI(a, idx);
   }
+
+  if(bIsZero){
+    for(int j = vm.luaState.registerCount() + 1; j <= vm.luaState.getTop(); j++){
+      idx++;
+      vm.luaState.pushValue(j);
+      vm.luaState.setI(a, idx);
+    }
+    vm.luaState.setTop(vm.luaState.registerCount());
+  }
+}
+
+void closure(Instruction i, LuaVM vm){
+  List l = i.ABx();
+  vm.luaState.loadProto(l[1]);
+  vm.luaState.replace(l[0] + 1);
+}
+
+void call(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  int a = l[0] + 1;
+  int nArgs = _pushFuncAndArgs(a, l[1], vm);
+  vm.luaState.call(nArgs, l[2] - 1);
+  _popResults(a, l[2], vm);
+}
+
+int _pushFuncAndArgs(int a, int b, LuaVM vm){
+  if(b >= 1){
+    vm.luaState.checkStack(b);
+    for(int i = a; i < a + b; i++) vm.luaState.pushValue(i);
+    return b - 1;
+  } else {
+    _fixStack(a, vm);
+    return vm.luaState.getTop() - vm.luaState.registerCount() - 1;
+  }
+}
+
+void _fixStack(int a, LuaVM vm){
+  int x = vm.luaState.toInt(-1);
+  vm.luaState.pop(1);
+  vm.luaState.checkStack(x - a);
+  for(int i = a; i < x; i++) vm.luaState.pushValue(i);
+  vm.luaState.rotate(vm.luaState.registerCount() + 1, x - a);
+}
+
+void _popResults(int a, int c, LuaVM vm){
+  if(c == 1){}
+  else if(c > 1){
+    for(int i = a + c - 2; i >= a; i--) vm.luaState.replace(i);
+  } else {
+    vm.luaState.checkStack(1);
+    vm.luaState.pushInt(a);
+  }
+}
+
+void return_(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  int a = l[0] + 1;
+  int b = l[1];
+  if(b == 1){}
+  else if(b > 1){
+    vm.luaState.checkStack(b - 1);
+    for(int i = a; i < a + b - 2; i++) vm.luaState.pushValue(i);
+  } else _fixStack(a, vm);
+}
+
+void vararg(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  int b = l[1];
+  if(b != 1){
+    vm.luaState.loadVararg(b - 1);
+    _popResults(l[0] + 1, b, vm);
+  }
+}
+
+void tailCall(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  int a = l[0] + 1;
+  int nArgs = _pushFuncAndArgs(a, l[1], vm);
+  vm.luaState.call(nArgs, -1);
+  _popResults(a, 0, vm);
+}
+
+void self(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  int a = l[0] + 1;
+  int b = l[1] + 1;
+  vm.luaState.copy(b, a + 1);
+  vm.luaState.getRK(l[2]);
+  vm.luaState.getTable(b);
+  vm.luaState.replace(a);
 }

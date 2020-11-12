@@ -1,11 +1,18 @@
 import '../constants.dart';
+import 'closure.dart';
 import 'value.dart';
 
 class LuaStack{
   List<LuaValue> slots;
   int top;
+  LuaStack prev;
+  LuaClosure closure;
+  List<LuaValue> varargs;
+  int pc = 0;
 
   LuaStack(List<LuaValue> this.slots, int this.top);
+
+  void addPC(int n) => pc += n;
 
   void check(int n){
     int free = slots.length - top;
@@ -58,6 +65,21 @@ class LuaStack{
       slots[to] = temp;
       from++;
       to--;
+    }
+  }
+
+  List<LuaValue> popN(int n){
+    List<LuaValue> valList = List<LuaValue>(n);
+    for(int i = n - 1; i >= 0; i--) valList[i] = pop();
+    return valList;
+  }
+
+  void pushN(List<LuaValue> valList, int n){
+    int lenVal = valList.length;
+    if(n < 0) n = lenVal;
+    for(int i = 0; i < n; i++){
+      if(i < lenVal) push(valList[i]);
+      else push(LuaValue(null));
     }
   }
 }

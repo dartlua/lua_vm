@@ -38,16 +38,21 @@ Future<void> main() async {
   printState(luaState);*/
 
   //测试lua vm
-  luaMain(unDump(fileBytes));
+  //luaMain(unDump(fileBytes));
+  
+  LuaState ls = newLuaState();
+  ls.load(fileBytes, 'luac.out', 'b');
+  ls.call(0, 0);
 }
 
+/*
 void luaMain(ProtoType proto){
-  int nRegs = int.parse(proto.maxStackSize);
+  int nRegs = proto.maxStackSize;
   LuaState ls = newLuaState(nRegs + 8, proto);
   ls.setTop(nRegs);
   print('');
   while(true){
-    int pc = ls.pc;
+    int pc = ls.PC();
     Instruction instruction = Instruction(ls.fetch());
     if(instruction.opCode() != OP_RETURN){
       instruction.execute(LuaVM(ls));
@@ -78,3 +83,4 @@ void printHeader(ProtoType p) {
   if(p.lineDefined > 0)funcType = 'function';
   print('\n$funcType <${p.source}, ${p.lineDefined}, ${p.lastLineDefined}>, (${p.codes.length} instructions)');
 }
+*/

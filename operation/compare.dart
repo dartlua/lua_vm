@@ -1,9 +1,9 @@
 import '../api/value.dart';
 
-bool eq(LuaValue a, LuaValue b){
+bool eq_(LuaValue a, LuaValue b){
+  if(a == null) return b == null;
   dynamic aa = a.luaValue;
   dynamic bb = b.luaValue;
-  if(aa == null) return b == null;
   if(aa is bool) return aa == bb;
   if(aa is String) return aa == bb;
   if(aa is int) return bb is int ? aa == bb : aa.toDouble() == bb;
@@ -11,7 +11,7 @@ bool eq(LuaValue a, LuaValue b){
   return a == b;
 }
 
-bool lt(LuaValue a, LuaValue b){
+bool lt_(LuaValue a, LuaValue b){
   dynamic aa = a.luaValue;
   dynamic bb = b.luaValue;
   if(aa is String)
@@ -22,7 +22,7 @@ bool lt(LuaValue a, LuaValue b){
       '${aa.runtimeType} and ${bb.runtimeType}');
 }
 
-bool le(LuaValue a, LuaValue b){
+bool le_(LuaValue a, LuaValue b){
   dynamic aa = a.luaValue;
   dynamic bb = b.luaValue;
   if(aa is String)

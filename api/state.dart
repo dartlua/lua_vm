@@ -1,32 +1,35 @@
+import 'dart:typed_data';
+
 import '../binary/chunk.dart';
 import '../constants.dart';
 import '../operation/arith.dart';
 import '../operation/operator.dart';
 import '../operation/compare.dart';
+import '../vm/instruction.dart';
+import '../vm/vm.dart';
+import 'closure.dart';
 import 'stack.dart';
 import 'table.dart';
 import 'value.dart';
 
 class LuaState{
   LuaStack stack;
-  ProtoType proto;
-  int pc;
 
-  LuaState(LuaStack this.stack, ProtoType this.proto, int this.pc);
+  LuaState(LuaStack this.stack);
 
   int getTop() => stack.top;
 
-  int PC() => pc;
-
-  void addPC(int n) => pc += n;
+  int PC() => stack.pc;
 
   int fetch(){
-    int i = proto.codes[pc];
-    pc++;
+    print(stack.pc);
+    int i = stack.closure.proto.codes[stack.pc];
+    stack.pc++;
     return i;
   }
 
-  void getConst(int idx) => stack.push(LuaValue(proto.constants[idx]));
+  void getConst(int idx) =>
+      stack.push(LuaValue(stack.closure.proto.constants[idx]));
 
   void getRK(int rk) => rk > 0xff ? getConst(rk & 0xff) : pushValue(rk + 1);
 
@@ -149,11 +152,11 @@ class LuaState{
     LuaValue b = stack.get(idx2);
     switch(op.compareOp){
       case LUA_OPEQ:
-        return eq(a, b);
+        return eq_(a, b);
       case LUA_OPLT:
-        return lt(a, b);
+        return lt_(a, b);
       case LUA_OPLE:
-        return le(a, b);
+        return le_(a, b);
       default:
         throw UnsupportedError('Unsupported Compare Operation');
     }
@@ -258,6 +261,82 @@ class LuaState{
     LuaValue v = stack.pop();
     _setTable(t, LuaValue(i), v);
   }
+
+  void pushLuaStack(LuaStack newStack){
+    newStack.prev = stack;
+    stack = newStack;
+  }
+
+  void popLuaStack(){
+    LuaStack _stack = stack;
+    stack = _stack.prev;
+    _stack.prev = null;
+  }
+
+  int load(Uint8List chunk, String chunkName, String mode){
+    ProtoType proto = unDump(chunk);
+    LuaClosure c = newLuaClosure(proto);
+    stack.push(LuaValue(c));
+    return 0;
+  }
+
+  void call(int nArgs, int nResults){
+    LuaValue val = stack.get(-(nArgs + 1));
+    dynamic value = val.luaValue;
+    if(value is LuaClosure){
+      //todo: remove print
+      print('CALL ${value.proto.source}, ${value.proto.lineDefined}, '
+          '${value.proto.lastLineDefined}');
+      callLuaClosure(nArgs, nResults, value);
+    } else throw AssertionError('not function');
+  }
+
+  void callLuaClosure(int nArgs, int nResults, LuaClosure c){
+    int nRegs = c.proto.maxStackSize;
+    int nParams = c.proto.numParams;
+    bool isVararg = c.proto.isVararg == 1;
+
+    LuaStack newStack = newLuaStack(nRegs + 20);
+    newStack.closure = c;
+
+    List<LuaValue> funcAndArgs = stack.popN(nArgs + 1);
+    newStack.pushN(funcAndArgs.sublist(1), nParams);
+    newStack.top = nRegs;
+    if(nArgs > nParams && isVararg)
+      newStack.varargs = funcAndArgs.sublist(nParams + 1);
+
+    pushLuaStack(newStack);
+    runLuaClosure();
+    popLuaStack();
+
+    if(nResults != 0){
+      List<LuaValue> results = newStack.popN(newStack.top - nRegs);
+      stack.check(results.length);
+      stack.pushN(results, nResults);
+    }
+  }
+
+  void runLuaClosure(){
+    while(true){
+      Instruction i = Instruction(fetch());
+      i.execute(LuaVM(LuaState(stack)));
+      if(i.opCode() == OP_RETURN) break;
+    }
+  }
+
+  int registerCount() => stack.closure.proto.maxStackSize;
+
+  void loadVararg(int n){
+    if(n < 0) n = stack.varargs.length;
+    stack.check(n);
+    stack.pushN(stack.varargs, n);
+  }
+
+  void loadProto(int idx){
+    ProtoType proto = stack.closure.proto.protos[idx];
+    LuaClosure closure = newLuaClosure(proto);
+    stack.push(LuaValue(closure));
+  }
 }
 
 LuaValue _arith(LuaValue a, LuaValue b, Operator op){
@@ -266,5 +345,5 @@ LuaValue _arith(LuaValue a, LuaValue b, Operator op){
   return LuaValue(op.floatFunc(convert2Float(a), convert2Float(b)));
 }
 
-LuaState newLuaState(int stackSize, ProtoType proto) =>
-    LuaState(newLuaStack(stackSize), proto, 0);
+LuaState newLuaState() =>
+    LuaState(newLuaStack(20));
