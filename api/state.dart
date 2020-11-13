@@ -14,8 +14,9 @@ import 'value.dart';
 
 class LuaState{
   LuaStack stack;
+  LuaTable registry;
 
-  LuaState(LuaStack this.stack);
+  LuaState({LuaStack this.stack, LuaTable this.registry});
 
   int getTop() => stack.top;
 
@@ -273,7 +274,7 @@ class LuaState{
 
   int load(Uint8List chunk, String chunkName, String mode){
     ProtoType proto = unDump(chunk);
-    LuaClosure c = newLuaClosure(proto);
+    Closure c = newLuaClosure(proto);
     stack.push(LuaValue(c));
     return 0;
   }
@@ -281,20 +282,21 @@ class LuaState{
   void call(int nArgs, int nResults){
     LuaValue val = stack.get(-(nArgs + 1));
     dynamic value = val.luaValue;
-    if(value is LuaClosure){
-      //todo: remove print
-      print('CALL ${value.proto.source}, ${value.proto.lineDefined}, '
-          '${value.proto.lastLineDefined}');
-      callLuaClosure(nArgs, nResults, value);
+    if(value is Closure){
+      if(value.proto != null){
+        callLuaClosure(nArgs, nResults, value);
+      } else {
+        callDartClosure(nArgs, nResults, value);
+      }
     } else throw AssertionError('not function');
   }
 
-  void callLuaClosure(int nArgs, int nResults, LuaClosure c){
+  void callLuaClosure(int nArgs, int nResults, Closure c){
     int nRegs = c.proto.maxStackSize;
     int nParams = c.proto.numParams;
     bool isVararg = c.proto.isVararg == 1;
 
-    LuaStack newStack = newLuaStack(nRegs + 20);
+    LuaStack newStack = newLuaStack(nRegs + 20, stack.state);
     newStack.closure = c;
 
     List<LuaValue> funcAndArgs = stack.popN(nArgs + 1);
@@ -314,10 +316,29 @@ class LuaState{
     }
   }
 
+  void callDartClosure(int nArgs, int nResults, Closure c){
+    LuaStack newStack = newLuaStack(nArgs + 20, stack.state);
+    newStack.closure = c;
+
+    List<LuaValue> args = stack.popN(nArgs);
+    newStack.pushN(args, nArgs);
+    stack.pop();
+
+    pushLuaStack(newStack);
+    int r = c.dartFunc(LuaState(stack: stack));
+    popLuaStack();
+
+    if(nResults != 0){
+      List<LuaValue> results = newStack.popN(r);
+      stack.check(results.length);
+      stack.pushN(results, nResults);
+    }
+  }
+
   void runLuaClosure(){
     while(true){
       Instruction i = Instruction(fetch());
-      i.execute(LuaVM(LuaState(stack)));
+      i.execute(LuaVM(LuaState(stack: stack)));
       if(i.opCode() == OP_RETURN) break;
     }
   }
@@ -332,6 +353,36 @@ class LuaState{
 
   void loadProto(int idx) =>
     stack.push(LuaValue(newLuaClosure(stack.closure.proto.protos[idx])));
+
+  void pushDartFunc(Function dartFunc) => newDartClosure(dartFunc);
+
+  bool isDartFunc(int idx){
+    LuaValue val = stack.get(idx);
+    if(val.luaValue is Closure) return val.luaValue.dartFunc != null;
+    return false;
+  }
+
+  DartFunc toDartFunc(int idx){
+    LuaValue val = stack.get(idx);
+    if(val.luaValue is Closure) return val.luaValue.dartFunc;
+    return null;
+  }
+
+  void pushGlobalTable() => getI(LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+
+  LuaType getGlobal(String name) =>
+      _getTable(registry.get(LuaValue(LUA_RIDX_GLOBALS)), LuaValue(name));
+
+  void setGlobal(String name){
+    LuaValue t = registry.get(LuaValue(LUA_RIDX_GLOBALS));
+    LuaValue v = stack.pop();
+    _setTable(t, LuaValue(name), v);
+  }
+
+  void register(String name, Function dartFunc){
+    pushDartFunc(dartFunc);
+    setGlobal(name);
+  }
 }
 
 LuaValue _arith(LuaValue a, LuaValue b, Operator op){
@@ -340,5 +391,10 @@ LuaValue _arith(LuaValue a, LuaValue b, Operator op){
   return LuaValue(op.floatFunc(convert2Float(a), convert2Float(b)));
 }
 
-LuaState newLuaState() =>
-    LuaState(newLuaStack(20));
+LuaState newLuaState() {
+  LuaTable registry = newLuaTable(0, 0);
+  registry.put(LuaValue(LUA_RIDX_GLOBALS), LuaValue(newLuaTable(0, 0)));
+  LuaState ls = LuaState(registry: registry);
+  ls.pushLuaStack(newLuaStack(LUA_MINSTACK, ls));
+  return ls;
+}

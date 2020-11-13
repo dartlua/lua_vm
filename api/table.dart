@@ -7,8 +7,11 @@ class LuaTable{
 
   LuaValue get(LuaValue key) {
     dynamic value = key.luaValue;
-    if(value is int) return LuaValue(map[map.keys.elementAt(value - 1)]);
-    return LuaValue(map[key.luaValue]);
+    if(value is int) {
+      print(value - 1);
+      return LuaValue(map[map.keys.elementAt(value - 1)]);
+    }
+    return LuaValue(map[value]);
   }
 
   void put(LuaValue key, LuaValue val){

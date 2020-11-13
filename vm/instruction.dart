@@ -323,3 +323,12 @@ void self(Instruction i, LuaVM vm){
   vm.luaState.getTable(b);
   vm.luaState.replace(a);
 }
+
+void getTabUp(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  vm.luaState.pushGlobalTable();
+  vm.luaState.getRK(l[2]);
+  vm.luaState.getTable(-2);
+  vm.luaState.replace(l[0] + 1);
+  vm.luaState.pop(1);
+}

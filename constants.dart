@@ -125,3 +125,8 @@ const LUA_OPLT = 1; // <
 const LUA_OPLE = 2; // <=
 
 const LFIELDS_PER_FLUSH = 50;
+
+const LUA_MINSTACK = 20;
+const LUAI_MAXSTACK = 1000000;
+const LUA_REGISTRYINDEX = -LUAI_MAXSTACK - 1000;
+const LUA_RIDX_GLOBALS = 2;

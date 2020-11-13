@@ -1,16 +1,19 @@
 import '../constants.dart';
 import 'closure.dart';
+import 'state.dart';
+import 'table.dart';
 import 'value.dart';
 
 class LuaStack{
   List<LuaValue> slots;
   int top;
   LuaStack prev;
-  LuaClosure closure;
+  Closure closure;
   List<LuaValue> varargs;
   int pc = 0;
+  LuaState state;
 
-  LuaStack(List<LuaValue> this.slots, int this.top);
+  LuaStack(List<LuaValue> this.slots, int this.top, LuaState this.state);
 
   void addPC(int n) => pc += n;
 
@@ -34,22 +37,33 @@ class LuaStack{
   }
 
   int absIndex(int idx){
+    if(idx <= LUA_REGISTRYINDEX) return idx;
     if(idx > 0) return idx;
     return idx + top + 1;
   }
 
   bool isValid(int idx){
+    if(idx == LUA_REGISTRYINDEX) return true;
     int absIdx = absIndex(idx);
     return absIdx > 0 && absIdx <= top;
   }
 
   LuaValue get(int idx){
+    if(idx == LUA_REGISTRYINDEX) return LuaValue(state.registry);
     int absIdx = absIndex(idx);
     if(absIdx > 0 && absIdx <= top) return slots[absIdx - 1];
     return null;
   }
 
   void set(int idx, LuaValue val){
+    if(idx == LUA_REGISTRYINDEX) {
+      dynamic table = val.luaValue;
+      if(table is LuaTable) {
+        state.registry = table;
+        return;
+      }
+      throw ArgumentError('val must be LuaTable');
+    }
     int absIdx = absIndex(idx);
     if(absIdx > 0 && absIdx <= top) {
       slots[absIdx - 1] = val;
@@ -84,4 +98,5 @@ class LuaStack{
   }
 }
 
-LuaStack newLuaStack(int size) => LuaStack(List<LuaValue>(size), 0);
+LuaStack newLuaStack(int size, LuaState state) =>
+    LuaStack(List<LuaValue>(size), 0, state);

@@ -28,7 +28,7 @@ List<OpCode> opCodes = [
   OpCode(0, 1, OpArgU, OpArgU, IABC, 'LOADBOOL', loadBool),
   OpCode(0, 1, OpArgU, OpArgN, IABC, 'LOADNIL', loadNil),
   OpCode(0, 1, OpArgU, OpArgN, IABC, 'GETUPVAL', null),
-  OpCode(0, 1, OpArgU, OpArgK, IABC, 'GETTABUP', null),
+  OpCode(0, 1, OpArgU, OpArgK, IABC, 'GETTABUP', getTabUp),
   OpCode(0, 1, OpArgR, OpArgK, IABC, 'GETTABLE', getTable),
   OpCode(0, 0, OpArgK, OpArgK, IABC, 'SETTABUP', null),
   OpCode(0, 0, OpArgU, OpArgN, IABC, 'SETUPVAL', null),

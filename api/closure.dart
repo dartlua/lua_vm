@@ -1,9 +1,18 @@
 import '../binary/chunk.dart';
+import 'state.dart';
 
-class LuaClosure{
+class Closure{
   ProtoType proto;
+  Function dartFunc;
 
-  LuaClosure(ProtoType this.proto);
+  Closure({ProtoType this.proto, Function this.dartFunc});
 }
 
-LuaClosure newLuaClosure(ProtoType proto) => LuaClosure(proto);
+class DartFunc {
+  LuaState luaState;
+
+  DartFunc(LuaState this.luaState);
+}
+
+Closure newLuaClosure(ProtoType proto) => Closure(proto: proto);
+Closure newDartClosure(Function dartFunc) => Closure(dartFunc: dartFunc);
