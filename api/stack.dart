@@ -12,6 +12,7 @@ class LuaStack{
   List<LuaValue> varargs;
   int pc = 0;
   LuaState state;
+  Map<int, UpValue> openUVs;
 
   LuaStack(List<LuaValue> this.slots, int this.top, LuaState this.state);
 
@@ -37,25 +38,49 @@ class LuaStack{
   }
 
   int absIndex(int idx){
-    if(idx <= LUA_REGISTRYINDEX) return idx;
-    if(idx > 0) return idx;
+    if(idx >= 0 || idx <= LUA_REGISTRYINDEX) return idx;
     return idx + top + 1;
   }
 
   bool isValid(int idx){
+    if(idx < LUA_REGISTRYINDEX) {
+      int uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      Closure c = closure;
+      return c != null && uvIndex < c.upValues.length;
+    }
+
     if(idx == LUA_REGISTRYINDEX) return true;
+
     int absIdx = absIndex(idx);
     return absIdx > 0 && absIdx <= top;
   }
 
   LuaValue get(int idx){
+    if(idx < LUA_REGISTRYINDEX) {
+      int uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      Closure c = closure;
+      if(c == null || uvIndex >= c.upValues.length) return LuaValue(null);
+      //todo: 可能存在bug，如果出错，在外层套一层luavalue
+      return c.upValues[uvIndex].val;
+    }
+
     if(idx == LUA_REGISTRYINDEX) return LuaValue(state.registry);
+
     int absIdx = absIndex(idx);
     if(absIdx > 0 && absIdx <= top) return slots[absIdx - 1];
-    return null;
+    return LuaValue(null);
   }
 
   void set(int idx, LuaValue val){
+    if(idx < LUA_REGISTRYINDEX) {
+      int uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      Closure c = closure;
+      if(c != null && uvIndex < c.upValues.length) {
+        c.upValues[uvIndex].val = val;
+      }
+      return;
+    }
+
     if(idx == LUA_REGISTRYINDEX) {
       dynamic table = val.luaValue;
       if(table is LuaTable) {
@@ -64,6 +89,7 @@ class LuaStack{
       }
       throw ArgumentError('val must be LuaTable');
     }
+
     int absIdx = absIndex(idx);
     if(absIdx > 0 && absIdx <= top) {
       slots[absIdx - 1] = val;

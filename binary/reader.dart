@@ -116,7 +116,7 @@ class Reader {
     List<Upvalue> upValues = [];
     int len = readUint32();
     for (int i = 0; i < len; i++) {
-      upValues.add(Upvalue(byteData2String(readByte()), byteData2String(readByte())));
+      upValues.add(Upvalue(byte2Int(readByte()), byte2Int(readByte())));
     }
     return upValues;
   }

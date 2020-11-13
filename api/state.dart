@@ -276,6 +276,11 @@ class LuaState{
     ProtoType proto = unDump(chunk);
     Closure c = newLuaClosure(proto);
     stack.push(LuaValue(c));
+    if(proto.upvalues.length > 0) {
+      LuaValue env = registry.get(LuaValue(LUA_RIDX_GLOBALS));
+      if(c.upValues.isEmpty) c.upValues.add(null);
+      c.upValues[0] = UpValue(env);
+    }
     return 0;
   }
 
@@ -351,11 +356,33 @@ class LuaState{
     stack.pushN(stack.varargs, n);
   }
 
-  void loadProto(int idx) =>
-    stack.push(LuaValue(newLuaClosure(stack.closure.proto.protos[idx])));
+  void loadProto(int idx) {
+    ProtoType subProto = stack.closure.proto.protos[idx];
+    Closure c = newLuaClosure(subProto);
+    stack.push(LuaValue(c));
+
+    int i = 0;
+    for(Upvalue val in subProto.upvalues){
+      int uvIndex = val.idx;
+      if(val.inStack == 1){
+        if(stack.openUVs == null || stack.openUVs.isEmpty){
+          stack.openUVs = Map<int, UpValue>();
+        }
+        if(stack.openUVs.containsKey(uvIndex)){
+          c.upValues[i] = stack.openUVs[uvIndex];
+        } else {
+          c.upValues[i] = UpValue(stack.slots[uvIndex]);
+          stack.openUVs[uvIndex] = c.upValues[i];
+        }
+      } else {
+        c.upValues[i] = stack.closure.upValues[uvIndex];
+      }
+      i++;
+    }
+  }
 
   void pushDartFunc(Function dartFunc) =>
-      stack.push(LuaValue(newDartClosure(dartFunc)));
+      stack.push(LuaValue(newDartClosure(dartFunc, 0)));
 
   bool isDartFunc(int idx){
     LuaValue val = stack.get(idx);
@@ -384,6 +411,22 @@ class LuaState{
     pushDartFunc(dartFunc);
     setGlobal(name);
   }
+
+  void pushDartClosure(Function f, int n){
+    Closure closure = newDartClosure(f, n);
+    for(int i = n; i > 0; i--) closure.upValues[n - 1] = UpValue(stack.pop());
+    stack.push(LuaValue(closure));
+  }
+
+  void closeClosure(int a){
+    stack.openUVs.forEach((key, value) {
+      if(key > a - 1){
+        LuaValue val = value.val;
+        value.val = val;
+        stack.openUVs.remove(key);
+      }
+    });
+  }
 }
 
 LuaValue _arith(LuaValue a, LuaValue b, Operator op){
@@ -399,3 +442,5 @@ LuaState newLuaState() {
   ls.pushLuaStack(newLuaStack(LUA_MINSTACK, ls));
   return ls;
 }
+
+int luaUpvalueIndex(int i) => LUA_REGISTRYINDEX - i;

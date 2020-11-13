@@ -1,3 +1,4 @@
+import '../api/state.dart';
 import '../constants.dart';
 import '../operation/arith.dart';
 import '../operation/fpb.dart';
@@ -52,7 +53,7 @@ void move(Instruction i, LuaVM vm){
 void jmp(Instruction i, LuaVM vm){
   List l = i.AsBx();
   vm.luaState.stack.addPC(l[1]);
-  if(l[0] != 0) throw UnsupportedError('todo!');
+  if(l[0] != 0) vm.luaState.closeClosure(l[0]);
 }
 
 void loadNil(Instruction i, LuaVM vm){
@@ -326,9 +327,24 @@ void self(Instruction i, LuaVM vm){
 
 void getTabUp(Instruction i, LuaVM vm){
   List l = i.ABC();
-  vm.luaState.pushGlobalTable();
   vm.luaState.getRK(l[2]);
-  vm.luaState.getTable(-2);
+  vm.luaState.getTable(luaUpvalueIndex(l[1] + 1));
   vm.luaState.replace(l[0] + 1);
-  vm.luaState.pop(1);
+}
+
+void setTabUp(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  vm.luaState.getRK(l[1]);
+  vm.luaState.getRK(l[2]);
+  vm.luaState.setTable(luaUpvalueIndex(l[0] + 1));
+}
+
+void getUpval(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  vm.luaState.copy(luaUpvalueIndex(l[1] + 1), l[0] + 1);
+}
+
+void setUpval(Instruction i, LuaVM vm){
+  List l = i.ABC();
+  vm.luaState.copy(l[0] + 1, luaUpvalueIndex(l[1] + 1));
 }

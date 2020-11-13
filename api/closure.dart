@@ -5,7 +5,7 @@ import 'value.dart';
 class Closure{
   ProtoType proto;
   Function dartFunc;
-  List<Upvalue> upValues;
+  List<UpValue> upValues;
 
   Closure({ProtoType this.proto, Function this.dartFunc});
 }
@@ -22,5 +22,15 @@ class DartFunc {
   DartFunc(LuaState this.luaState);
 }
 
-Closure newLuaClosure(ProtoType proto) => Closure(proto: proto);
-Closure newDartClosure(Function dartFunc) => Closure(dartFunc: dartFunc);
+Closure newLuaClosure(ProtoType proto) {
+  Closure c = Closure(proto: proto);
+  int nUpvalues = c.proto.upvalues.length;
+  if(nUpvalues > 0) c.upValues = List<UpValue>();
+  return c;
+}
+
+Closure newDartClosure(Function dartFunc, int nUpvalues) {
+  Closure c = Closure(dartFunc: dartFunc);
+  if(nUpvalues > 0) c.upValues = List<UpValue>();
+  return c;
+}

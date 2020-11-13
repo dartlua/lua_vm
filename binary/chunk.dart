@@ -31,8 +31,8 @@ class Header {
 }
 
 class Upvalue {
-  final String inStack;
-  final String idx;
+  final int inStack;
+  final int idx;
 
   Upvalue(this.inStack, this.idx);
 }
