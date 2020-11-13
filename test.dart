@@ -43,6 +43,7 @@ Future<void> main() async {
   LuaState ls = newLuaState();
   ls.register('print', print_);
   ls.load(fileBytes, 'luac.out', 'b');
+  print('');
   ls.call(0, 0);
 }
 
