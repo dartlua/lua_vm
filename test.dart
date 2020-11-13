@@ -41,15 +41,15 @@ Future<void> main() async {
   //luaMain(unDump(fileBytes));
   
   LuaState ls = newLuaState();
-  ls.register('sayHello', sayHello);
+  ls.register('print', print_);
   ls.load(fileBytes, 'luac.out', 'b');
   ls.call(0, 0);
 }
 
-int sayHello(LuaState ls){
+int print_(LuaState ls){
   int nArgs = ls.getTop();
   for(int i = 1; i <= nArgs; i++){
-    print('\nHello, ${ls.stack.get(i).luaValue}!');
+    print(ls.stack.get(i).luaValue);
     if(i < nArgs) print('\t');
   }
   return 0;

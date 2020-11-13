@@ -60,7 +60,6 @@ class LuaStack{
       int uvIndex = LUA_REGISTRYINDEX - idx - 1;
       Closure c = closure;
       if(c == null || uvIndex >= c.upValues.length) return LuaValue(null);
-      //todo: 可能存在bug，如果出错，在外层套一层luavalue
       return c.upValues[uvIndex].val;
     }
 

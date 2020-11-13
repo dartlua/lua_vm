@@ -19,15 +19,15 @@ class LuaTable{
       list[value - 1] = KV(value, val.luaValue);
       return;
     }
-    int len = list.length;
-    fillListWithNull(len);
-    list[len] = KV(value, val.luaValue);
+    list.add(KV(value, val.luaValue));
   }
 
-  void fillListWithNull(int idx){
+  void fillListWithNull(int count){
     if(list.isEmpty) list.insert(0, null);
-    for(int i = 0; i < idx - 1; i++)
-      if(list.elementAt(i) == null) list.insert(i, null);
+    for(int i = 0; i < count; i++) {
+      if(list.elementAt(i) != null) continue;
+      list.insert(i + 1, null);
+    }
   }
 }
 
@@ -37,7 +37,7 @@ class KV{
 
   KV(dynamic this.key, dynamic this.value);
 
-  String toString() => '$key: $value';
+  String toString() => ' {$key: $value}';
 }
 
 LuaTable newLuaTable(int nArr, int nRec){

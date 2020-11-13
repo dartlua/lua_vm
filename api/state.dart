@@ -365,15 +365,14 @@ class LuaState{
     for(Upvalue val in subProto.upvalues){
       int uvIndex = val.idx;
       if(val.inStack == 1){
-        if(stack.openUVs == null || stack.openUVs.isEmpty){
+        if(stack.openUVs == null || stack.openUVs.isEmpty)
           stack.openUVs = Map<int, UpValue>();
-        }
-        if(stack.openUVs.containsKey(uvIndex)){
-          c.upValues[i] = stack.openUVs[uvIndex];
-        } else {
-          c.upValues[i] = UpValue(stack.slots[uvIndex]);
+
+        if(i == 0) c.upValues.add(UpValue(stack.slots[uvIndex]));
+        else c.upValues[i] = stack.openUVs[uvIndex];
+
+        if(!stack.openUVs.containsKey(uvIndex))
           stack.openUVs[uvIndex] = c.upValues[i];
-        }
       } else {
         c.upValues[i] = stack.closure.upValues[uvIndex];
       }
@@ -420,11 +419,7 @@ class LuaState{
 
   void closeClosure(int a){
     stack.openUVs.forEach((key, value) {
-      if(key > a - 1){
-        LuaValue val = value.val;
-        value.val = val;
-        stack.openUVs.remove(key);
-      }
+      if(key >= a - 1) stack.openUVs.remove(key);
     });
   }
 }
