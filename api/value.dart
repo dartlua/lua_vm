@@ -17,7 +17,7 @@ LuaType typeOf(LuaValue val){
   if(value is int) return LuaType(LUA_TNUMBER);
   if(value is double) return LuaType(LUA_TNUMBER);
   if(value is String) return LuaType(LUA_TSTRING);
-  if(val is LuaTable) return LuaType(LUA_TTABLE);
+  if(value is LuaTable) return LuaType(LUA_TTABLE);
   throw TypeError();
 }
 

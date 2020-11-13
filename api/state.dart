@@ -171,10 +171,10 @@ class LuaState{
       throw TypeError();
     }
     if(value is LuaTable){
-      if(value.map != null){
+      if(value.list != null){
         int count = 0;
-        for(int i = 0; i < value.map.length; i++)
-          if(value.map[i] != null)
+        for(int i = 0; i < value.list.length; i++)
+          if(value.list[i].value != null)
             count++;
         stack.push(LuaValue(count));
         return;
@@ -354,7 +354,8 @@ class LuaState{
   void loadProto(int idx) =>
     stack.push(LuaValue(newLuaClosure(stack.closure.proto.protos[idx])));
 
-  void pushDartFunc(Function dartFunc) => newDartClosure(dartFunc);
+  void pushDartFunc(Function dartFunc) =>
+      stack.push(LuaValue(newDartClosure(dartFunc)));
 
   bool isDartFunc(int idx){
     LuaValue val = stack.get(idx);
