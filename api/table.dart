@@ -8,7 +8,8 @@ class LuaTable{
   LuaValue get(LuaValue key) {
     dynamic value = key.luaValue;
     if(value is int) return LuaValue(list[value - 1].value);
-    return LuaValue(list.elementAt(list.indexWhere((e) => e.key == value)).value);
+    int index = list.indexWhere((e) => e.key == value);
+    return LuaValue(index == -1 ? null : list.elementAt(index).value);
   }
 
   void put(LuaValue key, LuaValue val){
@@ -35,6 +36,8 @@ class KV{
   dynamic value;
 
   KV(dynamic this.key, dynamic this.value);
+
+  String toString() => '$key: $value';
 }
 
 LuaTable newLuaTable(int nArr, int nRec){

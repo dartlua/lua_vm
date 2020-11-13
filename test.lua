@@ -1,2 +1,1 @@
-print('hello')
-print(#'2323')
+sayHello('yinbo')
