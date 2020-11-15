@@ -41,19 +41,21 @@ Future<void> main() async {
   //luaMain(unDump(fileBytes));
   
   LuaState ls = newLuaState();
-  ls.register('print', print_);
+  ls.register('getmetayable', getMetaTab);
+  ls.register('setmetatable', setMetaTab);
   ls.load(fileBytes, 'luac.out', 'b');
-  print('');
+  print('\noutputs:');
   ls.call(0, 0);
 }
 
-int print_(LuaState ls){
-  int nArgs = ls.getTop();
-  for(int i = 1; i <= nArgs; i++){
-    print(ls.stack.get(i).luaValue);
-    if(i < nArgs) print('\t');
-  }
-  return 0;
+int getMetaTab(LuaState ls){
+  if(!ls.getMetaTable_(1)) ls.pushNull();
+  return 1;
+}
+
+int setMetaTab(LuaState ls){
+  ls.setMetaTable_(1);
+  return 1;
 }
 
 /*

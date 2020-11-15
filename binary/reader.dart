@@ -17,14 +17,12 @@ class Reader {
 
   int readUint32() {
     Uint8List n = data.sublist(0, 4);
-    //print('readUint32: ${byteData2String(n.buffer.asByteData())}');
     data = data.sublist(4);
     return n.buffer.asByteData().getUint32(0, Endian.little);
   }
 
   int readUint64() {
     Uint8List n = data.sublist(0, 8);
-    //print('readUint64: ${byteData2String(n.buffer.asByteData())}');
     data = data.sublist(8);
     return n.buffer.asByteData().getUint64(0, Endian.little);
   }

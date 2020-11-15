@@ -141,21 +141,33 @@ class LuaState{
 
     Operator operator = operators[op.arithOp];
     LuaValue result = _arith(a, b , operator);
-    if(result != null) stack.push(result);
-    else throw UnsupportedError('unsupported arith!');
+    if(result.luaValue != null) {
+      stack.push(result);
+      return;
+    }
+
+    String metaMethod = operator.metaMethod;
+    LuaValue val = callMetaMethod(a, b, metaMethod, nowLuaState());
+    if(val.luaValue != null){
+      stack.push(val);
+      return;
+    }
+
+    throw UnsupportedError('Unsupported arith');
   }
 
   bool compare(int idx1, int idx2, CompareOp op){
     if(!stack.isValid(idx1) || !stack.isValid(idx2)) return false;
     LuaValue a = stack.get(idx1);
     LuaValue b = stack.get(idx2);
+    LuaState ls = nowLuaState();
     switch(op.compareOp){
       case LUA_OPEQ:
-        return eq_(a, b);
+        return eq_(a, b, ls);
       case LUA_OPLT:
-        return lt_(a, b);
+        return lt_(a, b, ls);
       case LUA_OPLE:
-        return le_(a, b);
+        return le_(a, b, ls);
       default:
         throw UnsupportedError('Unsupported Compare Operation');
     }
@@ -163,12 +175,21 @@ class LuaState{
 
   void len(int idx){
     LuaValue val = stack.get(idx);
-    if(val == null){
+    dynamic value = val.luaValue;
+    if(value == null){
       throw TypeError();
     }
-    dynamic value = val.luaValue;
     if(value is bool){
       throw TypeError();
+    }
+    if(value is String) {
+      stack.push(LuaValue(value.length));
+      return;
+    }
+    LuaValue result = callMetaMethod(val, val, '__len', nowLuaState());
+    if(result.luaValue != null){
+      stack.push(result);
+      return;
     }
     if(value is LuaTable){
       if(value.list != null){
@@ -180,7 +201,8 @@ class LuaState{
         return;
       }
     }
-    stack.push(LuaValue(value.toString().length));
+
+    throw Exception('get length error');
   }
 
   void concat(int n){
@@ -195,6 +217,16 @@ class LuaState{
           stack.push(LuaValue(s1 + s2));
           continue;
         }
+
+        LuaValue b = stack.pop();
+        LuaValue a = stack.pop();
+        LuaValue result = callMetaMethod(a, b, '__concat', nowLuaState());
+        if(result.luaValue != null) {
+          stack.push(result);
+          continue;
+        }
+
+        throw Exception('concat error');
       }
     }
   }
@@ -210,41 +242,76 @@ class LuaState{
   LuaType getTable(int idx){
     LuaValue t = stack.get(idx);
     LuaValue k = stack.pop();
-    return _getTable(t, k);
+    return _getTable(t, k, false);
   }
 
-  LuaType _getTable(LuaValue t, LuaValue k){
+  LuaType _getTable(LuaValue t, LuaValue k, bool raw){
     dynamic value = t.luaValue;
     if(value is LuaTable){
       LuaValue v = value.get(k);
-      stack.push(v);
-      return typeOf(v);
+      if(raw || v.luaValue != null || !value.hasMetaField('__index')){
+        stack.push(v);
+        return typeOf(v);
+      }
+    }
+    if(!raw){
+      LuaValue metaField = getMetaField(t, '__index', nowLuaState());
+      dynamic x = metaField.luaValue;
+      if(x != null){
+        if(x is LuaTable) return _getTable(metaField, k, false);
+        if(x is Closure) {
+          stack.push(metaField);
+          stack.push(t);
+          stack.push(k);
+          call(2, 1);
+          return typeOf(stack.get(-1));
+        }
+      }
     }
     throw TypeError();
   }
 
   LuaType getField(int idx, String k){
     LuaValue t = stack.get(idx);
-    return _getTable(t, LuaValue(k));
+    return _getTable(t, LuaValue(k), false);
   }
 
   LuaType getI(int idx, int i){
     LuaValue t = stack.get(idx);
-    return _getTable(t, LuaValue(i));
+    return _getTable(t, LuaValue(i), false);
   }
 
   void setTable(int idx){
     LuaValue t = stack.get(idx);
     LuaValue v = stack.pop();
     LuaValue k = stack.pop();
-    _setTable(t, k ,v);
+    _setTable(t, k ,v, false);
   }
 
-  void _setTable(LuaValue t, LuaValue k, LuaValue v){
+  void _setTable(LuaValue t, LuaValue k, LuaValue v, bool raw){
     dynamic table = t.luaValue;
     if(table is LuaTable){
-      table.put(k, v);
-      return;
+      if(raw || table.get(k).luaValue != null || !table.hasMetaField('__newindex')){
+        table.put(k, v);
+        return;
+      }
+    }
+
+    if(!raw){
+      LuaValue mf = getMetaField(t, '__newindex', nowLuaState());
+      dynamic x = mf.luaValue;
+      if(x is LuaTable) {
+        _setTable(mf, k, v, false);
+        return;
+      }
+      if(x is Closure){
+        stack.push(mf);
+        stack.push(t);
+        stack.push(k);
+        stack.push(v);
+        call(3, 0);
+        return;
+      }
     }
     throw TypeError();
   }
@@ -252,13 +319,13 @@ class LuaState{
   void setField(int idx, String k){
     LuaValue t = stack.get(idx);
     LuaValue v = stack.pop();
-    _setTable(t, LuaValue(k) ,v);
+    _setTable(t, LuaValue(k) ,v, false);
   }
 
   void setI(int idx, int i){
     LuaValue t = stack.get(idx);
     LuaValue v = stack.pop();
-    _setTable(t, LuaValue(i), v);
+    _setTable(t, LuaValue(i), v, false);
   }
 
   void pushLuaStack(LuaStack newStack){
@@ -293,7 +360,14 @@ class LuaState{
       } else {
         callDartClosure(nArgs, nResults, value);
       }
-    } else throw AssertionError('not function');
+    } else {
+      LuaValue mf = getMetaField(val, '__call', nowLuaState());
+      if(mf.luaValue is Closure){
+        stack.push(val);
+        insert(-(nArgs + 2));
+        nArgs++;
+      }
+    };
   }
 
   void callLuaClosure(int nArgs, int nResults, Closure c){
@@ -365,16 +439,19 @@ class LuaState{
     for(Upvalue val in subProto.upvalues){
       int uvIndex = val.idx;
       if(val.inStack == 1){
-        if(stack.openUVs == null || stack.openUVs.isEmpty)
+        if(stack.openUVs == null)
           stack.openUVs = Map<int, UpValue>();
 
-        if(i == 0) c.upValues.add(UpValue(stack.slots[uvIndex]));
+        if(i == 0 && c.upValues.isEmpty)
+          c.upValues.add(UpValue(stack.slots[uvIndex]));
         else c.upValues[i] = stack.openUVs[uvIndex];
 
         if(!stack.openUVs.containsKey(uvIndex))
           stack.openUVs[uvIndex] = c.upValues[i];
       } else {
-        c.upValues[i] = stack.closure.upValues[uvIndex];
+        if(i == 0 && c.upValues.isEmpty)
+          c.upValues.add(stack.closure.upValues[uvIndex]);
+        else c.upValues[i] = stack.closure.upValues[uvIndex];
       }
       i++;
     }
@@ -398,12 +475,12 @@ class LuaState{
   void pushGlobalTable() => getI(LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
 
   LuaType getGlobal(String name) =>
-      _getTable(registry.get(LuaValue(LUA_RIDX_GLOBALS)), LuaValue(name));
+      _getTable(registry.get(LuaValue(LUA_RIDX_GLOBALS)), LuaValue(name), false);
 
   void setGlobal(String name){
     LuaValue t = registry.get(LuaValue(LUA_RIDX_GLOBALS));
     LuaValue v = stack.pop();
-    _setTable(t, LuaValue(name), v);
+    _setTable(t, LuaValue(name), v, false);
   }
 
   void register(String name, Function dartFunc){
@@ -421,6 +498,28 @@ class LuaState{
     stack.openUVs.forEach((key, value) {
       if(key >= a - 1) stack.openUVs.remove(key);
     });
+  }
+
+  LuaState nowLuaState() =>
+      LuaState(stack: stack, registry: registry);
+
+  bool getMetaTable_(int idx){
+    LuaValue val = stack.get(idx);
+    LuaTable mt = getMetaTable(val, nowLuaState());
+    if(mt != null){
+      stack.push(LuaValue(mt));
+      return true;
+    }
+    return false;
+  }
+
+  void setMetaTable_(int idx){
+    LuaValue val = stack.get(idx);
+    LuaValue mtVal = stack.pop();
+    if(mtVal.luaValue == null) setMetaTable(val, null, nowLuaState());
+    else if(mtVal.luaValue is LuaTable)
+      setMetaTable(val, mtVal.luaValue, nowLuaState());
+    else throw TypeError();
   }
 }
 

@@ -2,6 +2,7 @@ import 'value.dart';
 
 class LuaTable{
   List<KV> list;
+  LuaTable metaTable;
 
   LuaTable(List<KV> this.list);
 
@@ -29,6 +30,9 @@ class LuaTable{
       list.insert(i + 1, null);
     }
   }
+
+  bool hasMetaField(String fieldName) =>
+      metaTable != null && metaTable.get(LuaValue(fieldName)).luaValue != null;
 }
 
 class KV{

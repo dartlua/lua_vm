@@ -1,5 +1,6 @@
 import '../constants.dart';
 import 'closure.dart';
+import 'state.dart';
 import 'table.dart';
 
 class LuaValue extends Object{
@@ -59,4 +60,43 @@ int convert2Int(LuaValue val){
   if(value is int) return value;
   if(value is bool) return value ? 1 : 0;
   throw TypeError();
+}
+
+void setMetaTable(LuaValue val, LuaTable metaTable, LuaState luaState){
+  dynamic table = val.luaValue;
+  if(table is LuaTable){
+    table.metaTable = metaTable;
+    return;
+  }
+  luaState.registry.put(LuaValue('_MT${typeOf(val).luaType}'), LuaValue(metaTable));
+}
+
+LuaTable getMetaTable(LuaValue val, LuaState luaState){
+  dynamic t = val.luaValue;
+  if(t is LuaTable) return t.metaTable;
+  LuaTable mt = luaState.registry.get(LuaValue('_MT${typeOf(val).luaType}')).luaValue;
+  if(mt != null) return mt.metaTable;
+  return null;
+}
+
+LuaValue callMetaMethod(LuaValue a, LuaValue b, String metaMethod, LuaState luaState){
+  LuaValue mm = getMetaField(a, metaMethod, luaState);
+  if(mm.luaValue == null) {
+    mm = getMetaField(b, metaMethod, luaState);
+    if(mm.luaValue == null)
+      return LuaValue(null);
+  }
+
+  luaState.stack.check(4);
+  luaState.stack.push(mm);
+  luaState.stack.push(a);
+  luaState.stack.push(b);
+  luaState.call(2, 1);
+  return luaState.stack.pop();
+}
+
+LuaValue getMetaField(LuaValue val, String fieldName, LuaState ls){
+  LuaTable mt = getMetaTable(val, ls);
+  if(mt != null) return mt.get(LuaValue(fieldName));
+  return LuaValue(null);
 }
