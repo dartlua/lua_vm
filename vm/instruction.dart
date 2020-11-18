@@ -5,127 +5,142 @@ import '../operation/fpb.dart';
 import 'op_code.dart';
 import 'vm.dart';
 
-class Instruction {
-  int instruction;
+class InstructionABC {
+  InstructionABC(this.a, this.b, this.c);
 
-  Instruction(int this.instruction);
+  final int a;
+  final int b;
+  final int c;
+}
 
-  int opCode() => instruction & 0x3f;
+class InstructionAB {
+  InstructionAB(this.a, this.b);
 
-  List<int> ABC() => [
-        instruction >> 6 & 0xff,
-        instruction >> 23 & 0x1ff,
-        instruction >> 14 & 0x1ff,
-      ];
+  final int a;
+  final int b;
+}
 
-  List<int> ABx() => [instruction >> 6 & 0xff, instruction >> 14];
+extension Instruction on int {
+  int get opCode => this & 0x3f;
 
-  List<int> AsBx() {
-    List a = ABx();
-    return [a[0], a[1] - MAXARG_sBx];
+  InstructionABC abc() {
+    return InstructionABC(
+      this >> 6 & 0xff,
+      this >> 23 & 0x1ff,
+      this >> 14 & 0x1ff,
+    );
   }
 
-  int Ax() => instruction >> 6;
+  InstructionAB abx() {
+    return InstructionAB(this >> 6 & 0xff, this >> 14);
+  }
 
-  String opName() => opCodes[opCode()].name;
+  InstructionAB AsBx() {
+    final operand = abx();
+    return InstructionAB(operand.a, operand.b - MAXARG_sBx);
+  }
 
-  int opMode() => opCodes[opCode()].opMode;
+  int ax() => this >> 6;
 
-  int BMode() => opCodes[opCode()].argBMode;
+  String opName() => opCodes[opCode].name;
 
-  int CMode() => opCodes[opCode()].argCMode;
+  int opMode() => opCodes[opCode].opMode;
+
+  int bMode() => opCodes[opCode].argBMode;
+
+  int cMode() => opCodes[opCode].argCMode;
 
   void execute(LuaVM vm) {
-    Function action = opCodes[opCode()].action;
+    final action = opCodes[opCode].action;
     if (action != null)
-      action(Instruction(instruction), vm);
+      action(this, vm);
     else
       throw UnsupportedError('Unsupported Operation: ${opName()}');
   }
 }
 
-void move(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.copy(l[1] + 1, l[0] + 1);
+void move(int instruction, LuaVM vm) {
+  final operand = instruction.abc();
+  vm.luaState.copy(operand.b + 1, operand.a + 1);
 }
 
-void jmp(Instruction i, LuaVM vm) {
-  List l = i.AsBx();
-  vm.luaState.stack.addPC(l[1]);
-  if (l[0] != 0) vm.luaState.closeClosure(l[0]);
+void jmp(int instruction, LuaVM vm) {
+  final operand = instruction.AsBx();
+  vm.luaState.stack.addPC(operand.b);
+  if (operand.a != 0) vm.luaState.closeClosure(operand.a);
 }
 
-void loadNil(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int a = l[0] + 1;
-  int b = l[1];
+void loadNil(int instruction, LuaVM vm) {
+  final operand = instruction.abc();
+  final a = operand.a + 1;
+  final b = operand.b;
 
   vm.luaState.pushNull();
   for (int i = a; i <= a + b; i++) vm.luaState.copy(-1, i);
   vm.luaState.pop(1);
 }
 
-void loadBool(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.pushBool(l[1] != 0);
-  vm.luaState.replace(l[0] + 1);
-  if (l[2] != 0) vm.luaState.stack.addPC(1);
+void loadBool(int instruction, LuaVM vm) {
+  final operand = instruction.abc();
+  vm.luaState.pushBool(operand.b != 0);
+  vm.luaState.replace(operand.a + 1);
+  if (operand.c != 0) vm.luaState.stack.addPC(1);
 }
 
-void loadK(Instruction i, LuaVM vm) {
-  List l = i.ABx();
-  vm.luaState.getConst(l[1]);
-  vm.luaState.replace(l[0] + 1);
+void loadK(int instruction, LuaVM vm) {
+  final operand = instruction.abx();
+  vm.luaState.getConst(operand.b);
+  vm.luaState.replace(operand.a + 1);
 }
 
-void loadKx(Instruction i, LuaVM vm) {
-  List l = i.ABx();
-  vm.luaState.getConst(Instruction(vm.luaState.fetch()).Ax());
-  vm.luaState.replace(l[0] + 1);
+void loadKx(int instruction, LuaVM vm) {
+  final operand = instruction.abx();
+  vm.luaState.getConst(Instruction(vm.luaState.fetch()).ax());
+  vm.luaState.replace(operand.a + 1);
 }
 
-void _binaryArith(Instruction i, LuaVM vm, ArithOp op) {
-  List l = i.ABC();
-  vm.luaState.getRK(l[1]);
-  vm.luaState.getRK(l[2]);
+void _binaryArith(int instruction, LuaVM vm, ArithOp op) {
+  final operand = instruction.abc();
+  vm.luaState.getRK(operand.b);
+  vm.luaState.getRK(operand.c);
   vm.luaState.arith(op);
-  vm.luaState.replace(l[0] + 1);
+  vm.luaState.replace(operand.a + 1);
 }
 
-void _unaryArith(Instruction i, LuaVM vm, ArithOp op) {
-  List l = i.ABC();
-  vm.luaState.pushValue(l[1] + 1);
+void _unaryArith(int instruction, LuaVM vm, ArithOp op) {
+  final operand = instruction.abc();
+  vm.luaState.pushValue(operand.b + 1);
   vm.luaState.arith(op);
-  vm.luaState.replace(l[0] + 1);
+  vm.luaState.replace(operand.a + 1);
 }
 
-void add(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.add);
-void sub(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.sub);
-void mul(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.mul);
-void mod(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.mod);
-void pow(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.pow);
-void div(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.div);
-void idiv(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.idiv);
-void band(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.band);
-void bor(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.bor);
-void bxor(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.bxor);
-void shl(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.shl);
-void shr(Instruction i, LuaVM vm) => _binaryArith(i, vm, ArithOp.shr);
-void unm(Instruction i, LuaVM vm) => _unaryArith(i, vm, ArithOp.unm);
-void bnot(Instruction i, LuaVM vm) => _unaryArith(i, vm, ArithOp.bnot);
+void add(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.add);
+void sub(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.sub);
+void mul(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.mul);
+void mod(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.mod);
+void pow(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.pow);
+void div(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.div);
+void idiv(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.idiv);
+void band(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.band);
+void bor(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.bor);
+void bxor(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.bxor);
+void shl(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.shl);
+void shr(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.shr);
+void unm(int inst, LuaVM vm) => _unaryArith(inst, vm, ArithOp.unm);
+void bnot(int inst, LuaVM vm) => _unaryArith(inst, vm, ArithOp.bnot);
 
-void len(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.len(l[1] + 1);
-  vm.luaState.replace(l[0] + 1);
+void len(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.len(operand.b + 1);
+  vm.luaState.replace(operand.a + 1);
 }
 
-void concat(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int a = l[0] + 1;
-  int b = l[1] + 1;
-  int c = l[2] + 1;
-  int n = c - b + 1;
+void concat(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  final a = operand.a + 1;
+  final b = operand.b + 1;
+  final c = operand.c + 1;
+  final n = c - b + 1;
 
   vm.luaState.checkStack(n);
   for (int i = b; i <= c; i++) vm.luaState.pushValue(i);
@@ -133,112 +148,113 @@ void concat(Instruction i, LuaVM vm) {
   vm.luaState.replace(a);
 }
 
-void _compare(Instruction i, LuaVM vm, CompareOp op) {
-  List l = i.ABC();
+void _compare(int inst, LuaVM vm, CompareOp op) {
+  final operand = inst.abc();
 
-  vm.luaState.getRK(l[1]);
-  vm.luaState.getRK(l[2]);
-  if (vm.luaState.compare(-2, -1, op) != (l[0] != 0))
+  vm.luaState.getRK(operand.b);
+  vm.luaState.getRK(operand.c);
+  if (vm.luaState.compare(-2, -1, op) != (operand.a != 0))
     vm.luaState.stack.addPC(1);
   vm.luaState.pop(2);
 }
 
-void eq(Instruction i, LuaVM vm) => _compare(i, vm, CompareOp(LUA_OPEQ));
-void lt(Instruction i, LuaVM vm) => _compare(i, vm, CompareOp(LUA_OPLT));
-void le(Instruction i, LuaVM vm) => _compare(i, vm, CompareOp(LUA_OPLE));
+void eq(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPEQ));
+void lt(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPLT));
+void le(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPLE));
 
-void not(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.pushBool(!vm.luaState.toBool(l[1] + 1));
-  vm.luaState.replace(l[0] + 1);
+void not(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.pushBool(!vm.luaState.toBool(operand.b + 1));
+  vm.luaState.replace(operand.a + 1);
 }
 
-void testSet(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int b = l[1] + 1;
-  if (vm.luaState.toBool(b) == (l[2] != 0))
-    vm.luaState.copy(b, l[0] + 1);
+void testSet(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  final b = operand.b + 1;
+  if (vm.luaState.toBool(b) == (operand.c != 0))
+    vm.luaState.copy(b, operand.a + 1);
   else
     vm.luaState.stack.addPC(1);
 }
 
-void test(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  if (vm.luaState.toBool(l[0] + 1) != (l[2] != 0)) vm.luaState.stack.addPC(1);
+void test(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  if (vm.luaState.toBool(operand.a + 1) != (operand.c != 0))
+    vm.luaState.stack.addPC(1);
 }
 
-void forPrep(Instruction i, LuaVM vm) {
-  List l = i.AsBx();
-  int a = l[0] + 1;
+void forPrep(int inst, LuaVM vm) {
+  final operand = inst.AsBx();
+  final a = operand.a + 1;
   vm.luaState.pushValue(a);
   vm.luaState.pushValue(a + 2);
   vm.luaState.arith(ArithOp.sub);
   vm.luaState.replace(a);
-  vm.luaState.stack.addPC(l[1]);
+  vm.luaState.stack.addPC(operand.b);
 }
 
-void forLoop(Instruction i, LuaVM vm) {
-  List l = i.AsBx();
-  int a = l[0] + 1;
+void forLoop(int inst, LuaVM vm) {
+  final operand = inst.AsBx();
+  final a = operand.a + 1;
   vm.luaState.pushValue(a + 2);
   vm.luaState.pushValue(a);
   vm.luaState.arith(ArithOp.add);
   vm.luaState.replace(a);
 
-  bool isPositiveStep = vm.luaState.toNumber(a + 2) >= 0;
+  final isPositiveStep = vm.luaState.toNumber(a + 2) >= 0;
   if (isPositiveStep && vm.luaState.compare(a, a + 1, CompareOp(LUA_OPLE)) ||
       !isPositiveStep && vm.luaState.compare(a + 1, a, CompareOp(LUA_OPLE))) {
-    vm.luaState.stack.addPC(l[1]);
+    vm.luaState.stack.addPC(operand.b);
     vm.luaState.copy(a, a + 3);
   }
 }
 
-void newTable(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.createTable(fb2Int(l[1]), fb2Int(l[2]));
-  vm.luaState.replace(l[0] + 1);
+void newTable(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.createTable(fb2Int(operand.b), fb2Int(operand.c));
+  vm.luaState.replace(operand.a + 1);
 }
 
-void getTable(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.getRK(l[2]);
-  vm.luaState.getTable(l[1] + 1);
-  vm.luaState.replace(l[0] + 1);
+void getTable(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.getRK(operand.c);
+  vm.luaState.getTable(operand.b + 1);
+  vm.luaState.replace(operand.a + 1);
 }
 
-void setTable(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.getRK(l[1]);
-  vm.luaState.getRK(l[2]);
-  vm.luaState.setTable(l[0] + 1);
+void setTable(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.getRK(operand.b);
+  vm.luaState.getRK(operand.c);
+  vm.luaState.setTable(operand.a + 1);
 }
 
-void setList(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int a = l[0] + 1;
-  int b = l[1];
-  int c = l[2];
+void setList(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  final a = operand.a + 1;
+  var b = operand.b;
+  var c = operand.c;
 
   if (c > 0)
     c -= 1;
   else
-    c = Instruction(vm.luaState.fetch()).Ax();
+    c = Instruction(vm.luaState.fetch()).ax();
 
-  bool bIsZero = b == 0;
+  final bIsZero = b == 0;
   if (bIsZero) {
     b = vm.luaState.toInt(-1) - a - 1;
     vm.luaState.pop(1);
   }
 
-  int idx = c * LFIELDS_PER_FLUSH;
-  for (int j = 1; j <= b; j++) {
+  var idx = c * LFIELDS_PER_FLUSH;
+  for (var j = 1; j <= b; j++) {
     idx++;
     vm.luaState.pushValue(a + j);
     vm.luaState.setI(a, idx);
   }
 
   if (bIsZero) {
-    for (int j = vm.luaState.registerCount() + 1;
+    for (var j = vm.luaState.registerCount() + 1;
         j <= vm.luaState.getTop();
         j++) {
       idx++;
@@ -249,18 +265,18 @@ void setList(Instruction i, LuaVM vm) {
   }
 }
 
-void closure(Instruction i, LuaVM vm) {
-  List l = i.ABx();
-  vm.luaState.loadProto(l[1]);
-  vm.luaState.replace(l[0] + 1);
+void closure(int inst, LuaVM vm) {
+  final operand = inst.abx();
+  vm.luaState.loadProto(operand.b);
+  vm.luaState.replace(operand.a + 1);
 }
 
-void call(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int a = l[0] + 1;
-  int nArgs = _pushFuncAndArgs(a, l[1], vm);
-  vm.luaState.call(nArgs, l[2] - 1);
-  _popResults(a, l[2], vm);
+void call(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  final a = operand.a + 1;
+  int nArgs = _pushFuncAndArgs(a, operand.b, vm);
+  vm.luaState.call(nArgs, operand.c - 1);
+  _popResults(a, operand.c, vm);
 }
 
 int _pushFuncAndArgs(int a, int b, LuaVM vm) {
@@ -292,10 +308,10 @@ void _popResults(int a, int c, LuaVM vm) {
   }
 }
 
-void return_(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int a = l[0] + 1;
-  int b = l[1];
+void return_(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  final a = operand.a + 1;
+  final b = operand.b;
   if (b == 1) {
   } else if (b > 1) {
     vm.luaState.checkStack(b - 1);
@@ -304,53 +320,53 @@ void return_(Instruction i, LuaVM vm) {
     _fixStack(a, vm);
 }
 
-void vararg(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int b = l[1];
+void vararg(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  final b = operand.b;
   if (b != 1) {
     vm.luaState.loadVararg(b - 1);
-    _popResults(l[0] + 1, b, vm);
+    _popResults(operand.a + 1, b, vm);
   }
 }
 
-void tailCall(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int a = l[0] + 1;
-  int nArgs = _pushFuncAndArgs(a, l[1], vm);
+void tailCall(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  final a = operand.a + 1;
+  int nArgs = _pushFuncAndArgs(a, operand.b, vm);
   vm.luaState.call(nArgs, -1);
   _popResults(a, 0, vm);
 }
 
-void self(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  int a = l[0] + 1;
-  int b = l[1] + 1;
+void self(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  final a = operand.a + 1;
+  final b = operand.b + 1;
   vm.luaState.copy(b, a + 1);
-  vm.luaState.getRK(l[2]);
+  vm.luaState.getRK(operand.c);
   vm.luaState.getTable(b);
   vm.luaState.replace(a);
 }
 
-void getTabUp(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.getRK(l[2]);
-  vm.luaState.getTable(luaUpvalueIndex(l[1] + 1));
-  vm.luaState.replace(l[0] + 1);
+void getTabUp(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.getRK(operand.c);
+  vm.luaState.getTable(luaUpvalueIndex(operand.b + 1));
+  vm.luaState.replace(operand.a + 1);
 }
 
-void setTabUp(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.getRK(l[1]);
-  vm.luaState.getRK(l[2]);
-  vm.luaState.setTable(luaUpvalueIndex(l[0] + 1));
+void setTabUp(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.getRK(operand.b);
+  vm.luaState.getRK(operand.c);
+  vm.luaState.setTable(luaUpvalueIndex(operand.a + 1));
 }
 
-void getUpval(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.copy(luaUpvalueIndex(l[1] + 1), l[0] + 1);
+void getUpval(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.copy(luaUpvalueIndex(operand.b + 1), operand.a + 1);
 }
 
-void setUpval(Instruction i, LuaVM vm) {
-  List l = i.ABC();
-  vm.luaState.copy(l[0] + 1, luaUpvalueIndex(l[1] + 1));
+void setUpval(int inst, LuaVM vm) {
+  final operand = inst.abc();
+  vm.luaState.copy(operand.a + 1, luaUpvalueIndex(operand.b + 1));
 }

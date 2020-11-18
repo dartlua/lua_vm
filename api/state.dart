@@ -420,9 +420,9 @@ class LuaState {
 
   void runLuaClosure() {
     while (true) {
-      Instruction i = Instruction(fetch());
-      i.execute(LuaVM(LuaState(stack: stack)));
-      if (i.opCode() == OP_RETURN) break;
+      final instruction = fetch();
+      instruction.execute(LuaVM(LuaState(stack: stack)));
+      if (instruction.opCode == OP_RETURN) break;
     }
   }
 
