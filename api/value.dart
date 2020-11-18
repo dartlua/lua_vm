@@ -1,4 +1,3 @@
-import '../constants.dart';
 import 'closure.dart';
 import 'state.dart';
 import 'table.dart';
@@ -10,21 +9,29 @@ class LuaValue extends Object{
 }
 
 LuaType typeOf(LuaValue val){
-  if(val == null) return LuaType(LUA_TNIL);
+  if(val == null) return LuaType.nil;
   final value = val.luaValue;
-  if(value == null) return LuaType(LUA_TNIL);
-  if(value is Closure) return LuaType(LUA_TFUNCTION);
-  if(value is bool) return LuaType(LUA_TBOOLEAN);
-  if(value is int) return LuaType(LUA_TNUMBER);
-  if(value is double) return LuaType(LUA_TNUMBER);
-  if(value is String) return LuaType(LUA_TSTRING);
-  if(value is LuaTable) return LuaType(LUA_TTABLE);
+  if(value == null) return LuaType.nil;
+  if(value is Closure) return LuaType.function;
+  if(value is bool) return LuaType.boolean;
+  if(value is int) return LuaType.number;
+  if(value is double) return LuaType.number;
+  if(value is String) return LuaType.string;
+  if(value is LuaTable) return LuaType.table;
   throw TypeError();
 }
 
-class LuaType {
-  int luaType;
-  LuaType(int this.luaType);
+enum LuaType {
+  none,
+  nil,
+  boolean,
+  lightuserdata,
+  number,
+  string,
+  table,
+  function,
+  userdata,
+  thread,
 }
 
 bool convert2Boolean(LuaValue val){
@@ -68,13 +75,13 @@ void setMetaTable(LuaValue val, LuaTable metaTable, LuaState luaState){
     table.metaTable = metaTable;
     return;
   }
-  luaState.registry.put(LuaValue('_MT${typeOf(val).luaType}'), LuaValue(metaTable));
+  luaState.registry.put(LuaValue('_MT${typeOf(val)}'), LuaValue(metaTable));
 }
 
 LuaTable getMetaTable(LuaValue val, LuaState luaState){
   dynamic t = val.luaValue;
   if(t is LuaTable) return t.metaTable;
-  LuaTable mt = luaState.registry.get(LuaValue('_MT${typeOf(val).luaType}')).luaValue;
+  LuaTable mt = luaState.registry.get(LuaValue('_MT${typeOf(val)}')).luaValue;
   if(mt != null) return mt.metaTable;
   return null;
 }
