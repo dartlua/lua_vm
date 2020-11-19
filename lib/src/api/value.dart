@@ -5,7 +5,7 @@ import 'table.dart';
 class LuaValue extends Object{
   dynamic luaValue;
 
-  LuaValue(dynamic this.luaValue);
+  LuaValue(this.luaValue);
 }
 
 LuaType typeOf(LuaValue val){
@@ -87,11 +87,12 @@ LuaTable getMetaTable(LuaValue val, LuaState luaState){
 }
 
 LuaValue callMetaMethod(LuaValue a, LuaValue b, String metaMethod, LuaState luaState){
-  LuaValue mm = getMetaField(a, metaMethod, luaState);
+  var mm = getMetaField(a, metaMethod, luaState);
   if(mm.luaValue == null) {
     mm = getMetaField(b, metaMethod, luaState);
-    if(mm.luaValue == null)
+    if(mm.luaValue == null) {
       return LuaValue(null);
+    }
   }
 
   luaState.stack.check(4);
@@ -103,7 +104,7 @@ LuaValue callMetaMethod(LuaValue a, LuaValue b, String metaMethod, LuaState luaS
 }
 
 LuaValue getMetaField(LuaValue val, String fieldName, LuaState ls){
-  LuaTable mt = getMetaTable(val, ls);
+  var mt = getMetaTable(val, ls);
   if(mt != null) return mt.get(LuaValue(fieldName));
   return LuaValue(null);
 }

@@ -1,5 +1,5 @@
 int fb2Int(int x){
-  int e = 0;
+  var e = 0;
   if(x < 8) return x;
   while(x >= (8 << 4)){
     x = (x + 0xf) >> 4;

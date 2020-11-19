@@ -20,7 +20,7 @@ class LuaStack{
 
   void check(int n){
     var free = slots.length - top;
-    slots.fillRange(free, free + n - 1, null);
+    slots.fillRange(free, free + n - 1, LuaValue(null));
   }
 
   void push(LuaValue val){
@@ -72,8 +72,8 @@ class LuaStack{
 
   void set(int idx, LuaValue val){
     if(idx < LUA_REGISTRYINDEX) {
-      int uvIndex = LUA_REGISTRYINDEX - idx - 1;
-      Closure c = closure;
+      var uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      var c = closure;
       if(c != null && uvIndex < c.upValues.length) {
         c.upValues[uvIndex].val = val;
       }
@@ -89,7 +89,7 @@ class LuaStack{
       throw ArgumentError('val must be LuaTable');
     }
 
-    int absIdx = absIndex(idx);
+    var absIdx = absIndex(idx);
     if(absIdx > 0 && absIdx <= top) {
       slots[absIdx - 1] = val;
       return;
@@ -108,17 +108,22 @@ class LuaStack{
   }
 
   List<LuaValue> popN(int n){
-    List<LuaValue> valList = List<LuaValue>(n);
-    for(int i = n - 1; i >= 0; i--) valList[i] = pop();
+    var valList = List<LuaValue>(n);
+    for(var i = n - 1; i >= 0; i--) {
+      valList[i] = pop();
+    }
     return valList;
   }
 
   void pushN(List<LuaValue> valList, int n){
     var lenVal = valList.length;
     if(n < 0) n = lenVal;
-    for(int i = 0; i < n; i++){
-      if(i < lenVal) push(valList[i]);
-      else push(LuaValue(null));
+    for(var i = 0; i < n; i++){
+      if(i < lenVal) {
+        push(valList[i]);
+      } else {
+        push(LuaValue(null));
+      }
     }
   }
 }

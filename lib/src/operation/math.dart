@@ -18,7 +18,7 @@ int shiftRight(int a, int n){
 
 //return [int, bool]
 List float2Int(double f){
-  int i = f.toInt();
+  var i = f.toInt();
   return [i, i.toDouble() == f];
 }
 

@@ -11,7 +11,7 @@ bool eq_(LuaValue a, LuaValue b, LuaState ls){
   if(aa is int) return bb is int ? aa == bb : aa.toDouble() == bb;
   if(aa is double) return bb is double ? aa == bb : aa == bb.toDouble();
   if(aa is LuaTable && bb is LuaTable && aa != bb && ls != null) {
-    LuaValue result = callMetaMethod(a, b, '__eq', ls);
+    var result = callMetaMethod(a, b, '__eq', ls);
     if(result.luaValue != null) return convert2Boolean(result);
   }
   return a == b;
