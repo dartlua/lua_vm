@@ -14,12 +14,12 @@ class LuaStack{
   LuaState state;
   Map<int, UpValue> openUVs;
 
-  LuaStack(List<LuaValue> this.slots, int this.top, LuaState this.state);
+  LuaStack(this.slots, this.top, this.state);
 
   void addPC(int n) => pc += n;
 
   void check(int n){
-    int free = slots.length - top;
+    var free = slots.length - top;
     slots.fillRange(free, free + n - 1, null);
   }
 
@@ -32,7 +32,7 @@ class LuaStack{
   LuaValue pop(){
     if(top < 1) throw RangeError('now top value: $top');
     top--;
-    LuaValue luaValue = slots[top];
+    var luaValue = slots[top];
     slots[top] = LuaValue(null);
     return luaValue;
   }
@@ -44,28 +44,28 @@ class LuaStack{
 
   bool isValid(int idx){
     if(idx < LUA_REGISTRYINDEX) {
-      int uvIndex = LUA_REGISTRYINDEX - idx - 1;
-      Closure c = closure;
+      var uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      var c = closure;
       return c != null && uvIndex < c.upValues.length;
     }
 
     if(idx == LUA_REGISTRYINDEX) return true;
 
-    int absIdx = absIndex(idx);
+    var absIdx = absIndex(idx);
     return absIdx > 0 && absIdx <= top;
   }
 
   LuaValue get(int idx){
     if(idx < LUA_REGISTRYINDEX) {
-      int uvIndex = LUA_REGISTRYINDEX - idx - 1;
-      Closure c = closure;
+      var uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      var c = closure;
       if(c == null || uvIndex >= c.upValues.length) return LuaValue(null);
       return c.upValues[uvIndex].val;
     }
 
     if(idx == LUA_REGISTRYINDEX) return LuaValue(state.registry);
 
-    int absIdx = absIndex(idx);
+    final absIdx = absIndex(idx);
     if(absIdx > 0 && absIdx <= top) return slots[absIdx - 1];
     return LuaValue(null);
   }
@@ -114,7 +114,7 @@ class LuaStack{
   }
 
   void pushN(List<LuaValue> valList, int n){
-    int lenVal = valList.length;
+    var lenVal = valList.length;
     if(n < 0) n = lenVal;
     for(int i = 0; i < n; i++){
       if(i < lenVal) push(valList[i]);

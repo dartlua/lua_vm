@@ -119,8 +119,8 @@ class Reader {
     return upValues;
   }
 
-  List<ProtoType> readProtos(String parentSource) {
-    List<ProtoType> protos = [];
+  List<Prototype> readProtos(String parentSource) {
+    List<Prototype> protos = [];
     int len = readUint32();
     for (int i = 0; i < len; i++) {
       protos.add(readProto(parentSource));
@@ -155,11 +155,11 @@ class Reader {
     return names;
   }
 
-  ProtoType readProto(String parentSource) {
+  Prototype readProto(String parentSource) {
     String source = readString();
     if (source == '') source = parentSource;
     print('\nsource file: $source');
-    return ProtoType(
+    return Prototype(
         source,
         readUint32(),
         readUint32(),

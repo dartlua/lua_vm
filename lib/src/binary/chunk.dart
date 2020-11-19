@@ -45,7 +45,7 @@ class LocVar {
   LocVar(this.varName, this.startPC, this.endPC);
 }
 
-class ProtoType {
+class Prototype {
   final String source;
   final int lineDefined;
   final int lastLineDefined;
@@ -55,12 +55,12 @@ class ProtoType {
   final List<int> codes;
   final List constants;
   final List<Upvalue> upvalues;
-  final List<ProtoType> protos;
+  final List<Prototype> protos;
   final List<int> lineInfo;
   final List<LocVar> locVars;
   final List<String> upvaluesName;
 
-  ProtoType(
+  Prototype(
       this.source,
       this.lineDefined,
       this.lastLineDefined,
@@ -79,12 +79,12 @@ class ProtoType {
 class BinaryChunk {
   final Header header;
   final String sizeUpvalues;
-  final ProtoType mainFunc;
+  final Prototype mainFunc;
 
   BinaryChunk(this.header, this.sizeUpvalues, this.mainFunc);
 }
 
-ProtoType unDump(Uint8List data) {
+Prototype unDump(Uint8List data) {
   Reader reader = Reader(data);
   print(reader.checkHeader());
   reader.readByte();

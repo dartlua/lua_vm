@@ -1,12 +1,24 @@
 import 'math.dart';
 import 'dart:math' as math;
 
-class ArithOp{
-  int arithOp;
-  ArithOp(int this.arithOp);
+enum ArithOp {
+  add,
+  sub,
+  mul,
+  mod,
+  pow,
+  div,
+  idiv,
+  band,
+  bor,
+  bxor,
+  shl,
+  shr,
+  unm,
+  bnot,
 }
 
-class CompareOp{
+class CompareOp {
   int compareOp;
   CompareOp(int this.compareOp);
 }

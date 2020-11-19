@@ -82,18 +82,6 @@ const OpArgK = 3;
 const int MAXARG_Bx = 262143;
 const int MAXARG_sBx = 131071;
 
-//LUA_TYPE
-const LUA_TNONE = -1;
-const LUA_TNIL = 0;
-const LUA_TBOOLEAN = 1;
-const LUA_TLIGHTUSERDATA = 2;
-const LUA_TNUMBER = 3;
-const LUA_TSTRING = 4;
-const LUA_TTABLE = 5;
-const LUA_TFUNCTION = 6;
-const LUA_TUSERDATA = 7;
-const LUA_TTHREAD = 8;
-
 class StackUnderflowError implements Error {
   @pragma("vm:entry-point")
   const StackUnderflowError();
@@ -101,23 +89,6 @@ class StackUnderflowError implements Error {
 
   StackTrace get stackTrace => null;
 }
-
-
-const LUA_OPADD = 0;        // +
-const LUA_OPSUB = 1;        // -
-const LUA_OPMUL = 2;        // *
-const LUA_OPMOD = 3;        // %
-const LUA_OPPOW = 4;        // ^
-const LUA_OPDIV = 5;        // /
-const LUA_OPIDIV = 6;       // //
-const LUA_OPBAND = 7;       // &
-const LUA_OPBOR = 8;        // |
-const LUA_OPBXOR = 9;       // ~
-const LUA_OPSHL = 10;       // <<
-const LUA_OPSHR = 11;       // >>
-const LUA_OPUNM = 12;       // -
-const LUA_OPBNOT = 13;      // ~
-
 
 /* comparison functions */
 const LUA_OPEQ = 0; // ==
