@@ -343,8 +343,8 @@ class LuaState {
   }
 
   int load(Uint8List chunk, String chunkName, String mode) {
-    ProtoType proto = unDump(chunk);
-    Closure c = newLuaClosure(proto);
+    final proto = unDump(chunk);
+    final c = Closure.fromLuaProto(proto);
     stack.push(LuaValue(c));
     if (proto.upvalues.length > 0) {
       LuaValue env = registry.get(LuaValue(LUA_RIDX_GLOBALS));
@@ -435,8 +435,8 @@ class LuaState {
   }
 
   void loadProto(int idx) {
-    ProtoType subProto = stack.closure.proto.protos[idx];
-    Closure c = newLuaClosure(subProto);
+    Prototype subProto = stack.closure.proto.protos[idx];
+    Closure c = Closure.fromLuaProto(subProto);
     stack.push(LuaValue(c));
 
     int i = 0;
@@ -463,7 +463,7 @@ class LuaState {
   }
 
   void pushDartFunc(Function dartFunc) =>
-      stack.push(LuaValue(newDartClosure(dartFunc, 0)));
+      stack.push(LuaValue(Closure.fromDartFunction(dartFunc, 0)));
 
   bool isDartFunc(int idx) {
     LuaValue val = stack.get(idx);
@@ -494,8 +494,10 @@ class LuaState {
   }
 
   void pushDartClosure(Function f, int n) {
-    Closure closure = newDartClosure(f, n);
-    for (int i = n; i > 0; i--) closure.upValues[n - 1] = UpValue(stack.pop());
+    final closure = Closure.fromDartFunction(f, n);
+    for (var i = n; i > 0; i--) {
+      closure.upValues[n - 1] = UpValue(stack.pop());
+    }
     stack.push(LuaValue(closure));
   }
 
