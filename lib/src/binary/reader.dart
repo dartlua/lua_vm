@@ -53,7 +53,9 @@ class Reader {
   }
 
   String checkHeader() {
-    if (byteData2String(readBytes(4)) != LUA_SIGNATURE) return 'not compiled chunk';
+    if (byteData2String(readBytes(4)) != LUA_SIGNATURE) {
+      return 'not compiled chunk';
+    }
     if (byteData2String(readByte()) != LUAC_VERSION) return 'mismatch version';
     if (byteData2String(readByte()) != LUAC_FORMAT) return 'mismatch format';
     if (byteData2String(readBytes(6)) != LUAC_DATA) return 'wrong luac_data';

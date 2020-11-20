@@ -75,8 +75,7 @@ class LuaState {
       for (var i = 0; i < n; i++) {
         stack.pop();
       }
-    }
-    else if (n < 0) {
+    } else if (n < 0) {
       for (var i = 0; i > n; i--) {
         pushNull();
       }
@@ -115,11 +114,17 @@ class LuaState {
   }
 
   bool isNone(int idx) => type(idx) == LuaType.none;
+
   bool isNull(int idx) => type(idx) == LuaType.nil;
+
   bool isNoneOrNull(int idx) => type(idx).index <= LuaType.nil.index;
+
   bool isBool(int idx) => type(idx) == LuaType.boolean;
+
   bool isInt(int idx) => stack.get(idx).luaValue is int;
+
   bool isNumber(int idx) => stack.get(idx).luaValue is double;
+
   bool isString(int idx) =>
       type(idx) == LuaType.string || type(idx) == LuaType.number;
 
@@ -132,9 +137,13 @@ class LuaState {
   String toStr(int idx) => convert2String(stack.get(idx));
 
   void pushNull() => stack.push(LuaValue(null));
+
   void pushBool(bool b) => stack.push(LuaValue(b));
+
   void pushInt(int i) => stack.push(LuaValue(i));
+
   void pushNumber(double d) => stack.push(LuaValue(d));
+
   void pushString(String s) => stack.push(LuaValue(s));
 
   void arith(ArithOp op) {
@@ -155,7 +164,7 @@ class LuaState {
     }
 
     var metaMethod = operator.metaMethod;
-    var val = callMetaMethod(a, b, metaMethod, nowLuaState());
+    var val = callMetaMethod(a, b, metaMethod, this);
     if (val.luaValue != null) {
       stack.push(val);
       return;
@@ -168,7 +177,7 @@ class LuaState {
     if (!stack.isValid(idx1) || !stack.isValid(idx2)) return false;
     var a = stack.get(idx1);
     var b = stack.get(idx2);
-    var ls = nowLuaState();
+    var ls = this;
     switch (op.compareOp) {
       case LUA_OPEQ:
         return eq_(a, b, ls);
@@ -194,7 +203,7 @@ class LuaState {
       stack.push(LuaValue(value.length));
       return;
     }
-    var result = callMetaMethod(val, val, '__len', nowLuaState());
+    var result = callMetaMethod(val, val, '__len', this);
     if (result.luaValue != null) {
       stack.push(result);
       return;
@@ -229,7 +238,7 @@ class LuaState {
 
         var b = stack.pop();
         var a = stack.pop();
-        var result = callMetaMethod(a, b, '__concat', nowLuaState());
+        var result = callMetaMethod(a, b, '__concat', this);
         if (result.luaValue != null) {
           stack.push(result);
           continue;
@@ -264,7 +273,7 @@ class LuaState {
       }
     }
     if (!raw) {
-      var metaField = getMetaField(t, '__index', nowLuaState());
+      var metaField = getMetaField(t, '__index', this);
       dynamic x = metaField.luaValue;
       if (x != null) {
         if (x is LuaTable) return _getTable(metaField, k, false);
@@ -309,7 +318,7 @@ class LuaState {
     }
 
     if (!raw) {
-      var mf = getMetaField(t, '__newindex', nowLuaState());
+      var mf = getMetaField(t, '__newindex', this);
       dynamic x = mf.luaValue;
       if (x is LuaTable) {
         _setTable(mf, k, v, false);
@@ -372,7 +381,7 @@ class LuaState {
         callDartClosure(nArgs, nResults, value);
       }
     } else {
-      var mf = getMetaField(val, '__call', nowLuaState());
+      var mf = getMetaField(val, '__call', this);
       if (mf.luaValue is Closure) {
         stack.push(val);
         insert(-(nArgs + 2));
@@ -519,11 +528,9 @@ class LuaState {
     });
   }
 
-  LuaState nowLuaState() => LuaState(stack: stack, registry: registry);
-
   bool getMetaTable_(int idx) {
     var val = stack.get(idx);
-    var mt = getMetaTable(val, nowLuaState());
+    var mt = getMetaTable(val, this);
     if (mt != null) {
       stack.push(LuaValue(mt));
       return true;
@@ -535,9 +542,9 @@ class LuaState {
     var val = stack.get(idx);
     var mtVal = stack.pop();
     if (mtVal.luaValue == null) {
-      setMetaTable(val, null, nowLuaState());
+      setMetaTable(val, null, this);
     } else if (mtVal.luaValue is LuaTable) {
-      setMetaTable(val, mtVal.luaValue, nowLuaState());
+      setMetaTable(val, mtVal.luaValue, this);
     } else {
       throw TypeError();
     }

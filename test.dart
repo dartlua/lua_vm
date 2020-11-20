@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'api/state.dart';
-import 'api/table.dart';
-import 'binary/chunk.dart';
-import 'constants.dart';
-import 'operation/arith.dart';
-import 'operation/math.dart';
-import 'vm/instruction.dart';
-import 'vm/vm.dart';
+import 'lib/src/api/state.dart';
+import 'lib/src/api/table.dart';
+import 'lib/src/binary/chunk.dart';
+import 'lib/src/constants.dart';
+import 'lib/src/operation/arith.dart';
+import 'lib/src/operation/math.dart';
+import 'lib/src/vm/instruction.dart';
+import 'lib/src/vm/vm.dart';
 
 Future<void> main() async {
   //测试读取binary
@@ -40,7 +40,7 @@ Future<void> main() async {
   //测试lua vm
   //luaMain(unDump(fileBytes));
   
-  LuaState ls = newLuaState();
+  var ls = newLuaState();
   ls.register('getmetayable', getMetaTab);
   ls.register('setmetatable', setMetaTab);
   ls.load(fileBytes, 'luac.out', 'b');

@@ -1,9 +1,10 @@
 import 'arith.dart';
 
-class Operator{
+class Operator {
   String metaMethod;
   Function intFunc;
   Function floatFunc;
+
   Operator(this.metaMethod, this.intFunc, this.floatFunc);
 }
 

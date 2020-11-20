@@ -1,6 +1,6 @@
 import 'value.dart';
 
-class LuaTable{
+class LuaTable {
   List<KV> list;
   LuaTable metaTable;
 
@@ -11,14 +11,14 @@ class LuaTable{
 
   LuaValue get(LuaValue key) {
     dynamic value = key.luaValue;
-    if(value is int) return LuaValue(list[value - 1].value);
+    if (value is int) return LuaValue(list[value - 1].value);
     var index = list.indexWhere((e) => e.key == value);
     return LuaValue(index == -1 ? null : list.elementAt(index).value);
   }
 
-  void put(LuaValue key, LuaValue val){
+  void put(LuaValue key, LuaValue val) {
     dynamic value = key.luaValue;
-    if(value is int) {
+    if (value is int) {
       fillListWithNull(value);
       list[value - 1] = KV(value, val.luaValue);
       return;
@@ -26,11 +26,11 @@ class LuaTable{
     list.add(KV(value, val.luaValue));
   }
 
-  void fillListWithNull(int count){
-    if(list.isEmpty) list.insert(0, nullKV());
-    for(var i = 1; i < count; i++) {
-      if(i < list.length) {
-        if(list.elementAt(i) != nullKV()) {
+  void fillListWithNull(int count) {
+    if (list.isEmpty) list.insert(0, nullKV());
+    for (var i = 1; i < count; i++) {
+      if (i < list.length) {
+        if (list.elementAt(i) != nullKV()) {
           continue;
         }
       }
@@ -43,10 +43,10 @@ class LuaTable{
 
   KV nullKV() => KV(null, null);
 
-  int len(){
+  int len() {
     var count = 0;
-    for(var i = 0; i < list.length; i++) {
-      if(list[i].value != null) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].value != null) {
         count++;
       }
     }
@@ -54,7 +54,7 @@ class LuaTable{
   }
 }
 
-class KV{
+class KV {
   dynamic key;
   dynamic value;
 
@@ -64,6 +64,6 @@ class KV{
   String toString() => ' {$key: $value}';
 }
 
-LuaTable newLuaTable(int nArr, int nRec){
+LuaTable newLuaTable(int nArr, int nRec) {
   return LuaTable(<KV>[]);
 }
