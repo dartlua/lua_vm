@@ -35,7 +35,7 @@ double fmul(double a, double b) => a * b;
 int imod(int a, int b) => IMod(a, b);
 double fmod(double a, double b) => FMod(a, b);
 
-double pow(double a, double n) => math.pow(a, n);
+double pow(double a, double n) => math.pow(a, n) as double;
 
 double div(double a, double b) => a / b;
 int iidiv(int a, int b) => IFloorDiv(a, b);

@@ -9,7 +9,7 @@ class OpCode{
   final int argCMode;
   final int opMode;
   final String name;
-  final Function(int instruction, LuaVM vm) action;
+  final Function(int instruction, LuaVM vm)? action;
 
   OpCode(
       this.testFlag,
