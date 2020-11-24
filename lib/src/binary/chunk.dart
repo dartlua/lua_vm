@@ -85,7 +85,7 @@ class BinaryChunk {
 }
 
 Prototype unDump(Uint8List data) {
-  Reader reader = Reader(data);
+  var reader = Reader(data);
   print(reader.checkHeader());
   reader.readByte();
   return reader.readProto('');

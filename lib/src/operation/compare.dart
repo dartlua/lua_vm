@@ -2,7 +2,7 @@ import '../api/state.dart';
 import '../api/table.dart';
 import '../api/value.dart';
 
-bool eq_(LuaValue a, LuaValue b, LuaState ls){
+bool eq_(LuaValue a, LuaValue b, LuaState ls) {
   dynamic aa = a.luaValue;
   dynamic bb = b.luaValue;
   if(aa == null) return bb == null;
@@ -17,10 +17,10 @@ bool eq_(LuaValue a, LuaValue b, LuaState ls){
   return a == b;
 }
 
-bool lt_(LuaValue a, LuaValue b, LuaState ls){
+bool lt_(LuaValue a, LuaValue b, LuaState ls) {
   dynamic aa = a.luaValue;
   dynamic bb = b.luaValue;
-  if(aa is String)
+  if (aa is String) {
     return aa.compareTo(bb is String ? bb : bb.toString()) == -1 ? true : false;
   if(aa is int) return bb is int ? aa < bb : aa.toDouble() < bb;
   if(aa is double) return bb is double ? aa < bb : aa < bb.toDouble();
@@ -30,13 +30,14 @@ bool lt_(LuaValue a, LuaValue b, LuaState ls){
       '${aa.runtimeType} and ${bb.runtimeType}');
 }
 
-bool le_(LuaValue a, LuaValue b, LuaState ls){
+bool le_(LuaValue a, LuaValue b, LuaState ls) {
   dynamic aa = a.luaValue;
   dynamic bb = b.luaValue;
-  if(aa is String)
+  if (aa is String) {
     return aa.compareTo(bb is String ? bb : bb.toString()) < 1 ? true : false;
-  if(aa is int) return bb is int ? aa <= bb : aa.toDouble() <= bb;
-  if(aa is double) return bb is double ? aa <= bb : aa <= bb.toDouble();
+  }
+  if (aa is int) return bb is int ? aa <= bb : aa.toDouble() <= bb;
+  if (aa is double) return bb is double ? aa <= bb : aa <= bb.toDouble();
 
   LuaValue result = callMetaMethod(a, b, '__le', ls)!;
   if(result.luaValue != null) return convert2Boolean(result);

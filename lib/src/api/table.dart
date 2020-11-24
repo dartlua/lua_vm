@@ -13,6 +13,9 @@ class LuaTable {
     return LuaValue(index == -1 ? null : list.elementAt(index)!.value);
   }
 
+  @override
+  String toString() => 'Table<$list, $metaTable>';
+
   void put(LuaValue key, LuaValue? val) {
     dynamic value = key.luaValue;
     if (value is int) {
@@ -24,23 +27,40 @@ class LuaTable {
   }
 
   void fillListWithNull(int count) {
-    if (list.isEmpty) list.insert(0, null);
-    for (var i = 0; i < count; i++) {
-      if (list.elementAt(i) != null) continue;
-      list.insert(i + 1, null);
+    if (list.isEmpty) list.insert(0, nullKV());
+    for (var i = 1; i < count; i++) {
+      if (i < list.length) {
+        if (list.elementAt(i) != nullKV()) {
+          continue;
+        }
+      }
+      list.insert(i, nullKV());
     }
   }
 
   bool hasMetaField(String fieldName) =>
       metaTable != null && metaTable!.get(LuaValue(fieldName)).luaValue != null;
+
+  KV nullKV() => KV(null, null);
+
+  int len() {
+    var count = 0;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].value != null) {
+        count++;
+      }
+    }
+    return count;
+  }
 }
 
 class KV {
   dynamic key;
   dynamic value;
 
-  KV(dynamic this.key, dynamic this.value);
+  KV(this.key, this.value);
 
+  @override
   String toString() => ' {$key: $value}';
 }
 

@@ -52,10 +52,11 @@ extension Instruction on int {
 
   void execute(LuaVM vm) {
     final action = opCodes[opCode].action;
-    if (action != null)
+    if (action != null) {
       action(this, vm);
-    else
+    } else {
       throw UnsupportedError('Unsupported Operation: ${opName()}');
+    }
   }
 }
 
@@ -76,7 +77,9 @@ void loadNil(int instruction, LuaVM vm) {
   final b = operand.b;
 
   vm.luaState.pushNull();
-  for (int i = a; i <= a + b; i++) vm.luaState.copy(-1, i);
+  for (var i = a; i <= a + b; i++) {
+    vm.luaState.copy(-1, i);
+  }
   vm.luaState.pop(1);
 }
 
@@ -115,18 +118,31 @@ void _unaryArith(int instruction, LuaVM vm, ArithOp op) {
 }
 
 void add(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.add);
+
 void sub(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.sub);
+
 void mul(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.mul);
+
 void mod(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.mod);
+
 void pow(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.pow);
+
 void div(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.div);
+
 void idiv(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.idiv);
+
 void band(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.band);
+
 void bor(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.bor);
+
 void bxor(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.bxor);
+
 void shl(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.shl);
+
 void shr(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.shr);
+
 void unm(int inst, LuaVM vm) => _unaryArith(inst, vm, ArithOp.unm);
+
 void bnot(int inst, LuaVM vm) => _unaryArith(inst, vm, ArithOp.bnot);
 
 void len(int inst, LuaVM vm) {
@@ -143,7 +159,9 @@ void concat(int inst, LuaVM vm) {
   final n = c - b + 1;
 
   vm.luaState.checkStack(n);
-  for (int i = b; i <= c; i++) vm.luaState.pushValue(i);
+  for (var i = b; i <= c; i++) {
+    vm.luaState.pushValue(i);
+  }
   vm.luaState.concat(n);
   vm.luaState.replace(a);
 }
@@ -159,7 +177,9 @@ void _compare(int inst, LuaVM vm, CompareOp op) {
 }
 
 void eq(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPEQ));
+
 void lt(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPLT));
+
 void le(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPLE));
 
 void not(int inst, LuaVM vm) {
@@ -171,7 +191,7 @@ void not(int inst, LuaVM vm) {
 void testSet(int inst, LuaVM vm) {
   final operand = inst.abc();
   final b = operand.b + 1;
-  if (vm.luaState.toBool(b) == (operand.c != 0))
+  if (vm.luaState.toBool(b) == (operand.c != 0)) {
     vm.luaState.copy(b, operand.a + 1);
   else
     vm.luaState.stack!.addPC(1);
@@ -235,10 +255,11 @@ void setList(int inst, LuaVM vm) {
   var b = operand.b;
   var c = operand.c;
 
-  if (c > 0)
+  if (c > 0) {
     c -= 1;
-  else
+  } else {
     c = Instruction(vm.luaState.fetch()).ax();
+  }
 
   final bIsZero = b == 0;
   if (bIsZero) {
@@ -274,7 +295,7 @@ void closure(int inst, LuaVM vm) {
 void call(int inst, LuaVM vm) {
   final operand = inst.abc();
   final a = operand.a + 1;
-  int nArgs = _pushFuncAndArgs(a, operand.b, vm);
+  var nArgs = _pushFuncAndArgs(a, operand.b, vm);
   vm.luaState.call(nArgs, operand.c - 1);
   _popResults(a, operand.c, vm);
 }
@@ -282,7 +303,9 @@ void call(int inst, LuaVM vm) {
 int _pushFuncAndArgs(int a, int b, LuaVM vm) {
   if (b >= 1) {
     vm.luaState.checkStack(b);
-    for (int i = a; i < a + b; i++) vm.luaState.pushValue(i);
+    for (var i = a; i < a + b; i++) {
+      vm.luaState.pushValue(i);
+    }
     return b - 1;
   } else {
     _fixStack(a, vm);
@@ -291,17 +314,21 @@ int _pushFuncAndArgs(int a, int b, LuaVM vm) {
 }
 
 void _fixStack(int a, LuaVM vm) {
-  int x = vm.luaState.toInt(-1);
+  var x = vm.luaState.toInt(-1);
   vm.luaState.pop(1);
   vm.luaState.checkStack(x - a);
-  for (int i = a; i < x; i++) vm.luaState.pushValue(i);
+  for (var i = a; i < x; i++) {
+    vm.luaState.pushValue(i);
+  }
   vm.luaState.rotate(vm.luaState.registerCount() + 1, x - a);
 }
 
 void _popResults(int a, int c, LuaVM vm) {
   if (c == 1) {
   } else if (c > 1) {
-    for (int i = a + c - 2; i >= a; i--) vm.luaState.replace(i);
+    for (var i = a + c - 2; i >= a; i--) {
+      vm.luaState.replace(i);
+    }
   } else {
     vm.luaState.checkStack(1);
     vm.luaState.pushInt(a);
@@ -315,9 +342,12 @@ void return_(int inst, LuaVM vm) {
   if (b == 1) {
   } else if (b > 1) {
     vm.luaState.checkStack(b - 1);
-    for (int i = a; i <= a + b - 2; i++) vm.luaState.pushValue(i);
-  } else
+    for (var i = a; i <= a + b - 2; i++) {
+      vm.luaState.pushValue(i);
+    }
+  } else {
     _fixStack(a, vm);
+  }
 }
 
 void vararg(int inst, LuaVM vm) {
@@ -332,7 +362,7 @@ void vararg(int inst, LuaVM vm) {
 void tailCall(int inst, LuaVM vm) {
   final operand = inst.abc();
   final a = operand.a + 1;
-  int nArgs = _pushFuncAndArgs(a, operand.b, vm);
+  var nArgs = _pushFuncAndArgs(a, operand.b, vm);
   vm.luaState.call(nArgs, -1);
   _popResults(a, 0, vm);
 }

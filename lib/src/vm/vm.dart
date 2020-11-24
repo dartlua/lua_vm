@@ -1,6 +1,6 @@
 import '../api/state.dart';
 
-class LuaVM{
+class LuaVM {
   LuaState luaState;
 
   LuaVM(this.luaState);
