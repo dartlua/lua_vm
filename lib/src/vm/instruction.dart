@@ -67,7 +67,7 @@ void move(int instruction, LuaVM vm) {
 
 void jmp(int instruction, LuaVM vm) {
   final operand = instruction.AsBx();
-  vm.luaState.stack.addPC(operand.b);
+  vm.luaState.stack!.addPC(operand.b);
   if (operand.a != 0) vm.luaState.closeClosure(operand.a);
 }
 
@@ -87,7 +87,7 @@ void loadBool(int instruction, LuaVM vm) {
   final operand = instruction.abc();
   vm.luaState.pushBool(operand.b != 0);
   vm.luaState.replace(operand.a + 1);
-  if (operand.c != 0) vm.luaState.stack.addPC(1);
+  if (operand.c != 0) vm.luaState.stack!.addPC(1);
 }
 
 void loadK(int instruction, LuaVM vm) {
@@ -171,9 +171,8 @@ void _compare(int inst, LuaVM vm, CompareOp op) {
 
   vm.luaState.getRK(operand.b);
   vm.luaState.getRK(operand.c);
-  if (vm.luaState.compare(-2, -1, op) != (operand.a != 0)) {
-    vm.luaState.stack.addPC(1);
-  }
+  if (vm.luaState.compare(-2, -1, op) != (operand.a != 0))
+    vm.luaState.stack!.addPC(1);
   vm.luaState.pop(2);
 }
 
@@ -194,16 +193,14 @@ void testSet(int inst, LuaVM vm) {
   final b = operand.b + 1;
   if (vm.luaState.toBool(b) == (operand.c != 0)) {
     vm.luaState.copy(b, operand.a + 1);
-  } else {
-    vm.luaState.stack.addPC(1);
-  }
+  else
+    vm.luaState.stack!.addPC(1);
 }
 
 void test(int inst, LuaVM vm) {
   final operand = inst.abc();
-  if (vm.luaState.toBool(operand.a + 1) != (operand.c != 0)) {
-    vm.luaState.stack.addPC(1);
-  }
+  if (vm.luaState.toBool(operand.a + 1) != (operand.c != 0))
+    vm.luaState.stack!.addPC(1);
 }
 
 void forPrep(int inst, LuaVM vm) {
@@ -213,7 +210,7 @@ void forPrep(int inst, LuaVM vm) {
   vm.luaState.pushValue(a + 2);
   vm.luaState.arith(ArithOp.sub);
   vm.luaState.replace(a);
-  vm.luaState.stack.addPC(operand.b);
+  vm.luaState.stack!.addPC(operand.b);
 }
 
 void forLoop(int inst, LuaVM vm) {
@@ -227,7 +224,7 @@ void forLoop(int inst, LuaVM vm) {
   final isPositiveStep = vm.luaState.toNumber(a + 2) >= 0;
   if (isPositiveStep && vm.luaState.compare(a, a + 1, CompareOp(LUA_OPLE)) ||
       !isPositiveStep && vm.luaState.compare(a + 1, a, CompareOp(LUA_OPLE))) {
-    vm.luaState.stack.addPC(operand.b);
+    vm.luaState.stack!.addPC(operand.b);
     vm.luaState.copy(a, a + 3);
   }
 }
