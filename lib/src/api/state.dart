@@ -210,11 +210,7 @@ class LuaState {
     }
     if (value is LuaTable) {
       if (value.list != null) {
-        var count = 0;
-        for (var i = 0; i < value.list.length; i++) {
-          if (value.list[i].value != null) count++;
-        }
-        stack.push(LuaValue(count));
+        stack.push(LuaValue(value.len()));
         return;
       }
     }
@@ -264,10 +260,10 @@ class LuaState {
   }
 
   LuaType _getTable(LuaValue t, LuaValue k, bool raw) {
-    dynamic value = t.luaValue;
-    if (value is LuaTable) {
-      var v = value.get(k);
-      if (raw || v.luaValue != null || !value.hasMetaField('__index')) {
+    final tbl = t.luaValue;
+    if (tbl is LuaTable) {
+      var v = tbl.get(k);
+      if (raw || v.luaValue != null || !tbl.hasMetaField('__index')) {
         stack.push(v);
         return typeOf(v);
       }
@@ -297,6 +293,38 @@ class LuaState {
   LuaType getI(int idx, int i) {
     var t = stack.get(idx);
     return _getTable(t, LuaValue(i), false);
+  }
+
+
+  bool getMetaTable_(int idx) {
+    var val = stack.get(idx);
+    var mt = getMetaTable(val, this);
+    if (mt != null) {
+      stack.push(LuaValue(mt));
+      return true;
+    }
+    return false;
+  }
+
+  LuaType getGlobal(String name) => _getTable(
+      registry.get(LuaValue(LUA_RIDX_GLOBALS)), LuaValue(name), false);
+
+  void setGlobal(String name) {
+    var t = registry.get(LuaValue(LUA_RIDX_GLOBALS));
+    var v = stack.pop();
+    _setTable(t, LuaValue(name), v, false);
+  }
+
+  void setMetaTable_(int idx) {
+    var val = stack.get(idx);
+    var mtVal = stack.pop();
+    if (mtVal.luaValue == null) {
+      setMetaTable(val, null, this);
+    } else if (mtVal.luaValue is LuaTable) {
+      setMetaTable(val, mtVal.luaValue, this);
+    } else {
+      throw TypeError();
+    }
   }
 
   void setTable(int idx) {
@@ -396,7 +424,7 @@ class LuaState {
     var nParams = c.proto.numParams;
     var isVararg = c.proto.isVararg == 1;
 
-    var newStack = newLuaStack(nRegs + 20, stack.state);
+    var newStack = newLuaStack(nRegs + LUA_MINSTACK, this);
     newStack.closure = c;
 
     var funcAndArgs = stack.popN(nArgs + 1);
@@ -418,15 +446,17 @@ class LuaState {
   }
 
   void callDartClosure(int nArgs, int nResults, Closure c) {
-    var newStack = newLuaStack(nArgs + 20, stack.state);
+    var newStack = newLuaStack(nArgs + LUA_MINSTACK, this);
     newStack.closure = c;
 
-    var args = stack.popN(nArgs);
-    newStack.pushN(args, nArgs);
+    if (nArgs > 0) {
+      var args = stack.popN(nArgs);
+      newStack.pushN(args, nArgs);
+    }
     stack.pop();
 
     pushLuaStack(newStack);
-    int r = c.dartFunc(LuaState(stack: stack));
+    int r = c.dartFunc(this);
     popLuaStack();
 
     if (nResults != 0) {
@@ -439,7 +469,7 @@ class LuaState {
   void runLuaClosure() {
     while (true) {
       final instruction = fetch();
-      instruction.execute(LuaVM(LuaState(stack: stack)));
+      instruction.execute(LuaVM(this));
       if (instruction.opCode == OP_RETURN) break;
     }
   }
@@ -500,15 +530,6 @@ class LuaState {
 
   void pushGlobalTable() => getI(LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
 
-  LuaType getGlobal(String name) => _getTable(
-      registry.get(LuaValue(LUA_RIDX_GLOBALS)), LuaValue(name), false);
-
-  void setGlobal(String name) {
-    var t = registry.get(LuaValue(LUA_RIDX_GLOBALS));
-    var v = stack.pop();
-    _setTable(t, LuaValue(name), v, false);
-  }
-
   void register(String name, Function dartFunc) {
     pushDartFunc(dartFunc);
     setGlobal(name);
@@ -528,26 +549,32 @@ class LuaState {
     });
   }
 
-  bool getMetaTable_(int idx) {
-    var val = stack.get(idx);
-    var mt = getMetaTable(val, this);
-    if (mt != null) {
-      stack.push(LuaValue(mt));
-      return true;
-    }
-    return false;
+  bool rawEqual(int idx1, int idx2) {
+    if(!stack.isValid(idx1) || !stack.isValid(idx2)) return false;
+    final a = stack.get(idx1);
+    final b = stack.get(idx2);
+    return eq_(a, b, this);
   }
 
-  void setMetaTable_(int idx) {
-    var val = stack.get(idx);
-    var mtVal = stack.pop();
-    if (mtVal.luaValue == null) {
-      setMetaTable(val, null, this);
-    } else if (mtVal.luaValue is LuaTable) {
-      setMetaTable(val, mtVal.luaValue, this);
-    } else {
-      throw TypeError();
-    }
+  int rawLen(int idx) {
+    final val = stack.get(idx);
+    final x = val.luaValue;
+    if(x is String) return x.length;
+    if(x is LuaTable) return x.len();
+    return 0;
+  }
+
+  void rawSet(int idx) {
+    final t = stack.get(idx);
+    final v = stack.pop();
+    final k = stack.pop();
+    _setTable(t, k, v, true);
+  }
+
+  void rawSetI(int idx, int i) {
+    final t = stack.get(idx);
+    final v = stack.pop();
+    _setTable(t, LuaValue(i), v, true);
   }
 }
 
