@@ -1,29 +1,29 @@
 import 'value.dart';
 
 class LuaTable {
-  List<KV?> list;
-  LuaTable? metaTable;
+  List<KV> list;
+  LuaTable metaTable;
 
   LuaTable(this.list);
-
-  LuaValue get(LuaValue key) {
-    dynamic value = key.luaValue;
-    if (value is int) return LuaValue(list[value - 1]!.value);
-    int index = list.indexWhere((e) => e!.key == value);
-    return LuaValue(index == -1 ? null : list.elementAt(index)!.value);
-  }
 
   @override
   String toString() => 'Table<$list, $metaTable>';
 
-  void put(LuaValue key, LuaValue? val) {
+  LuaValue get(LuaValue key) {
+    dynamic value = key.luaValue;
+    if (value is int) return LuaValue(list[value - 1].value);
+    var index = list.indexWhere((e) => e.key == value);
+    return LuaValue(index == -1 ? null : list.elementAt(index).value);
+  }
+
+  void put(LuaValue key, LuaValue val) {
     dynamic value = key.luaValue;
     if (value is int) {
       fillListWithNull(value);
-      list[value - 1] = KV(value, val!.luaValue);
+      list[value - 1] = KV(value, val.luaValue);
       return;
     }
-    list.add(KV(value, val!.luaValue));
+    list.add(KV(value, val.luaValue));
   }
 
   void fillListWithNull(int count) {
@@ -39,7 +39,7 @@ class LuaTable {
   }
 
   bool hasMetaField(String fieldName) =>
-      metaTable != null && metaTable!.get(LuaValue(fieldName)).luaValue != null;
+      metaTable != null && metaTable.get(LuaValue(fieldName)).luaValue != null;
 
   KV nullKV() => KV(null, null);
 
@@ -65,5 +65,5 @@ class KV {
 }
 
 LuaTable newLuaTable(int nArr, int nRec) {
-  return LuaTable(<KV?>[]);
+  return LuaTable(<KV>[]);
 }

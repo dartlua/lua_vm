@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 void main() async {
   group('A group of tests', () {
-    late LuaState lua;
+    LuaState lua;
 
     setUp(() async {
       lua = newLuaState();

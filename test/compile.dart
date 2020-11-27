@@ -10,7 +10,7 @@ Stream<File> scanLuaSources() async* {
   }
 }
 
-Future<void> compileSource(List<File> files) async {
+void compileSource(List<File> files) async {
   for (var file in files) {
     final filename = path.basenameWithoutExtension(file.path);
     final cmd = 'luac';
