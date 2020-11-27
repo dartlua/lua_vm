@@ -295,7 +295,6 @@ class LuaState {
     return _getTable(t, LuaValue(i), false);
   }
 
-
   bool getMetaTable_(int idx) {
     var val = stack!.get(idx)!;
     var mt = getMetaTable(val, this);
@@ -550,7 +549,7 @@ class LuaState {
   }
 
   bool rawEqual(int idx1, int idx2) {
-    if(!stack!.isValid(idx1) || !stack!.isValid(idx2)) return false;
+    if (!stack!.isValid(idx1) || !stack!.isValid(idx2)) return false;
     final a = stack!.get(idx1)!;
     final b = stack!.get(idx2)!;
     return eq_(a, b, this);
@@ -559,8 +558,8 @@ class LuaState {
   int rawLen(int idx) {
     final val = stack!.get(idx)!;
     final x = val.luaValue;
-    if(x is String) return x.length;
-    if(x is LuaTable) return x.len();
+    if (x is String) return x.length;
+    if (x is LuaTable) return x.len();
     return 0;
   }
 

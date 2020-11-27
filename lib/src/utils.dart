@@ -20,24 +20,24 @@ int hexDigitValue(int char) {
   return -1;
 }
 
-ByteData convert2ByteData(String data){
+ByteData convert2ByteData(String data) {
   return ByteData.sublistView(Utf8Encoder().convert(data));
 }
 
-String hex2String(String hex){
+String hex2String(String hex) {
   int len = hex.length ~/ 2;
   String s = '';
-  for(int i = 0; i < len * 2; i += 2){
+  for (int i = 0; i < len * 2; i += 2) {
     s += String.fromCharCode(int.tryParse(hex.substring(i, i + 2), radix: 16)!);
   }
   return s;
 }
 
-int hex2Int(String hex){
+int hex2Int(String hex) {
   return int.parse(hex, radix: 16);
 }
 
-String uint8List2String(Uint8List uint8list){
+String uint8List2String(Uint8List uint8list) {
   String s = '';
   uint8list.forEach((element) {
     s += (element.toRadixString(16).padLeft(2, '0'));
@@ -45,7 +45,7 @@ String uint8List2String(Uint8List uint8list){
   return s;
 }
 
-String byteData2String(ByteData b){
+String byteData2String(ByteData b) {
   return uint8List2String(b.buffer.asUint8List());
 }
 

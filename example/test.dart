@@ -12,8 +12,7 @@ import '../lib/src/vm/vm.dart';
 
 Future<void> main() async {
   //测试读取binary
-  final fileBytes =
-      await File('luac.out').readAsBytes();
+  final fileBytes = await File('luac.out').readAsBytes();
 
   //print(byteData2String(fileBytes.buffer.asByteData()));
   //listProto(unDump(fileBytes));
@@ -39,7 +38,7 @@ Future<void> main() async {
 
   //测试lua vm
   //luaMain(unDump(fileBytes));
-  
+
   var ls = newLuaState();
   ls.register('getmetayable', getMetaTab);
   ls.register('setmetatable', setMetaTab);
@@ -48,12 +47,12 @@ Future<void> main() async {
   ls.call(0, 0);
 }
 
-int getMetaTab(LuaState ls){
-  if(!ls.getMetaTable_(1)) ls.pushNull();
+int getMetaTab(LuaState ls) {
+  if (!ls.getMetaTable_(1)) ls.pushNull();
   return 1;
 }
 
-int setMetaTab(LuaState ls){
+int setMetaTab(LuaState ls) {
   ls.setMetaTable_(1);
   return 1;
 }
