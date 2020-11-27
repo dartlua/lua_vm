@@ -8,7 +8,7 @@ class LuaValue extends Object {
   LuaValue(this.luaValue);
 }
 
-LuaType typeOf(LuaValue val) {
+LuaType typeOf(LuaValue? val) {
   if (val == null) return LuaType.nil;
   final value = val.luaValue;
   if (value == null) return LuaType.nil;
@@ -69,39 +69,39 @@ int convert2Int(LuaValue val) {
   throw TypeError();
 }
 
-void setMetaTable(LuaValue val, LuaTable metaTable, LuaState luaState) {
+void setMetaTable(LuaValue val, LuaTable? metaTable, LuaState luaState) {
   dynamic table = val.luaValue;
   if (table is LuaTable) {
     table.metaTable = metaTable;
     return;
   }
-  luaState.registry.put(LuaValue('_MT${typeOf(val)}'), LuaValue(metaTable));
+  luaState.registry!.put(LuaValue('_MT${typeOf(val)}'), LuaValue(metaTable));
 }
 
-LuaTable getMetaTable(LuaValue val, LuaState luaState) {
+LuaTable? getMetaTable(LuaValue val, LuaState luaState) {
   dynamic t = val.luaValue;
   if (t is LuaTable) return t.metaTable;
-  LuaTable mt = luaState.registry.get(LuaValue('_MT${typeOf(val)}')).luaValue;
+  LuaTable? mt = luaState.registry!.get(LuaValue('_MT${typeOf(val)}')).luaValue;
   if (mt != null) return mt.metaTable;
   return null;
 }
 
-LuaValue callMetaMethod(
-    LuaValue a, LuaValue b, String metaMethod, LuaState luaState) {
+LuaValue? callMetaMethod(
+    LuaValue a, LuaValue? b, String metaMethod, LuaState luaState) {
   var mm = getMetaField(a, metaMethod, luaState);
   if (mm.luaValue == null) {
-    mm = getMetaField(b, metaMethod, luaState);
+    mm = getMetaField(b!, metaMethod, luaState);
     if (mm.luaValue == null) {
       return LuaValue(null);
     }
   }
 
-  luaState.stack.check(4);
-  luaState.stack.push(mm);
-  luaState.stack.push(a);
-  luaState.stack.push(b);
+  luaState.stack!.check(4);
+  luaState.stack!.push(mm);
+  luaState.stack!.push(a);
+  luaState.stack!.push(b);
   luaState.call(2, 1);
-  return luaState.stack.pop();
+  return luaState.stack!.pop();
 }
 
 LuaValue getMetaField(LuaValue val, String fieldName, LuaState ls) {

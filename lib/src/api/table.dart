@@ -2,7 +2,7 @@ import 'value.dart';
 
 class LuaTable {
   List<KV> list;
-  LuaTable metaTable;
+  LuaTable? metaTable;
 
   LuaTable(this.list);
 
@@ -16,14 +16,14 @@ class LuaTable {
     return LuaValue(index == -1 ? null : list.elementAt(index).value);
   }
 
-  void put(LuaValue key, LuaValue val) {
+  void put(LuaValue key, LuaValue? val) {
     dynamic value = key.luaValue;
     if (value is int) {
       fillListWithNull(value);
-      list[value - 1] = KV(value, val.luaValue);
+      list[value - 1] = KV(value, val!.luaValue);
       return;
     }
-    list.add(KV(value, val.luaValue));
+    list.add(KV(value, val!.luaValue));
   }
 
   void fillListWithNull(int count) {
@@ -39,7 +39,7 @@ class LuaTable {
   }
 
   bool hasMetaField(String fieldName) =>
-      metaTable != null && metaTable.get(LuaValue(fieldName)).luaValue != null;
+      metaTable != null && metaTable!.get(LuaValue(fieldName)).luaValue != null;
 
   KV nullKV() => KV(null, null);
 

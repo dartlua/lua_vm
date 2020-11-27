@@ -87,7 +87,7 @@ class StackUnderflowError implements Error {
   const StackUnderflowError();
   String toString() => "Stack Underflow";
 
-  StackTrace get stackTrace => null;
+  StackTrace? get stackTrace => null;
 }
 
 /* comparison functions */

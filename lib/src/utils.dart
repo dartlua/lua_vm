@@ -28,7 +28,7 @@ String hex2String(String hex){
   int len = hex.length ~/ 2;
   String s = '';
   for(int i = 0; i < len * 2; i += 2){
-    s += String.fromCharCode(int.tryParse(hex.substring(i, i + 2), radix: 16));
+    s += String.fromCharCode(int.tryParse(hex.substring(i, i + 2), radix: 16)!);
   }
   return s;
 }

@@ -11,7 +11,7 @@ bool eq_(LuaValue a, LuaValue b, LuaState ls) {
   if (aa is int) return bb is int ? aa == bb : aa.toDouble() == bb;
   if (aa is double) return bb is double ? aa == bb : aa == bb.toDouble();
   if (aa is LuaTable && bb is LuaTable && aa != bb && ls != null) {
-    var result = callMetaMethod(a, b, '__eq', ls);
+    var result = callMetaMethod(a, b, '__eq', ls)!;
     if (result.luaValue != null) return convert2Boolean(result);
   }
   return a == b;
@@ -25,7 +25,7 @@ bool lt_(LuaValue a, LuaValue b, LuaState ls) {
   }
   if (aa is int) return bb is int ? aa < bb : aa.toDouble() < bb;
   if (aa is double) return bb is double ? aa < bb : aa < bb.toDouble();
-  var result = callMetaMethod(a, b, '__lt', ls);
+  var result = callMetaMethod(a, b, '__lt', ls)!;
   if (result.luaValue != null) return convert2Boolean(result);
   throw UnsupportedError('Unsupported comparison between '
       '${aa.runtimeType} and ${bb.runtimeType}');
@@ -40,10 +40,10 @@ bool le_(LuaValue a, LuaValue b, LuaState ls) {
   if (aa is int) return bb is int ? aa <= bb : aa.toDouble() <= bb;
   if (aa is double) return bb is double ? aa <= bb : aa <= bb.toDouble();
 
-  var result = callMetaMethod(a, b, '__le', ls);
+  var result = callMetaMethod(a, b, '__le', ls)!;
   if (result.luaValue != null) return convert2Boolean(result);
 
-  result = callMetaMethod(a, b, '__lt', ls);
+  result = callMetaMethod(a, b, '__lt', ls)!;
   if (result.luaValue != null) return !convert2Boolean(result);
   throw UnsupportedError('Unsupported comparison between '
       '${aa.runtimeType} and ${bb.runtimeType}');
