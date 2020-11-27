@@ -1,3 +1,5 @@
+![Dart](https://github.com/dartlua/lua_vm/workflows/Dart/badge.svg)
+
 # Lua-Dart
 A Dart project which aims to provide better Lua experience
  (such as hot fix) in Dart.  
