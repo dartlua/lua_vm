@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:lua_vm/src/state/lua_stack.dart';
-import 'package:lua_vm/src/state/lua_table.dart';
-import 'package:lua_vm/src/state/lua_state.dart';
+import 'package:luart/src/state/lua_stack.dart';
+import 'package:luart/src/state/lua_table.dart';
+import 'package:luart/src/state/lua_state.dart';
 
 enum LuaArithOp {
   add,

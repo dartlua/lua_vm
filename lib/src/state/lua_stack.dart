@@ -1,4 +1,4 @@
-import 'package:lua_vm/lua_vm.dart';
+import 'package:luart/luart.dart';
 
 import '../constants.dart';
 import 'lua_closure.dart';

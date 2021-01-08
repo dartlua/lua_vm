@@ -1,5 +1,5 @@
-import 'package:lua_vm/src/api/lua_vm.dart';
-import 'package:lua_vm/src/api/lua_state.dart';
+import 'package:luart/src/api/lua_vm.dart';
+import 'package:luart/src/api/lua_state.dart';
 
 import '../state/lua_state.dart';
 import '../constants.dart';

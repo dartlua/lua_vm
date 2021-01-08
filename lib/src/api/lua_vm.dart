@@ -1,4 +1,4 @@
-import 'package:lua_vm/lua_vm.dart';
+import 'package:luart/luart.dart';
 
 abstract class LuaVM with LuaState {
   int get pc;

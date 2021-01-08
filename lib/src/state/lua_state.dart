@@ -1,16 +1,16 @@
 import 'dart:typed_data';
 
-import 'package:lua_vm/lua_vm.dart';
-import 'package:lua_vm/src/api/lua_vm.dart';
-import 'package:lua_vm/src/state/state_arith.dart';
-import 'package:lua_vm/src/state/state_access.dart';
-import 'package:lua_vm/src/state/state_compare.dart';
-import 'package:lua_vm/src/state/state_get.dart';
-import 'package:lua_vm/src/state/state_misc.dart';
-import 'package:lua_vm/src/state/state_push.dart';
-import 'package:lua_vm/src/state/state_set.dart';
-import 'package:lua_vm/src/state/state_stack.dart';
-import 'package:lua_vm/src/state/state_vm.dart';
+import 'package:luart/luart.dart';
+import 'package:luart/src/api/lua_vm.dart';
+import 'package:luart/src/state/state_arith.dart';
+import 'package:luart/src/state/state_access.dart';
+import 'package:luart/src/state/state_compare.dart';
+import 'package:luart/src/state/state_get.dart';
+import 'package:luart/src/state/state_misc.dart';
+import 'package:luart/src/state/state_push.dart';
+import 'package:luart/src/state/state_set.dart';
+import 'package:luart/src/state/state_stack.dart';
+import 'package:luart/src/state/state_vm.dart';
 
 import '../binary/chunk.dart';
 import '../constants.dart';

@@ -1,5 +1,5 @@
-import 'package:lua_vm/lua_vm.dart';
-import 'package:lua_vm/src/constants.dart';
+import 'package:luart/luart.dart';
+import 'package:luart/src/constants.dart';
 
 mixin LuaStateStack implements LuaState {
   @override

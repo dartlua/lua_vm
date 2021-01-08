@@ -1,4 +1,4 @@
-import 'package:lua_vm/src/api/lua_vm.dart';
+import 'package:luart/src/api/lua_vm.dart';
 
 import '../constants.dart';
 import 'instruction.dart';

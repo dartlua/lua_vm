@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:lua_vm/src/api/lua_state.dart';
+import 'package:luart/src/api/lua_state.dart';
 
 import '../lib/src/state/lua_state.dart';
 import '../lib/src/state/lua_table.dart';

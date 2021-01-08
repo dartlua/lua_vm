@@ -1,6 +1,6 @@
-import 'package:lua_vm/lua_vm.dart';
-import 'package:lua_vm/src/state/lua_table.dart';
-import 'package:lua_vm/src/state/lua_value.dart';
+import 'package:luart/luart.dart';
+import 'package:luart/src/state/lua_table.dart';
+import 'package:luart/src/state/lua_value.dart';
 
 mixin LuaStateMisc implements LuaState {
   @override

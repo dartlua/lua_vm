@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:lua_vm/lua_vm.dart';
-import 'package:lua_vm/src/state/lua_math.dart';
-import 'package:lua_vm/src/state/lua_value.dart';
+import 'package:luart/luart.dart';
+import 'package:luart/src/state/lua_math.dart';
+import 'package:luart/src/state/lua_value.dart';
 
 int iadd(int a, int b) => a + b;
 

@@ -1,8 +1,8 @@
-import 'package:lua_vm/lua_vm.dart';
-import 'package:lua_vm/src/constants.dart';
-import 'package:lua_vm/src/state/lua_closure.dart';
-import 'package:lua_vm/src/state/lua_table.dart';
-import 'package:lua_vm/src/state/lua_value.dart';
+import 'package:luart/luart.dart';
+import 'package:luart/src/constants.dart';
+import 'package:luart/src/state/lua_closure.dart';
+import 'package:luart/src/state/lua_table.dart';
+import 'package:luart/src/state/lua_value.dart';
 
 mixin LuaStateSet implements LuaState {
   @override

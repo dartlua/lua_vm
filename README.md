@@ -1,4 +1,4 @@
-![dart](https://github.com/dartlua/lua_vm/workflows/dart/badge.svg)
+![dart](https://github.com/dartlua/luart/workflows/dart/badge.svg)
 
 # Lua-Dart
 A Dart project which aims to provide better Lua experience

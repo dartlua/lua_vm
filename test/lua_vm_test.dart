@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:lua_vm/lua_vm.dart';
+import 'package:luart/luart.dart';
 import 'package:test/test.dart';
 
 void main() async {

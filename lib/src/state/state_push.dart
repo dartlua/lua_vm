@@ -1,5 +1,5 @@
-import 'package:lua_vm/lua_vm.dart';
-import 'package:lua_vm/src/state/lua_closure.dart';
+import 'package:luart/luart.dart';
+import 'package:luart/src/state/lua_closure.dart';
 
 mixin LuaStatePush implements LuaState {
   @override
