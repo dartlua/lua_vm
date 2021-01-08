@@ -1,4 +1,3 @@
-
 class LuaTable {
   List<KV> list;
   LuaTable? metaTable;

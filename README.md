@@ -1,4 +1,5 @@
-![dart](https://github.com/dartlua/luart/workflows/dart/badge.svg)
+![dart](https://github.com/dartlua/luart/workflows/dart/badge.svg)  
+![Banner](https://github.com/dartlua/luart/img/top_banner.png)
 
 # Lua-Dart
 A Dart project which aims to provide better Lua experience
@@ -34,6 +35,6 @@ Welcome everyone to contribute to this project.
 
 # License
 ```
-LollipopKit 2020
+Contributers 2021
 Apache License 2.0
 ```

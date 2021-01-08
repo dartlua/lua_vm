@@ -164,7 +164,7 @@ abstract class LuaState {
 
   /// Returns [true] if the value at the given index is a Dart function, and
   /// [false] otherwise.
-  bool isDartFunctiontion(int idx);
+  bool isDartFunction(int idx);
 
   /// Converts the Lua value at the given index to a Dart bool value. Like all
   /// tests in Lua, [toBool] returns [true] for any Lua value different from
@@ -188,7 +188,7 @@ abstract class LuaState {
 
   /// Converts a value at the given index to a Dart function. That value must be
   /// a Dart function; otherwise, returns [null].
-  DartFunction? toDartFunctiontion(int idx);
+  DartFunction? toDartFunction(int idx);
 
   // LuaState toThread(int idx) ;
   // dynamic toPointer(int idx);

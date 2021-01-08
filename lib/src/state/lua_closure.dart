@@ -10,7 +10,7 @@ class LuaClosure {
     if (upvalueCount > 0) upValues = <LuaUpValue>[];
   }
 
-  LuaClosure.fromDartFunctiontion(this.dartFunc, int nUpvalues) {
+  LuaClosure.fromDartFunction(this.dartFunc, int nUpvalues) {
     if (nUpvalues > 0) upValues = <LuaUpValue>[];
   }
 

@@ -118,14 +118,14 @@ class LuaStateImpl
   }
 
   @override
-  bool isDartFunctiontion(int idx) {
+  bool isDartFunction(int idx) {
     final val = stack.get(idx)!;
     if (val is LuaClosure) return val.dartFunc != null;
     return false;
   }
 
   @override
-  DartFunction? toDartFunctiontion(int idx) {
+  DartFunction? toDartFunction(int idx) {
     final val = stack.get(idx)!;
     if (val is LuaClosure) return val.dartFunc;
     return null;
@@ -142,7 +142,7 @@ class LuaStateImpl
 
   @override
   void pushDartClosure(DartFunction f, int n) {
-    final closure = LuaClosure.fromDartFunctiontion(f, n);
+    final closure = LuaClosure.fromDartFunction(f, n);
     for (var i = n; i > 0; i--) {
       closure.upValues[n - 1] = LuaUpValue(stack.pop());
     }
