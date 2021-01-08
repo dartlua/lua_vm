@@ -17,17 +17,18 @@ class Header {
   final double luacNum;
 
   Header(
-      this.signature,
-      this.version,
-      this.format,
-      this.luacData,
-      this.cintSize,
-      this.sizetSize,
-      this.instructionSize,
-      this.luaIntegerSize,
-      this.luaNumberSize,
-      this.luacInt,
-      this.luacNum);
+    this.signature,
+    this.version,
+    this.format,
+    this.luacData,
+    this.cintSize,
+    this.sizetSize,
+    this.instructionSize,
+    this.luaIntegerSize,
+    this.luaNumberSize,
+    this.luacInt,
+    this.luacNum,
+  );
 }
 
 class Upvalue {
@@ -61,19 +62,20 @@ class Prototype {
   final List<String> upvaluesName;
 
   Prototype(
-      this.source,
-      this.lineDefined,
-      this.lastLineDefined,
-      this.numParams,
-      this.isVararg,
-      this.maxStackSize,
-      this.codes,
-      this.constants,
-      this.upvalues,
-      this.protos,
-      this.lineInfo,
-      this.locVars,
-      this.upvaluesName);
+    this.source,
+    this.lineDefined,
+    this.lastLineDefined,
+    this.numParams,
+    this.isVararg,
+    this.maxStackSize,
+    this.codes,
+    this.constants,
+    this.upvalues,
+    this.protos,
+    this.lineInfo,
+    this.locVars,
+    this.upvaluesName,
+  );
 }
 
 class BinaryChunk {

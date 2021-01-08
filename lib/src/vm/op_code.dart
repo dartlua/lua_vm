@@ -1,6 +1,7 @@
+import 'package:lua_vm/src/api/lua_vm.dart';
+
 import '../constants.dart';
 import 'instruction.dart';
-import 'vm.dart';
 
 class OpCode {
   final int testFlag;
@@ -11,8 +12,15 @@ class OpCode {
   final String name;
   final Function(int instruction, LuaVM vm)? action;
 
-  OpCode(this.testFlag, this.setAFlag, this.argBMode, this.argCMode,
-      this.opMode, this.name, this.action);
+  OpCode(
+    this.testFlag,
+    this.setAFlag,
+    this.argBMode,
+    this.argCMode,
+    this.opMode,
+    this.name,
+    this.action,
+  );
 }
 
 List<OpCode> opCodes = [

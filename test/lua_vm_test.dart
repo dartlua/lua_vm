@@ -8,7 +8,7 @@ void main() async {
     late LuaState lua;
 
     setUp(() async {
-      lua = newLuaState();
+      lua = LuaState();
     });
 
     test('First Test', () async {

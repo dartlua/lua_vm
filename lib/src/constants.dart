@@ -83,10 +83,13 @@ const int MAXARG_Bx = 262143;
 const int MAXARG_sBx = 131071;
 
 class StackUnderflowError implements Error {
-  @pragma("vm:entry-point")
+  @pragma('vm:entry-point')
   const StackUnderflowError();
-  String toString() => "Stack Underflow";
 
+  @override
+  String toString() => 'Stack Underflow';
+
+  @override
   StackTrace? get stackTrace => null;
 }
 

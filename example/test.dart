@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import '../lib/src/api/state.dart';
-import '../lib/src/api/table.dart';
+import 'package:lua_vm/src/api/lua_state.dart';
+
+import '../lib/src/state/lua_state.dart';
+import '../lib/src/state/lua_table.dart';
 import '../lib/src/binary/chunk.dart';
 import '../lib/src/constants.dart';
-import '../lib/src/operation/arith.dart';
-import '../lib/src/operation/math.dart';
 import '../lib/src/vm/instruction.dart';
-import '../lib/src/vm/vm.dart';
 
 Future<void> main() async {
   //测试读取binary
@@ -39,23 +38,23 @@ Future<void> main() async {
   //测试lua vm
   //luaMain(unDump(fileBytes));
 
-  var ls = newLuaState();
-  ls.register('getmetayable', getMetaTab);
-  ls.register('setmetatable', setMetaTab);
-  ls.load(fileBytes, 'luac.out', 'b');
-  print('\noutputs:');
-  ls.call(0, 0);
+  // var ls = LuaState();
+  // ls.register('getmetayable', getMetaTab);
+  // ls.register('setmetatable', setMetaTab);
+  // ls.load(fileBytes, 'luac.out', 'b');
+  // print('\noutputs:');
+  // ls.call(0, 0);
 }
 
-int getMetaTab(LuaState ls) {
-  if (!ls.getMetaTable_(1)) ls.pushNull();
-  return 1;
-}
+// int getMetaTab(LuaState ls) {
+//   if (!ls.getMetaTable_(1)) ls.pushNull();
+//   return 1;
+// }
 
-int setMetaTab(LuaState ls) {
-  ls.setMetaTable_(1);
-  return 1;
-}
+// int setMetaTab(LuaState ls) {
+//   ls.setMetaTable_(1);
+//   return 1;
+// }
 
 /*
 void luaMain(ProtoType proto){
@@ -77,7 +76,7 @@ String state(LuaState luaState){
   int top = luaState.getTop();
   List p = [];
   for(int i = 1;i <= top;i++){
-    dynamic value = luaState.stack.get(i)?.luaValue;
+    dynamic value = luaState.stack.get(i)?;
     p.add(value is LuaTable ? 'table' : value);
   }
   return json.encode(p);

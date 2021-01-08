@@ -1,9 +1,10 @@
-import '../api/state.dart';
+import 'package:lua_vm/src/api/lua_vm.dart';
+import 'package:lua_vm/src/api/lua_state.dart';
+
+import '../state/lua_state.dart';
 import '../constants.dart';
-import '../operation/arith.dart';
-import '../operation/fpb.dart';
+import 'fpb.dart';
 import 'op_code.dart';
-import 'vm.dart';
 
 class InstructionABC {
   InstructionABC(this.a, this.b, this.c);
@@ -62,13 +63,13 @@ extension Instruction on int {
 
 void move(int instruction, LuaVM vm) {
   final operand = instruction.abc();
-  vm.luaState.copy(operand.b + 1, operand.a + 1);
+  vm.copy(operand.b + 1, operand.a + 1);
 }
 
 void jmp(int instruction, LuaVM vm) {
   final operand = instruction.AsBx();
-  vm.luaState.stack!.addPC(operand.b);
-  if (operand.a != 0) vm.luaState.closeClosure(operand.a);
+  vm.stack.addPC(operand.b);
+  if (operand.a != 0) vm.closeClosure(operand.a);
 }
 
 void loadNil(int instruction, LuaVM vm) {
@@ -76,79 +77,79 @@ void loadNil(int instruction, LuaVM vm) {
   final a = operand.a + 1;
   final b = operand.b;
 
-  vm.luaState.pushNull();
+  vm.pushNil();
   for (var i = a; i <= a + b; i++) {
-    vm.luaState.copy(-1, i);
+    vm.copy(-1, i);
   }
-  vm.luaState.pop(1);
+  vm.pop(1);
 }
 
 void loadBool(int instruction, LuaVM vm) {
   final operand = instruction.abc();
-  vm.luaState.pushBool(operand.b != 0);
-  vm.luaState.replace(operand.a + 1);
-  if (operand.c != 0) vm.luaState.stack!.addPC(1);
+  vm.pushBool(operand.b != 0);
+  vm.replace(operand.a + 1);
+  if (operand.c != 0) vm.stack.addPC(1);
 }
 
 void loadK(int instruction, LuaVM vm) {
   final operand = instruction.abx();
-  vm.luaState.getConst(operand.b);
-  vm.luaState.replace(operand.a + 1);
+  vm.getConst(operand.b);
+  vm.replace(operand.a + 1);
 }
 
 void loadKx(int instruction, LuaVM vm) {
   final operand = instruction.abx();
-  vm.luaState.getConst(Instruction(vm.luaState.fetch()).ax());
-  vm.luaState.replace(operand.a + 1);
+  vm.getConst(Instruction(vm.fetch()).ax());
+  vm.replace(operand.a + 1);
 }
 
-void _binaryArith(int instruction, LuaVM vm, ArithOp op) {
+void _binaryArith(int instruction, LuaVM vm, LuaArithOp op) {
   final operand = instruction.abc();
-  vm.luaState.getRK(operand.b);
-  vm.luaState.getRK(operand.c);
-  vm.luaState.arith(op);
-  vm.luaState.replace(operand.a + 1);
+  vm.getRK(operand.b);
+  vm.getRK(operand.c);
+  vm.arith(op);
+  vm.replace(operand.a + 1);
 }
 
-void _unaryArith(int instruction, LuaVM vm, ArithOp op) {
+void _unaryArith(int instruction, LuaVM vm, LuaArithOp op) {
   final operand = instruction.abc();
-  vm.luaState.pushValue(operand.b + 1);
-  vm.luaState.arith(op);
-  vm.luaState.replace(operand.a + 1);
+  vm.pushValue(operand.b + 1);
+  vm.arith(op);
+  vm.replace(operand.a + 1);
 }
 
-void add(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.add);
+void add(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.add);
 
-void sub(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.sub);
+void sub(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.sub);
 
-void mul(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.mul);
+void mul(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.mul);
 
-void mod(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.mod);
+void mod(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.mod);
 
-void pow(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.pow);
+void pow(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.pow);
 
-void div(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.div);
+void div(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.div);
 
-void idiv(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.idiv);
+void idiv(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.idiv);
 
-void band(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.band);
+void band(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.band);
 
-void bor(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.bor);
+void bor(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.bor);
 
-void bxor(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.bxor);
+void bxor(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.bxor);
 
-void shl(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.shl);
+void shl(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.shl);
 
-void shr(int inst, LuaVM vm) => _binaryArith(inst, vm, ArithOp.shr);
+void shr(int inst, LuaVM vm) => _binaryArith(inst, vm, LuaArithOp.shr);
 
-void unm(int inst, LuaVM vm) => _unaryArith(inst, vm, ArithOp.unm);
+void unm(int inst, LuaVM vm) => _unaryArith(inst, vm, LuaArithOp.unm);
 
-void bnot(int inst, LuaVM vm) => _unaryArith(inst, vm, ArithOp.bnot);
+void bnot(int inst, LuaVM vm) => _unaryArith(inst, vm, LuaArithOp.bnot);
 
 void len(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.len(operand.b + 1);
-  vm.luaState.replace(operand.a + 1);
+  vm.len(operand.b + 1);
+  vm.replace(operand.a + 1);
 }
 
 void concat(int inst, LuaVM vm) {
@@ -158,98 +159,98 @@ void concat(int inst, LuaVM vm) {
   final c = operand.c + 1;
   final n = c - b + 1;
 
-  vm.luaState.checkStack(n);
+  vm.checkStack(n);
   for (var i = b; i <= c; i++) {
-    vm.luaState.pushValue(i);
+    vm.pushValue(i);
   }
-  vm.luaState.concat(n);
-  vm.luaState.replace(a);
+  vm.concat(n);
+  vm.replace(a);
 }
 
-void _compare(int inst, LuaVM vm, CompareOp op) {
+void _compare(int inst, LuaVM vm, LuaCompareOp op) {
   final operand = inst.abc();
 
-  vm.luaState.getRK(operand.b);
-  vm.luaState.getRK(operand.c);
-  if (vm.luaState.compare(-2, -1, op) != (operand.a != 0)) {
-    vm.luaState.stack!.addPC(1);
+  vm.getRK(operand.b);
+  vm.getRK(operand.c);
+  if (vm.compare(-2, -1, op) != (operand.a != 0)) {
+    vm.stack.addPC(1);
   }
-  vm.luaState.pop(2);
+  vm.pop(2);
 }
 
-void eq(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPEQ));
+void eq(int inst, LuaVM vm) => _compare(inst, vm, LuaCompareOp.eq);
 
-void lt(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPLT));
+void lt(int inst, LuaVM vm) => _compare(inst, vm, LuaCompareOp.lt);
 
-void le(int inst, LuaVM vm) => _compare(inst, vm, CompareOp(LUA_OPLE));
+void le(int inst, LuaVM vm) => _compare(inst, vm, LuaCompareOp.le);
 
 void not(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.pushBool(!vm.luaState.toBool(operand.b + 1));
-  vm.luaState.replace(operand.a + 1);
+  vm.pushBool(!vm.toBool(operand.b + 1));
+  vm.replace(operand.a + 1);
 }
 
 void testSet(int inst, LuaVM vm) {
   final operand = inst.abc();
   final b = operand.b + 1;
-  if (vm.luaState.toBool(b) == (operand.c != 0)) {
-    vm.luaState.copy(b, operand.a + 1);
+  if (vm.toBool(b) == (operand.c != 0)) {
+    vm.copy(b, operand.a + 1);
   } else {
-    vm.luaState.stack!.addPC(1);
+    vm.stack.addPC(1);
   }
 }
 
 void test(int inst, LuaVM vm) {
   final operand = inst.abc();
-  if (vm.luaState.toBool(operand.a + 1) != (operand.c != 0)) {
-    vm.luaState.stack!.addPC(1);
+  if (vm.toBool(operand.a + 1) != (operand.c != 0)) {
+    vm.stack.addPC(1);
   }
 }
 
 void forPrep(int inst, LuaVM vm) {
   final operand = inst.AsBx();
   final a = operand.a + 1;
-  vm.luaState.pushValue(a);
-  vm.luaState.pushValue(a + 2);
-  vm.luaState.arith(ArithOp.sub);
-  vm.luaState.replace(a);
-  vm.luaState.stack!.addPC(operand.b);
+  vm.pushValue(a);
+  vm.pushValue(a + 2);
+  vm.arith(LuaArithOp.sub);
+  vm.replace(a);
+  vm.stack.addPC(operand.b);
 }
 
 void forLoop(int inst, LuaVM vm) {
   final operand = inst.AsBx();
   final a = operand.a + 1;
-  vm.luaState.pushValue(a + 2);
-  vm.luaState.pushValue(a);
-  vm.luaState.arith(ArithOp.add);
-  vm.luaState.replace(a);
+  vm.pushValue(a + 2);
+  vm.pushValue(a);
+  vm.arith(LuaArithOp.add);
+  vm.replace(a);
 
-  final isPositiveStep = vm.luaState.toNumber(a + 2) >= 0;
-  if (isPositiveStep && vm.luaState.compare(a, a + 1, CompareOp(LUA_OPLE)) ||
-      !isPositiveStep && vm.luaState.compare(a + 1, a, CompareOp(LUA_OPLE))) {
-    vm.luaState.stack!.addPC(operand.b);
-    vm.luaState.copy(a, a + 3);
+  final isPositiveStep = vm.toNumber(a + 2) >= 0;
+  if (isPositiveStep && vm.compare(a, a + 1, LuaCompareOp.le) ||
+      !isPositiveStep && vm.compare(a + 1, a, LuaCompareOp.le)) {
+    vm.stack.addPC(operand.b);
+    vm.copy(a, a + 3);
   }
 }
 
 void newTable(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.createTable(fb2Int(operand.b), fb2Int(operand.c));
-  vm.luaState.replace(operand.a + 1);
+  vm.createTable(fb2Int(operand.b), fb2Int(operand.c));
+  vm.replace(operand.a + 1);
 }
 
 void getTable(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.getRK(operand.c);
-  vm.luaState.getTable(operand.b + 1);
-  vm.luaState.replace(operand.a + 1);
+  vm.getRK(operand.c);
+  vm.getTable(operand.b + 1);
+  vm.replace(operand.a + 1);
 }
 
 void setTable(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.getRK(operand.b);
-  vm.luaState.getRK(operand.c);
-  vm.luaState.setTable(operand.a + 1);
+  vm.getRK(operand.b);
+  vm.getRK(operand.c);
+  vm.setTable(operand.a + 1);
 }
 
 void setList(int inst, LuaVM vm) {
@@ -261,80 +262,80 @@ void setList(int inst, LuaVM vm) {
   if (c > 0) {
     c -= 1;
   } else {
-    c = Instruction(vm.luaState.fetch()).ax();
+    c = Instruction(vm.fetch()).ax();
   }
 
   final bIsZero = b == 0;
   if (bIsZero) {
-    b = vm.luaState.toInt(-1) - a - 1;
-    vm.luaState.pop(1);
+    b = vm.toInt(-1) - a - 1;
+    vm.pop(1);
   }
 
   var idx = c * LFIELDS_PER_FLUSH;
   for (var j = 1; j <= b; j++) {
     idx++;
-    vm.luaState.pushValue(a + j);
-    vm.luaState.setI(a, idx);
+    vm.pushValue(a + j);
+    vm.setI(a, idx);
   }
 
   if (bIsZero) {
-    for (var j = vm.luaState.registerCount() + 1;
-        j <= vm.luaState.getTop();
+    for (var j = vm.registerCount() + 1;
+        j <= vm.getTop();
         j++) {
       idx++;
-      vm.luaState.pushValue(j);
-      vm.luaState.setI(a, idx);
+      vm.pushValue(j);
+      vm.setI(a, idx);
     }
-    vm.luaState.setTop(vm.luaState.registerCount());
+    vm.setTop(vm.registerCount());
   }
 }
 
 void closure(int inst, LuaVM vm) {
   final operand = inst.abx();
-  vm.luaState.loadProto(operand.b);
-  vm.luaState.replace(operand.a + 1);
+  vm.loadProto(operand.b);
+  vm.replace(operand.a + 1);
 }
 
 void call(int inst, LuaVM vm) {
   final operand = inst.abc();
   final a = operand.a + 1;
-  var nArgs = _pushFuncAndArgs(a, operand.b, vm);
-  vm.luaState.call(nArgs, operand.c - 1);
+  final nArgs = _pushFuncAndArgs(a, operand.b, vm);
+  vm.call(nArgs, operand.c - 1);
   _popResults(a, operand.c, vm);
 }
 
 int _pushFuncAndArgs(int a, int b, LuaVM vm) {
   if (b >= 1) {
-    vm.luaState.checkStack(b);
+    vm.checkStack(b);
     for (var i = a; i < a + b; i++) {
-      vm.luaState.pushValue(i);
+      vm.pushValue(i);
     }
     return b - 1;
   } else {
     _fixStack(a, vm);
-    return vm.luaState.getTop() - vm.luaState.registerCount() - 1;
+    return vm.getTop() - vm.registerCount() - 1;
   }
 }
 
 void _fixStack(int a, LuaVM vm) {
-  var x = vm.luaState.toInt(-1);
-  vm.luaState.pop(1);
-  vm.luaState.checkStack(x - a);
+  final x = vm.toInt(-1);
+  vm.pop(1);
+  vm.checkStack(x - a);
   for (var i = a; i < x; i++) {
-    vm.luaState.pushValue(i);
+    vm.pushValue(i);
   }
-  vm.luaState.rotate(vm.luaState.registerCount() + 1, x - a);
+  vm.rotate(vm.registerCount() + 1, x - a);
 }
 
 void _popResults(int a, int c, LuaVM vm) {
   if (c == 1) {
   } else if (c > 1) {
     for (var i = a + c - 2; i >= a; i--) {
-      vm.luaState.replace(i);
+      vm.replace(i);
     }
   } else {
-    vm.luaState.checkStack(1);
-    vm.luaState.pushInt(a);
+    vm.checkStack(1);
+    vm.pushInt(a);
   }
 }
 
@@ -344,9 +345,9 @@ void return_(int inst, LuaVM vm) {
   final b = operand.b;
   if (b == 1) {
   } else if (b > 1) {
-    vm.luaState.checkStack(b - 1);
+    vm.checkStack(b - 1);
     for (var i = a; i <= a + b - 2; i++) {
-      vm.luaState.pushValue(i);
+      vm.pushValue(i);
     }
   } else {
     _fixStack(a, vm);
@@ -357,7 +358,7 @@ void vararg(int inst, LuaVM vm) {
   final operand = inst.abc();
   final b = operand.b;
   if (b != 1) {
-    vm.luaState.loadVararg(b - 1);
+    vm.loadVararg(b - 1);
     _popResults(operand.a + 1, b, vm);
   }
 }
@@ -366,7 +367,7 @@ void tailCall(int inst, LuaVM vm) {
   final operand = inst.abc();
   final a = operand.a + 1;
   var nArgs = _pushFuncAndArgs(a, operand.b, vm);
-  vm.luaState.call(nArgs, -1);
+  vm.call(nArgs, -1);
   _popResults(a, 0, vm);
 }
 
@@ -374,32 +375,32 @@ void self(int inst, LuaVM vm) {
   final operand = inst.abc();
   final a = operand.a + 1;
   final b = operand.b + 1;
-  vm.luaState.copy(b, a + 1);
-  vm.luaState.getRK(operand.c);
-  vm.luaState.getTable(b);
-  vm.luaState.replace(a);
+  vm.copy(b, a + 1);
+  vm.getRK(operand.c);
+  vm.getTable(b);
+  vm.replace(a);
 }
 
 void getTabUp(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.getRK(operand.c);
-  vm.luaState.getTable(luaUpvalueIndex(operand.b + 1));
-  vm.luaState.replace(operand.a + 1);
+  vm.getRK(operand.c);
+  vm.getTable(luaUpvalueIndex(operand.b + 1));
+  vm.replace(operand.a + 1);
 }
 
 void setTabUp(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.getRK(operand.b);
-  vm.luaState.getRK(operand.c);
-  vm.luaState.setTable(luaUpvalueIndex(operand.a + 1));
+  vm.getRK(operand.b);
+  vm.getRK(operand.c);
+  vm.setTable(luaUpvalueIndex(operand.a + 1));
 }
 
 void getUpval(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.copy(luaUpvalueIndex(operand.b + 1), operand.a + 1);
+  vm.copy(luaUpvalueIndex(operand.b + 1), operand.a + 1);
 }
 
 void setUpval(int inst, LuaVM vm) {
   final operand = inst.abc();
-  vm.luaState.copy(operand.a + 1, luaUpvalueIndex(operand.b + 1));
+  vm.copy(operand.a + 1, luaUpvalueIndex(operand.b + 1));
 }

@@ -1,39 +1,41 @@
+import 'package:lua_vm/lua_vm.dart';
+
 import '../constants.dart';
-import 'closure.dart';
-import 'state.dart';
-import 'table.dart';
-import 'value.dart';
+import 'lua_closure.dart';
+import 'lua_table.dart';
 
 class LuaStack {
-  List<LuaValue?> slots;
+  List<Object?> slots;
   int top;
   LuaStack? prev;
-  Closure? closure;
-  late List<LuaValue?> varargs;
+  LuaClosure? closure;
+  late List<Object?> varargs;
   int pc = 0;
   LuaState state;
-  Map<int, UpValue?>? openUVs;
+  Map<int, LuaUpValue?>? openUVs;
 
-  LuaStack(this.slots, this.top, this.state);
+  LuaStack(int size, this.state)
+      : slots = List<Object?>.filled(size, null),
+        top = 0;
 
   void addPC(int n) => pc += n;
 
   void check(int n) {
-    var free = slots.length - top;
-    slots.fillRange(free, free + n - 1, LuaValue(null));
+    final free = slots.length - top;
+    slots.fillRange(free, free + n - 1, null);
   }
 
-  void push(LuaValue? val) {
+  void push(Object? val) {
     if (top == slots.length) throw StackOverflowError();
     slots[top] = val;
     top++;
   }
 
-  LuaValue? pop() {
+  Object? pop() {
     if (top < 1) throw RangeError('now top value: $top');
     top--;
-    var luaValue = slots[top];
-    slots[top] = LuaValue(null);
+    final luaValue = slots[top];
+    slots[top] = null;
     return luaValue;
   }
 
@@ -44,46 +46,45 @@ class LuaStack {
 
   bool isValid(int idx) {
     if (idx < LUA_REGISTRYINDEX) {
-      var uvIndex = LUA_REGISTRYINDEX - idx - 1;
-      var c = closure;
+      final uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      final c = closure;
       return c != null && uvIndex < c.upValues.length;
     }
 
     if (idx == LUA_REGISTRYINDEX) return true;
 
-    var absIdx = absIndex(idx);
+    final absIdx = absIndex(idx);
     return absIdx > 0 && absIdx <= top;
   }
 
-  LuaValue? get(int idx) {
+  Object? get(int idx) {
     if (idx < LUA_REGISTRYINDEX) {
-      var uvIndex = LUA_REGISTRYINDEX - idx - 1;
-      var c = closure;
-      if (c == null || uvIndex >= c.upValues.length) return LuaValue(null);
-      return c.upValues[uvIndex]!.val;
+      final uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      final c = closure;
+      if (c == null || uvIndex >= c.upValues.length) return null;
+      return c.upValues[uvIndex]!.value;
     }
 
-    if (idx == LUA_REGISTRYINDEX) return LuaValue(state.registry);
+    if (idx == LUA_REGISTRYINDEX) state.registry;
 
     final absIdx = absIndex(idx);
     if (absIdx > 0 && absIdx <= top) return slots[absIdx - 1];
-    return LuaValue(null);
+    return null;
   }
 
-  void set(int idx, LuaValue? val) {
+  void set(int idx, Object? value) {
     if (idx < LUA_REGISTRYINDEX) {
-      var uvIndex = LUA_REGISTRYINDEX - idx - 1;
-      var c = closure;
+      final uvIndex = LUA_REGISTRYINDEX - idx - 1;
+      final c = closure;
       if (c != null && uvIndex < c.upValues.length) {
-        c.upValues[uvIndex]!.val = val;
+        c.upValues[uvIndex]!.value = value;
       }
       return;
     }
 
     if (idx == LUA_REGISTRYINDEX) {
-      dynamic table = val!.luaValue;
-      if (table is LuaTable) {
-        state.registry = table;
+      if (value is LuaTable) {
+        state.registry = value;
         return;
       }
       throw ArgumentError('val must be LuaTable');
@@ -91,7 +92,7 @@ class LuaStack {
 
     var absIdx = absIndex(idx);
     if (absIdx > 0 && absIdx <= top) {
-      slots[absIdx - 1] = val;
+      slots[absIdx - 1] = value;
       return;
     }
     throw StackUnderflowError(); //IndexError(absIdx, slots);
@@ -99,7 +100,7 @@ class LuaStack {
 
   void reverse(int from, int to) {
     while (from < to) {
-      var temp = slots[from];
+      final temp = slots[from];
       slots[from] = slots[to];
       slots[to] = temp;
       from++;
@@ -107,26 +108,23 @@ class LuaStack {
     }
   }
 
-  List<LuaValue?> popN(int n) {
-    var valList = List<LuaValue?>.filled(n, null);
+  List<Object?> popN(int n) {
+    final valList = List<Object?>.filled(n, null);
     for (var i = n - 1; i >= 0; i--) {
       valList[i] = pop();
     }
     return valList;
   }
 
-  void pushN(List<LuaValue?> valList, int n) {
-    var lenVal = valList.length;
+  void pushN(List<Object?> valList, int n) {
+    final lenVal = valList.length;
     if (n < 0) n = lenVal;
     for (var i = 0; i < n; i++) {
       if (i < lenVal) {
         push(valList[i]);
       } else {
-        push(LuaValue(null));
+        push(null);
       }
     }
   }
 }
-
-LuaStack newLuaStack(int size, LuaState state) =>
-    LuaStack(List<LuaValue?>.filled(size, null), 0, state);
