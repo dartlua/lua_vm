@@ -1,7 +1,7 @@
 import 'package:luart/luart.dart';
+import 'package:luart/src/state/lua_closure.dart';
+import 'package:luart/src/state/lua_table.dart';
 
-import 'lua_closure.dart';
-import 'lua_table.dart';
 
 // class Object extends Object {
 //   dynamic luaValue;
@@ -61,12 +61,12 @@ void setMetatableFor(Object val, LuaTable? metaTable, LuaState luaState) {
     table.metaTable = metaTable;
     return;
   }
-  luaState.registry.put('_MT${typeOf(val)}', metaTable);
+  luaState.registry!.put('_MT${typeOf(val)}', metaTable);
 }
 
 LuaTable? getMetaTable(Object val, LuaState luaState) {
   if (val is LuaTable) return val.metaTable;
-  final mt = luaState.registry.get('_MT${typeOf(val)}');
+  final mt = luaState.registry!.get('_MT${typeOf(val)}');
   if (mt != null && mt is LuaTable) return mt.metaTable;
   return null;
 }
@@ -85,12 +85,12 @@ Object? callMetaMethod(
     }
   }
 
-  luaState.stack.check(4);
-  luaState.stack.push(mm);
-  luaState.stack.push(a);
-  luaState.stack.push(b);
+  luaState.stack!.check(4);
+  luaState.stack!.push(mm);
+  luaState.stack!.push(a);
+  luaState.stack!.push(b);
   luaState.call(2, 1);
-  return luaState.stack.pop();
+  return luaState.stack!.pop();
 }
 
 Object? getMetafield(Object val, String fieldName, LuaState ls) {

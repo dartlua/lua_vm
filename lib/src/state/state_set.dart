@@ -7,16 +7,16 @@ import 'package:luart/src/state/lua_value.dart';
 mixin LuaStateSet implements LuaState {
   @override
   void setGlobal(String name) {
-    final t = registry.get(LUA_RIDX_GLOBALS)!;
-    final v = stack.pop();
+    final t = registry!.get(LUA_RIDX_GLOBALS)!;
+    final v = stack!.pop();
     _setTable(t, name, v, false);
   }
 
   @override
   void setTable(int idx) {
-    final t = stack.get(idx)!;
-    final v = stack.pop();
-    final k = stack.pop();
+    final t = stack!.get(idx)!;
+    final v = stack!.pop();
+    final k = stack!.pop();
     _setTable(t, k, v, false);
   }
 
@@ -37,10 +37,10 @@ mixin LuaStateSet implements LuaState {
         return;
       }
       if (mf is LuaClosure) {
-        stack.push(mf);
-        stack.push(table);
-        stack.push(k);
-        stack.push(v);
+        stack!.push(mf);
+        stack!.push(table);
+        stack!.push(k);
+        stack!.push(v);
         call(3, 0);
         return;
       }
@@ -50,30 +50,30 @@ mixin LuaStateSet implements LuaState {
 
   @override
   void rawSet(int idx) {
-    final t = stack.get(idx)!;
-    final v = stack.pop();
-    final k = stack.pop();
+    final t = stack!.get(idx)!;
+    final v = stack!.pop();
+    final k = stack!.pop();
     _setTable(t, k, v, true);
   }
 
   @override
   void rawSetI(int idx, int i) {
-    final t = stack.get(idx)!;
-    final v = stack.pop();
+    final t = stack!.get(idx)!;
+    final v = stack!.pop();
     _setTable(t, i, v, true);
   }
 
   @override
   void setField(int idx, String k) {
-    final t = stack.get(idx)!;
-    final v = stack.pop();
+    final t = stack!.get(idx)!;
+    final v = stack!.pop();
     _setTable(t, k, v, false);
   }
 
   @override
   void setI(int idx, int i) {
-    final t = stack.get(idx)!;
-    final v = stack.pop();
+    final t = stack!.get(idx)!;
+    final v = stack!.pop();
     _setTable(t, i, v, false);
   }
 }

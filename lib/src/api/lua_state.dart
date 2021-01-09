@@ -45,11 +45,11 @@ typedef DartFunction = int Function(LuaState);
 abstract class LuaState {
   factory LuaState() = LuaStateImpl;
 
-  LuaTable get registry;
+  LuaTable? get registry;
 
-  LuaStack get stack;
+  LuaStack? get stack;
 
-  set registry(LuaTable luaTable);
+  set registry(LuaTable? luaTable);
 
   /// Returns the index of the top element in the stack. Because indices start
   /// at 1, this result is equal to the number of elements in the stack; in
@@ -68,6 +68,9 @@ abstract class LuaState {
   /// function never shrinks the stack; if the stack already has space for the
   /// extra slots, it is left unchanged.
   bool checkStack(int n);
+
+  /// Get a instruction code from the top of stack
+  int fetch();
 
   /// Pops n elements from the stack.
   void pop(int n);

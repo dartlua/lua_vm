@@ -5,17 +5,17 @@ import 'package:luart/src/state/lua_value.dart';
 mixin LuaStateCompare implements LuaState {
   @override
   bool rawEqual(int idx1, int idx2) {
-    if (!stack.isValid(idx1) || !stack.isValid(idx2)) return false;
-    final a = stack.get(idx1)!;
-    final b = stack.get(idx2)!;
+    if (!stack!.isValid(idx1) || !stack!.isValid(idx2)) return false;
+    final a = stack!.get(idx1)!;
+    final b = stack!.get(idx2)!;
     return _eq(a, b, this);
   }
 
   @override
   bool compare(int idx1, int idx2, LuaCompareOp op) {
-    if (!stack.isValid(idx1) || !stack.isValid(idx2)) return false;
-    var a = stack.get(idx1);
-    var b = stack.get(idx2);
+    if (!stack!.isValid(idx1) || !stack!.isValid(idx2)) return false;
+    var a = stack!.get(idx1);
+    var b = stack!.get(idx2);
     LuaState ls = this;
     switch (op) {
       case LuaCompareOp.eq:
@@ -38,7 +38,7 @@ bool _eq(Object a, Object b, LuaState ls) {
   if (aa is String) return aa == bb;
   if (aa is int) return bb is int ? aa == bb : aa.toDouble() == bb;
   if (aa is double) return bb is double ? aa == bb : aa == bb.toDouble();
-  if (aa is LuaTable && bb is LuaTable && aa != bb && ls != null) {
+  if (aa is LuaTable && bb is LuaTable && aa != bb) {
     final result = callMetaMethod(a, b, '__eq', ls);
     if (result != null) return convert2Boolean(result);
   }

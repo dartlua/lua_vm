@@ -1,8 +1,8 @@
 import 'package:luart/luart.dart';
+import 'package:luart/src/constants.dart';
+import 'package:luart/src/state/lua_closure.dart';
+import 'package:luart/src/state/lua_table.dart';
 
-import '../constants.dart';
-import 'lua_closure.dart';
-import 'lua_table.dart';
 
 class LuaStack {
   List<Object?> slots;

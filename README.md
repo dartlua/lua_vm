@@ -2,24 +2,13 @@
 ![Banner](https://github.com/dartlua/luart/img/top_banner.png)
 
 # Lua-Dart
-A Dart project which aims to provide better Lua experience
- (such as hot fix) in Dart.  
-With this project,
-you can execute Lua binary on your device to implement extra function.
-
-Such as hot fix:  
-On your device, Load Lua binary from your server,
-execute this binary to login website A and get cookie of it.  
-After website A change its login workflow or api,
-You no need to publish a new version of your app,
-Just update Lua script on your server.
+A Dart project which aims to provide better Lua experience (such as hot fix) in Dart.  
+With this project, you can execute Lua binary on your device to implement extra function.
 
 
 # Feature
 - All platform support.(iOS Android Web)
-- Execute compiled binary to save compile time on device.
-- No platform specific code.
-- Pure. Only for execute Lua script.
+- Execute compiled binary on device.
 
 # TODO
 - [x] Read Lua binary.

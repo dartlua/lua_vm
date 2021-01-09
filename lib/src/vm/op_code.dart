@@ -1,7 +1,7 @@
 import 'package:luart/src/api/lua_vm.dart';
+import 'package:luart/src/constants.dart';
+import 'package:luart/src/vm/instruction.dart';
 
-import '../constants.dart';
-import 'instruction.dart';
 
 class OpCode {
   final int testFlag;

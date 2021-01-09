@@ -29,8 +29,8 @@ mixin LuaStateAccess implements LuaVM {
 
   @override
   LuaType type(int idx) {
-    if (stack.isValid(idx)) {
-      var val = stack.get(idx);
+    if (stack!.isValid(idx)) {
+      var val = stack!.get(idx);
       return typeOf(val);
     }
     return LuaType.none;
@@ -49,10 +49,10 @@ mixin LuaStateAccess implements LuaVM {
   bool isBool(int idx) => type(idx) == LuaType.boolean;
 
   @override
-  bool isInt(int idx) => stack.get(idx)! is int;
+  bool isInt(int idx) => stack!.get(idx)! is int;
 
   @override
-  bool isNumber(int idx) => stack.get(idx)! is double;
+  bool isNumber(int idx) => stack!.get(idx)! is double;
 
   @override
   bool isTable(int idx) => type(idx) == LuaType.table;
@@ -62,14 +62,14 @@ mixin LuaStateAccess implements LuaVM {
       type(idx) == LuaType.string || type(idx) == LuaType.number;
 
   @override
-  bool toBool(int idx) => convert2Boolean(stack.get(idx)!);
+  bool toBool(int idx) => convert2Boolean(stack!.get(idx)!);
 
   @override
-  int toInt(int idx) => convert2Int(stack.get(idx)!);
+  int toInt(int idx) => convert2Int(stack!.get(idx)!);
 
   @override
-  double toNumber(int idx) => convert2Float(stack.get(idx)!);
+  double toNumber(int idx) => convert2Float(stack!.get(idx)!);
 
   @override
-  String toStr(int idx) => convert2String(stack.get(idx)!);
+  String toStr(int idx) => convert2String(stack!.get(idx)!);
 }

@@ -7,7 +7,7 @@ import 'package:luart/src/state/lua_value.dart';
 mixin LuaStateGet implements LuaState {
   @override
   void createTable(int nArr, int nRec) {
-    stack.push(newLuaTable(nArr, nRec));
+    stack!.push(newLuaTable(nArr, nRec));
   }
 
   @override
@@ -17,8 +17,8 @@ mixin LuaStateGet implements LuaState {
 
   @override
   LuaType getTable(int idx) {
-    var t = stack.get(idx)!;
-    var k = stack.pop();
+    var t = stack!.get(idx)!;
+    var k = stack!.pop();
     return _getTable(t, k, false);
   }
 
@@ -27,7 +27,7 @@ mixin LuaStateGet implements LuaState {
     if (tbl is LuaTable) {
       final v = tbl.get(k!);
       if (raw || v != null || !tbl.hasMetaField('__index')) {
-        stack.push(v);
+        stack!.push(v);
         return typeOf(v);
       }
     }
@@ -36,11 +36,11 @@ mixin LuaStateGet implements LuaState {
       if (mf != null) {
         if (mf is LuaTable) return _getTable(mf, k, false);
         if (mf is LuaClosure) {
-          stack.push(mf);
-          stack.push(t);
-          stack.push(k);
+          stack!.push(mf);
+          stack!.push(t);
+          stack!.push(k);
           call(2, 1);
-          return typeOf(stack.get(-1));
+          return typeOf(stack!.get(-1));
         }
       }
     }
@@ -49,21 +49,21 @@ mixin LuaStateGet implements LuaState {
 
   @override
   LuaType getField(int idx, String k) {
-    final t = stack.get(idx)!;
+    final t = stack!.get(idx)!;
     return _getTable(t, k, false);
   }
 
   @override
   LuaType getI(int idx, int i) {
-    final t = stack.get(idx)!;
+    final t = stack!.get(idx)!;
     return _getTable(t, i, false);
   }
 
   bool getMetaTable_(int idx) {
-    final val = stack.get(idx)!;
+    final val = stack!.get(idx)!;
     final mt = getMetaTable(val, this);
     if (mt != null) {
-      stack.push(mt);
+      stack!.push(mt);
       return true;
     }
     return false;
@@ -71,5 +71,5 @@ mixin LuaStateGet implements LuaState {
 
   @override
   LuaType getGlobal(String name) =>
-      _getTable(registry.get(LUA_RIDX_GLOBALS)!, name, false);
+      _getTable(registry!.get(LUA_RIDX_GLOBALS)!, name, false);
 }

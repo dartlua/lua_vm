@@ -73,9 +73,9 @@ mixin LuaStateArith implements LuaState {
   void arith(LuaArithOp op) {
     Object? a;
     Object? b;
-    b = stack.pop();
+    b = stack!.pop();
     if (op != LuaArithOp.unm && op != LuaArithOp.bnot) {
-      a = stack.pop();
+      a = stack!.pop();
     } else {
       a = b;
     }
@@ -83,14 +83,14 @@ mixin LuaStateArith implements LuaState {
     final operator = operators[op.index];
     final result = _arith(a, b, operator);
     if (result != null) {
-      stack.push(result);
+      stack!.push(result);
       return;
     }
 
     final metaMethod = operator.metaMethod;
     final val = callMetaMethod(a!, b, metaMethod, this);
     if (val != null) {
-      stack.push(val);
+      stack!.push(val);
       return;
     }
 
@@ -98,7 +98,8 @@ mixin LuaStateArith implements LuaState {
   }
 }
 
-num _arith(Object? a, Object? b, Operator op) {
+num? _arith(Object? a, Object? b, Operator op) {
+  //todo 有差异，当类型转换失败时直接throw停止，而不是返回null
   if (op.floatFunc == null) {
     return op.intFunc!(convert2Int(a!), convert2Int(b!));
   }

@@ -1,7 +1,8 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
-import 'reader.dart';
+import 'package:luart/src/binary/reader.dart';
+
 
 class Header {
   final ByteData signature;

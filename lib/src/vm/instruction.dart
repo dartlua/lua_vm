@@ -1,10 +1,10 @@
 import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/api/lua_state.dart';
+import 'package:luart/src/constants.dart';
+import 'package:luart/src/state/lua_state.dart';
+import 'package:luart/src/vm/fpb.dart';
+import 'package:luart/src/vm/op_code.dart';
 
-import '../state/lua_state.dart';
-import '../constants.dart';
-import 'fpb.dart';
-import 'op_code.dart';
 
 class InstructionABC {
   InstructionABC(this.a, this.b, this.c);
@@ -51,7 +51,7 @@ extension Instruction on int {
 
   int cMode() => opCodes[opCode].argCMode;
 
-  void execute(LuaVM vm) {
+  void execute(LuaStateImpl vm) {
     final action = opCodes[opCode].action;
     if (action != null) {
       action(this, vm);
@@ -68,7 +68,7 @@ void move(int instruction, LuaVM vm) {
 
 void jmp(int instruction, LuaVM vm) {
   final operand = instruction.AsBx();
-  vm.stack.addPC(operand.b);
+  vm.stack!.addPC(operand.b);
   if (operand.a != 0) vm.closeClosure(operand.a);
 }
 
@@ -88,7 +88,7 @@ void loadBool(int instruction, LuaVM vm) {
   final operand = instruction.abc();
   vm.pushBool(operand.b != 0);
   vm.replace(operand.a + 1);
-  if (operand.c != 0) vm.stack.addPC(1);
+  if (operand.c != 0) vm.stack!.addPC(1);
 }
 
 void loadK(int instruction, LuaVM vm) {
@@ -173,7 +173,7 @@ void _compare(int inst, LuaVM vm, LuaCompareOp op) {
   vm.getRK(operand.b);
   vm.getRK(operand.c);
   if (vm.compare(-2, -1, op) != (operand.a != 0)) {
-    vm.stack.addPC(1);
+    vm.stack!.addPC(1);
   }
   vm.pop(2);
 }
@@ -196,14 +196,14 @@ void testSet(int inst, LuaVM vm) {
   if (vm.toBool(b) == (operand.c != 0)) {
     vm.copy(b, operand.a + 1);
   } else {
-    vm.stack.addPC(1);
+    vm.stack!.addPC(1);
   }
 }
 
 void test(int inst, LuaVM vm) {
   final operand = inst.abc();
   if (vm.toBool(operand.a + 1) != (operand.c != 0)) {
-    vm.stack.addPC(1);
+    vm.stack!.addPC(1);
   }
 }
 
@@ -214,7 +214,7 @@ void forPrep(int inst, LuaVM vm) {
   vm.pushValue(a + 2);
   vm.arith(LuaArithOp.sub);
   vm.replace(a);
-  vm.stack.addPC(operand.b);
+  vm.stack!.addPC(operand.b);
 }
 
 void forLoop(int inst, LuaVM vm) {
@@ -228,7 +228,7 @@ void forLoop(int inst, LuaVM vm) {
   final isPositiveStep = vm.toNumber(a + 2) >= 0;
   if (isPositiveStep && vm.compare(a, a + 1, LuaCompareOp.le) ||
       !isPositiveStep && vm.compare(a + 1, a, LuaCompareOp.le)) {
-    vm.stack.addPC(operand.b);
+    vm.stack!.addPC(operand.b);
     vm.copy(a, a + 3);
   }
 }

@@ -1,13 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:luart/src/api/lua_state.dart';
-
-import '../lib/src/state/lua_state.dart';
-import '../lib/src/state/lua_table.dart';
-import '../lib/src/binary/chunk.dart';
-import '../lib/src/constants.dart';
-import '../lib/src/vm/instruction.dart';
 
 Future<void> main() async {
   //测试读取binary
@@ -38,12 +30,21 @@ Future<void> main() async {
   //测试lua vm
   //luaMain(unDump(fileBytes));
 
-  // var ls = LuaState();
-  // ls.register('getmetayable', getMetaTab);
-  // ls.register('setmetatable', setMetaTab);
-  // ls.load(fileBytes, 'luac.out', 'b');
-  // print('\noutputs:');
-  // ls.call(0, 0);
+  //测试调用方法
+  var ls = LuaState();
+  ls.register('print', print_);
+  ls.load(fileBytes, 'luac.out', 'b');
+  print('');
+  ls.call(0, 0);
+}
+
+int print_(LuaState ls){
+  var nArgs = ls.getTop();
+  for(var i = 1; i <= nArgs; i++){
+    print(ls.stack!.get(i));
+    if(i < nArgs) print('\t');
+  }
+  return 0;
 }
 
 // int getMetaTab(LuaState ls) {

@@ -3,21 +3,21 @@ import 'package:luart/src/state/lua_closure.dart';
 
 mixin LuaStatePush implements LuaState {
   @override
-  void pushNil() => stack.push(null);
+  void pushNil() => stack!.push(null);
 
   @override
-  void pushBool(bool b) => stack.push(b);
+  void pushBool(bool b) => stack!.push(b);
 
   @override
-  void pushInt(int i) => stack.push(i);
+  void pushInt(int i) => stack!.push(i);
 
   @override
-  void pushNumber(double d) => stack.push(d);
+  void pushNumber(double d) => stack!.push(d);
 
   @override
-  void pushString(String s) => stack.push(s);
+  void pushString(String s) => stack!.push(s);
 
   @override
   void pushDartFunction(DartFunction dartFunc) =>
-      stack.push(LuaClosure.fromDartFunction(dartFunc, 0));
+      stack!.push(LuaClosure.fromDartFunction(dartFunc, 0));
 }

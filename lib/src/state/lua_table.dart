@@ -24,21 +24,19 @@ class LuaTable {
   }
 
   void fillListWithNull(int count) {
-    if (list.isEmpty) list.insert(0, nullKV());
+    if (list.isEmpty) list.insert(0, nullKV);
     for (var i = 1; i < count; i++) {
       if (i < list.length) {
-        if (list.elementAt(i) != nullKV()) {
+        if (list.elementAt(i) != nullKV) {
           continue;
         }
       }
-      list.insert(i, nullKV());
+      list.insert(i, nullKV);
     }
   }
 
   bool hasMetaField(String fieldName) =>
       metaTable != null && metaTable!.get(fieldName) != null;
-
-  KV nullKV() => KV(null, null);
 
   int len() {
     var count = 0;
@@ -50,6 +48,8 @@ class LuaTable {
     return count;
   }
 }
+
+KV nullKV = KV(null, null);
 
 class KV {
   dynamic key;
