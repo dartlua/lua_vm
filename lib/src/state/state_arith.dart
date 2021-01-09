@@ -94,7 +94,7 @@ mixin LuaStateArith implements LuaState {
       return;
     }
 
-    throw UnsupportedError('Unsupported arith');
+    throw LuaArithmeticError();
   }
 }
 
