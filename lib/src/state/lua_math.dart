@@ -17,9 +17,13 @@ class LuaMath {
     return shiftLeft(a, n);
   }
 
-//return [int, bool]
-  static List float2Int(double f) {
-    var i = f.toInt();
-    return [i, i.toDouble() == f];
+  static int? float2Int(double f) {
+    final i = f.toInt();
+
+    if (i.toDouble() == f) {
+      return i;
+    }
+
+    return null;
   }
 }

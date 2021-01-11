@@ -11,12 +11,14 @@ import 'package:luart/src/state/lua_table.dart';
 
 LuaType typeOf(Object? value) {
   if (value == null) return LuaType.nil;
+
   if (value is LuaClosure) return LuaType.function;
   if (value is bool) return LuaType.boolean;
   if (value is int) return LuaType.number;
   if (value is double) return LuaType.number;
   if (value is String) return LuaType.string;
   if (value is LuaTable) return LuaType.table;
+
   throw TypeError();
 }
 

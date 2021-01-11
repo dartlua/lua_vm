@@ -18,15 +18,5 @@ class LuaArithmeticError extends LuaVmError {
 }
 
 class LuaCompilerError extends LuaError {
-  LuaCompilerError(
-    this.chunkName,
-    this.line, [
-    String message = 'lua compiler error',
-  ]) : super(message);
-
-  final String chunkName;
-  final int line;
-
-  @override
-  String toString() => '$chunkName:$line $message';
+  LuaCompilerError([String message = 'lua compiler error']) : super(message);
 }
