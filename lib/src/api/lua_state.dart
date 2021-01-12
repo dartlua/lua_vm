@@ -40,6 +40,17 @@ enum LuaType {
   thread,
 }
 
+enum LuaStatus {
+	ok,
+	isYield,
+	errRun,
+	errSyntax,
+	errMem,
+	errGcmm,
+	errErr,
+	errFile,
+}
+
 typedef DartFunction = int Function(LuaState);
 
 abstract class LuaState {
@@ -379,7 +390,7 @@ abstract class LuaState {
 
   /// Loads a Lua chunk without running it. If there are no errors, [load]
   /// pushes the compiled chunk as a Lua function on top of the stack.
-  void load(Uint8List chunk, String chunkName, String mode);
+  void load(Uint8List chunk, String chunkName);
 
   /// Calls a function.
   ///
@@ -424,7 +435,34 @@ abstract class LuaState {
   /// original configuration. This is considered good programming practice.
   void call(int nArgs, int nResults);
 
-  // int pCall(int nArgs, int nResults, int msgh);
+  /// Calls a function in protected mode.
+  ///
+  /// Both [nArgs] and [nResults] have the same meaning as in [call]. If there
+  /// are no errors during the call, [pCall] behaves exactly like [call].
+  /// However, if there is any error, [pCall] catches it, pushes a single value
+  /// on the stack (the error object), and returns an error code. Like [call],
+  /// [pCall] always removes the function and its arguments from the stack.
+  ///
+  /// If [msgHandler] is 0, then the error object returned on the stack is
+  /// exactly the original error object. Otherwise, [msgHandler] is the stack
+  /// index of a message handler. (This index cannot be a pseudo-index.) In case
+  /// of runtime errors, this function will be called with the error object and
+  /// its return value will be the object returned on the stack by [pCall].
+  ///
+  /// Typically, the message handler is used to add more debug information to
+  /// the error object, such as a stack traceback. Such information cannot be
+  /// gathered after the return of [pCall], since by then the stack has unwound.
+  ///
+  /// The [pCall] function returns one of the following constants (defined in
+  /// lua.h):
+  /// ```
+  /// LuaStatus.ok (0): success.
+  /// LuaStatus.errRun: a runtime error.
+  /// LuaStatus.errMem: memory allocation error. For such errors, Lua does not call the message handler.
+  /// LuaStatus.errErr: error while running the message handler.
+  /// LuaStatus.errGcmm: error while running a __gc metamethod. For such errors, Lua does not call the message handler (as this kind of error typically has no relation with the function being called).
+  /// ```
+  LuaStatus pCall(int nArgs, int nResults, int msgHandler);
 
   /* miscellaneous functions */
 

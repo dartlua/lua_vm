@@ -252,7 +252,6 @@ LuaLocalVarDeclStat _finishLocalVarDeclStat(LuaLexer lexer) {
     expList = parseExpList(lexer); // explist
   }
   final lastLine = lexer.line;
-  ;
   return LuaLocalVarDeclStat(
     lastLine: lastLine,
     nameList: nameList,

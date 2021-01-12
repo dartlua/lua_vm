@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:luart/luart.dart';
 import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/binary/chunk.dart';
+import 'package:luart/src/compiler/compiler.dart';
 import 'package:luart/src/constants.dart';
 import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_stack.dart';
@@ -163,8 +165,15 @@ class LuaStateImpl
   }
 
   @override
-  void load(Uint8List chunk, String chunkName, String mode) {
-    final proto = unDump(chunk);
+  void load(Uint8List chunk, String chunkName) {
+    late LuaPrototype proto;
+
+    if (isBinaryChunk(chunk)) {
+      proto = unDump(chunk);
+    } else {
+      proto = compile(utf8.decode(chunk), chunkName);
+    }
+
     final c = LuaClosure.fromLuaProto(proto);
     stack!.push(c);
     if (proto.upvalues.isNotEmpty) {
@@ -191,6 +200,25 @@ class LuaStateImpl
         nArgs++;
       }
     }
+  }
+
+  LuaStatus pCall(int nArgs, int nResults, int msgHandler) {
+    final caller = stack!;
+
+    try {
+      call(nArgs, nResults);
+    } catch (e) {
+      if (msgHandler != 0) {
+        rethrow;
+      }
+      while (stack != caller) {
+        popLuaStack();
+      }
+      stack!.push(e);
+      return LuaStatus.errRun;
+    }
+
+    return LuaStatus.ok;
   }
 
   void callLuaClosure(int nArgs, int nResults, LuaClosure c) {

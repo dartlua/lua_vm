@@ -4,7 +4,6 @@ import 'package:luart/src/binary/chunk.dart';
 import 'package:luart/src/constants.dart';
 import 'package:luart/src/utils.dart';
 
-
 class Reader {
   Uint8List data;
 
@@ -124,8 +123,8 @@ class Reader {
     return upValues;
   }
 
-  List<Prototype> readProtos(String parentSource) {
-    var protos = <Prototype>[];
+  List<LuaPrototype> readProtos(String parentSource) {
+    var protos = <LuaPrototype>[];
     var len = readUint32();
     for (var i = 0; i < len; i++) {
       protos.add(readProto(parentSource));
@@ -160,23 +159,24 @@ class Reader {
     return names;
   }
 
-  Prototype readProto(String parentSource) {
+  LuaPrototype readProto(String parentSource) {
     var source = readString();
     if (source == '') source = parentSource;
     print('\nsource file: $source');
-    return Prototype(
-        source,
-        readUint32(),
-        readUint32(),
-        byte2Int(readByte()),
-        byte2Int(readByte()),
-        byte2Int(readByte()),
-        readCode(),
-        readConstants(),
-        readUpvalues(),
-        readProtos(source),
-        readLineInfo(),
-        readLocVars(),
-        readUpvalueNames());
+    return LuaPrototype(
+      source: source,
+      lineDefined: readUint32(),
+      lastLineDefined: readUint32(),
+      numParams: byte2Int(readByte()),
+      isVararg: byte2Int(readByte()),
+      maxStackSize: byte2Int(readByte()),
+      codes: readCode(),
+      constants: readConstants(),
+      upvalues: readUpvalues(),
+      protos: readProtos(source),
+      lineInfo: readLineInfo(),
+      locVars: readLocVars(),
+      upvalueNames: readUpvalueNames(),
+    );
   }
 }

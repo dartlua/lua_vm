@@ -33,7 +33,7 @@ Future<void> main() async {
   //测试调用方法
   var ls = LuaState();
   ls.register('print', print_);
-  ls.load(fileBytes, 'luac.out', 'b');
+  ls.load(fileBytes, 'luac.out');
   print('');
   ls.call(0, 0);
 }

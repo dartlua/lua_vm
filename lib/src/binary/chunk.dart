@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:luart/src/binary/reader.dart';
 
-
 class Header {
   final ByteData signature;
   final ByteData version;
@@ -47,49 +46,67 @@ class LocVar {
   LocVar(this.varName, this.startPC, this.endPC);
 }
 
-class Prototype {
-  final String source;
-  final int lineDefined;
-  final int lastLineDefined;
-  final int numParams;
-  final int isVararg;
-  final int maxStackSize;
-  final List<int> codes;
-  final List constants;
-  final List<Upvalue> upvalues;
-  final List<Prototype> protos;
-  final List<int> lineInfo;
-  final List<LocVar> locVars;
-  final List<String> upvaluesName;
+class LuaPrototype {
+  String? source;
+  int lineDefined;
+  int lastLineDefined;
+  int numParams;
+  int? isVararg;
+  int maxStackSize;
+  List<int> codes;
+  List constants;
+  List<Upvalue> upvalues;
+  List<LuaPrototype> protos;
+  List<int> lineInfo;
+  List<LocVar> locVars;
+  List<String> upvalueNames;
 
-  Prototype(
+  LuaPrototype({
     this.source,
-    this.lineDefined,
-    this.lastLineDefined,
-    this.numParams,
+    required this.lineDefined,
+    required this.lastLineDefined,
+    required this.numParams,
     this.isVararg,
-    this.maxStackSize,
-    this.codes,
-    this.constants,
-    this.upvalues,
-    this.protos,
-    this.lineInfo,
-    this.locVars,
-    this.upvaluesName,
-  );
+    required this.maxStackSize,
+    required this.codes,
+    required this.constants,
+    required this.upvalues,
+    required this.protos,
+    required this.lineInfo,
+    required this.locVars,
+    required this.upvalueNames,
+  });
 }
 
 class BinaryChunk {
   final Header header;
   final String sizeUpvalues;
-  final Prototype mainFunc;
+  final LuaPrototype mainFunc;
 
   BinaryChunk(this.header, this.sizeUpvalues, this.mainFunc);
 }
 
-Prototype unDump(Uint8List data) {
+bool isBinaryChunk(List<int> data) {
+  return data.length > 4 && _listEqual(data.sublist(0, 4), '\x1bLua'.codeUnits);
+}
+
+LuaPrototype unDump(Uint8List data) {
   var reader = Reader(data);
   print(reader.checkHeader());
   reader.readByte();
   return reader.readProto('');
+}
+
+bool _listEqual<T>(List<T> a, List<T> b) {
+  if (a.length != b.length) {
+    return false;
+  }
+
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+  }
+
+  return true;
 }

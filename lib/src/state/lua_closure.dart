@@ -14,7 +14,7 @@ class LuaClosure {
     if (nUpvalues > 0) upValues = <LuaUpValue>[];
   }
 
-  Prototype? proto;
+  LuaPrototype? proto;
   DartFunction? dartFunc;
   late List<LuaUpValue?> upValues;
 }

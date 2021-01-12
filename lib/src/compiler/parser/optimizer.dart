@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:luart/src/compiler/ast/lua_exp.dart';
+import 'package:luart/src/compiler/helpers.dart';
 import 'package:luart/src/compiler/lexer/token.dart';
 import 'package:luart/src/state/lua_math.dart';
 
@@ -191,11 +192,6 @@ bool isTrue(LuaExp exp) {
       exp is LuaIntegerExp ||
       exp is LuaFloatExp ||
       exp is LuaStringExp;
-}
-
-// todo
-bool isVarargOrFuncCall(LuaExp exp) {
-  return exp is LuaVarargExp || exp is LuaFuncCallExp;
 }
 
 int? castToInt(LuaExp exp) {

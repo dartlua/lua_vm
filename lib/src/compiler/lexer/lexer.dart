@@ -58,7 +58,7 @@ class LuaLexer {
   LuaToken nextTokenOfKind(int kind) {
     final token = nextToken();
     if (token.kind != kind) {
-      throw error('syntax error near $token');
+      throw error('syntax error near ${token.value}');
     }
     return token;
   }
@@ -236,7 +236,7 @@ class LuaLexer {
   }
 
   LuaCompilerError error(String message) {
-    return LuaCompilerError('$chunkName:$line message');
+    return LuaCompilerError('$chunkName:$line $message');
   }
 
   void skipWhiteSpaces() {
