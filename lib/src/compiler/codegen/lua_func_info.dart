@@ -141,7 +141,7 @@ class LuaFuncInfo {
   }
 
   void exitScope(int endPC) {
-    final pendingBreakJmps = breaks.removeLast()!;
+    final pendingBreakJmps = breaks.removeLast() ?? [];
 
     final a = getJmpArgA();
     for (var pc in pendingBreakJmps) {
@@ -151,7 +151,7 @@ class LuaFuncInfo {
     }
 
     scopeLv--;
-    for (var locVar in locNames.values) {
+    for (var locVar in locNames.values.toList()) {
       if (locVar.scopeLv > scopeLv) {
         // out of scope
         locVar.endPC = endPC;
@@ -274,7 +274,7 @@ class LuaFuncInfo {
 
   void fixSbx(int pc, int sBx) {
     var i = insts[pc];
-    i = i << 18 >> 18; // clear sBx
+    i = i & 0x3fff; // clear sBx
     i = i | (sBx + MAXARG_sBx) << 14; // reset sBx
     insts[pc] = i;
   }
@@ -297,19 +297,19 @@ class LuaFuncInfo {
   }
 
   void emitABx(int line, int opcode, int a, int bx) {
-    final i = bx << 14 | a << 6 | opcode;
+    final i = (bx << 14) | (a << 6) | opcode;
     insts.add(i);
     lineNums.add(line);
   }
 
   void emitAsBx(int line, int opcode, int a, int b) {
-    final i = (b + MAXARG_sBx) << 14 | a << 6 | opcode;
+    final i = ((b + MAXARG_sBx) << 14) | (a << 6) | opcode;
     insts.add(i);
     lineNums.add(line);
   }
 
   void emitAx(int line, int opcode, int ax) {
-    final i = ax << 6 | opcode;
+    final i = (ax << 6) | opcode;
     insts.add(i);
     lineNums.add(line);
   }
@@ -411,7 +411,7 @@ class LuaFuncInfo {
   }
 
   // pc+=sBx; if (a) close all upvalues >= r[a - 1]
-  int emitJmp(line, a, int sBx) {
+  int emitJmp(int line, int a, int sBx) {
     emitAsBx(line, OP_JMP, a, sBx);
     return insts.length - 1;
   }
@@ -426,12 +426,12 @@ class LuaFuncInfo {
     emitABC(line, OP_TESTSET, a, b, c);
   }
 
-  int emitForPrep(line, a, int sBx) {
+  int emitForPrep(int line, a, int sBx) {
     emitAsBx(line, OP_FORPREP, a, sBx);
     return insts.length - 1;
   }
 
-  int emitForLoop(line, a, int sBx) {
+  int emitForLoop(int line, a, int sBx) {
     emitAsBx(line, OP_FORLOOP, a, sBx);
     return insts.length - 1;
   }
