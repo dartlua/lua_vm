@@ -36,7 +36,7 @@ extension Instruction on int {
     return InstructionAB(this >> 6 & 0xff, this >> 14);
   }
 
-  InstructionAB AsBx() {
+  InstructionAB asBx() {
     final operand = abx();
     return InstructionAB(operand.a, operand.b - MAXARG_sBx);
   }
@@ -67,7 +67,7 @@ void move(int instruction, LuaVM vm) {
 }
 
 void jmp(int instruction, LuaVM vm) {
-  final operand = instruction.AsBx();
+  final operand = instruction.asBx();
   vm.stack!.addPC(operand.b);
   if (operand.a != 0) vm.closeClosure(operand.a);
 }
@@ -208,7 +208,7 @@ void test(int inst, LuaVM vm) {
 }
 
 void forPrep(int inst, LuaVM vm) {
-  final operand = inst.AsBx();
+  final operand = inst.asBx();
   final a = operand.a + 1;
   vm.pushValue(a);
   vm.pushValue(a + 2);
@@ -218,7 +218,7 @@ void forPrep(int inst, LuaVM vm) {
 }
 
 void forLoop(int inst, LuaVM vm) {
-  final operand = inst.AsBx();
+  final operand = inst.asBx();
   final a = operand.a + 1;
   vm.pushValue(a + 2);
   vm.pushValue(a);
