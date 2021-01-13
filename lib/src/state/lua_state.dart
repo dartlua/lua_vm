@@ -193,6 +193,7 @@ class LuaStateImpl
         callDartClosure(nArgs, nResults, value);
       }
     } else {
+      // TODO
       final mf = getMetafield(value, '__call', this);
       if (mf is LuaClosure) {
         stack!.push(value);
