@@ -19,6 +19,13 @@ void main() async {
       expect(ls.toInt(-1), equals(2));
     });
 
+    test('Fib Test', () async {
+      final chunk = await File('test/source/fib.luac').readAsBytes();
+      ls.load(chunk, 'luac.out');
+      ls.call(0, 1);
+      expect(ls.toInt(-1), equals(98));
+    });
+
     test('LuaState.pushInt', () {
       ls.pushInt(1);
       expect(ls.toInt(-1), equals(1));

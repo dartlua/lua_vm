@@ -15,14 +15,17 @@ class LuaStack {
   Map<int, LuaUpValue?>? openUVs;
 
   LuaStack(int size, this.state)
-      : slots = List<Object?>.filled(size, null),
+      : slots = List<Object?>.filled(size, null, growable: true),
         top = 0;
 
-  void addPC(int n) => pc += n;
+  void addPC(int n) {
+    pc += n;
+  }
 
   void check(int n) {
     final free = slots.length - top;
-    slots.fillRange(free, free + n - 1, null);
+    slots.addAll(List.filled(free, null));
+    // slots.fillRange(free, free + n - 1, null);
   }
 
   void push(Object? val) {
