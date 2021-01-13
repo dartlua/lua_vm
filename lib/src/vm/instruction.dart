@@ -5,7 +5,6 @@ import 'package:luart/src/state/lua_state.dart';
 import 'package:luart/src/vm/fpb.dart';
 import 'package:luart/src/vm/op_code.dart';
 
-
 class InstructionABC {
   InstructionABC(this.a, this.b, this.c);
 
@@ -26,17 +25,17 @@ extension Instruction on int {
 
   InstructionABC abc() {
     return InstructionABC(
-      this >> 6 & 0xff,
-      this >> 23 & 0x1ff,
-      this >> 14 & 0x1ff,
+      (this >> 6) & 0xff,
+      (this >> 23) & 0x1ff,
+      (this >> 14) & 0x1ff,
     );
   }
 
   InstructionAB abx() {
-    return InstructionAB(this >> 6 & 0xff, this >> 14);
+    return InstructionAB((this >> 6) & 0xff, this >> 14);
   }
 
-  InstructionAB asBx() {
+  InstructionAB asbx() {
     final operand = abx();
     return InstructionAB(operand.a, operand.b - MAXARG_sBx);
   }
@@ -67,7 +66,7 @@ void move(int instruction, LuaVM vm) {
 }
 
 void jmp(int instruction, LuaVM vm) {
-  final operand = instruction.asBx();
+  final operand = instruction.asbx();
   vm.stack!.addPC(operand.b);
   if (operand.a != 0) vm.closeClosure(operand.a);
 }
@@ -208,7 +207,7 @@ void test(int inst, LuaVM vm) {
 }
 
 void forPrep(int inst, LuaVM vm) {
-  final operand = inst.asBx();
+  final operand = inst.asbx();
   final a = operand.a + 1;
   vm.pushValue(a);
   vm.pushValue(a + 2);
@@ -218,7 +217,7 @@ void forPrep(int inst, LuaVM vm) {
 }
 
 void forLoop(int inst, LuaVM vm) {
-  final operand = inst.asBx();
+  final operand = inst.asbx();
   final a = operand.a + 1;
   vm.pushValue(a + 2);
   vm.pushValue(a);
@@ -279,9 +278,7 @@ void setList(int inst, LuaVM vm) {
   }
 
   if (bIsZero) {
-    for (var j = vm.registerCount() + 1;
-        j <= vm.getTop();
-        j++) {
+    for (var j = vm.registerCount() + 1; j <= vm.getTop(); j++) {
       idx++;
       vm.pushValue(j);
       vm.setI(a, idx);
