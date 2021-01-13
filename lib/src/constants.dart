@@ -79,8 +79,8 @@ const OpArgR = 2;
 const OpArgK = 3;
 
 //MAXARG
-const int MAXARG_Bx = 262143;
-const int MAXARG_sBx = 131071;
+const int MAXARG_Bx = (1 << 18) - 1; // 262143;
+const int MAXARG_sBx = MAXARG_Bx >> 1; // 131071
 
 class StackUnderflowError implements Error {
   @pragma('vm:entry-point')
