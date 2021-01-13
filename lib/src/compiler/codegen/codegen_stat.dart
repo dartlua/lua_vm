@@ -273,8 +273,8 @@ void cgAssignStat(LuaFuncInfo fi, LuaAssignStat node) {
 	final nExps = exps.length;
 	final nVars = node.varList.length;
 
-	final tRegs = <int?>[];
-	final kRegs = <int?>[];
+	final tRegs = List<int?>.filled(nVars, null);
+	final kRegs = List<int?>.filled(nVars, null);
 	final vRegs = <int>[];
 	final oldRegs = fi.usedRegs;
 
