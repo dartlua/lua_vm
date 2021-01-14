@@ -383,7 +383,7 @@ abstract class LuaState {
   void setGlobal(String name);
 
   /// Sets the Dart function f as the new value of global name. `register(name,
-  /// f)` is equivalent to `state.pushDartFunctiontion(f); state.setGlobal(name);`
+  /// f)` is equivalent to `state.pushDartFunction(f); state.setGlobal(name);`
   void register(String name, DartFunction f);
 
   /* 'load' and 'call' functions (load and run Lua code) */

@@ -7,7 +7,7 @@ import 'package:luart/src/state/lua_value.dart';
 mixin LuaStateGet implements LuaState {
   @override
   void createTable(int nArr, int nRec) {
-    stack!.push(newLuaTable(nArr, nRec));
+    stack!.push(LuaTable(<KV>[]));
   }
 
   @override
