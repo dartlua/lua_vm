@@ -23,7 +23,7 @@ void main() async {
       final chunk = await File('test/source/fib.luac').readAsBytes();
       ls.load(chunk, 'luac.out');
       ls.call(0, 1);
-      expect(ls.toInt(-1), equals(98));
+      expect(ls.toInt(-1), equals(89));
     });
 
     test('LuaState.pushInt', () {
