@@ -7,17 +7,24 @@ class LuaTable {
   @override
   String toString() => 'Table<$list, $metaTable>';
 
-  Object? get(Object key) {
-    dynamic value = key;
+  Object? get(Object value) {
     if (value is int) return list[value - 1].value;
-    var index = list.indexWhere((e) => e.key == value);
+    var index = getIndex(value);
     return index == -1 ? null : list.elementAt(index).value;
   }
 
+  int getIndex(Object key) => list.indexWhere((e) => e.key == key);
+
   void put(Object key, Object? val) {
     if (key is int) {
-      fillListWithNull(key);
+      if (list.length < key) {
+        fillListWithNull(key);
+      }
       list[key - 1] = KV(key, val!);
+      return;
+    }
+    if (get(key) != null) {
+      list[getIndex(key)] = KV(key, val);
       return;
     }
     list.add(KV(key, val!));
@@ -38,12 +45,17 @@ class LuaTable {
   bool hasMetaField(String fieldName) =>
       metaTable != null && metaTable!.get(fieldName) != null;
 
-  int len() {
+  int get len {
     var count = 0;
     for (var i = 0; i < list.length; i++) {
+      if (!list[i].key is int) {
+        continue;
+      }
       if (list[i].value != null) {
         count++;
+        continue;
       }
+      break;
     }
     return count;
   }
@@ -59,8 +71,4 @@ class KV {
 
   @override
   String toString() => ' {$key: $value}';
-}
-
-LuaTable newLuaTable(int nArr, int nRec) {
-  return LuaTable(<KV>[]);
 }

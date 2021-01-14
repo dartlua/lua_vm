@@ -22,7 +22,7 @@ mixin LuaStateMisc implements LuaState {
       return;
     }
     if (value is LuaTable) {
-      stack!.push(value.len());
+      stack!.push(value.len);
       return;
     }
 

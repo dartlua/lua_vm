@@ -40,8 +40,8 @@ class LuaStateImpl
   LuaTable? registry;
 
   LuaStateImpl() {
-    registry = newLuaTable(0, 0);
-    registry!.put(LUA_RIDX_GLOBALS, newLuaTable(0, 0));
+    registry = LuaTable(<KV>[]);
+    registry!.put(LUA_RIDX_GLOBALS, LuaTable(<KV>[]));
     pushLuaStack(LuaStack(LUA_MINSTACK, this));
   }
 
@@ -160,7 +160,7 @@ class LuaStateImpl
     final val = stack!.get(idx)!;
     final x = val;
     if (x is String) return x.length;
-    if (x is LuaTable) return x.len();
+    if (x is LuaTable) return x.len;
     return 0;
   }
 
@@ -203,6 +203,7 @@ class LuaStateImpl
     }
   }
 
+  @override
   LuaStatus pCall(int nArgs, int nResults, int msgHandler) {
     final caller = stack!;
 
