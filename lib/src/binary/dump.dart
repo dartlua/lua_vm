@@ -65,26 +65,26 @@ void printOperands(int c) {
     case IABC:
       final i = c.abc();
 
-      _write(i.a);
+      _write(i.a.toString().padRight(4));
       if (c.bMode() != OpArgN) {
         if (i.b > 0xFF) {
-          _write(' ${-1 - (i.b & 0xFF)}');
+          _write(' ${-1 - (i.b & 0xFF)}'.padRight(5));
         } else {
-          _write(' ${i.b}');
+          _write(' ${i.b}'.padRight(5));
         }
       }
       if (c.cMode() != OpArgN) {
         if (i.c > 0xFF) {
-          _write(' ${-1 - (i.c & 0xFF)}');
+          _write(' ${-1 - (i.c & 0xFF)}'.padRight(5));
         } else {
-          _write(' ${i.c}');
+          _write(' ${i.c}'.padRight(5));
         }
       }
       break;
     case IABx:
       final i = c.abx();
 
-      _write(i.a);
+      _write(i.a.toString().padRight(4));
       if (c.bMode() == OpArgK) {
         _write(' ${-1 - i.b}');
       } else if (c.bMode() == OpArgU) {
@@ -93,7 +93,7 @@ void printOperands(int c) {
       break;
     case IAsBx:
       final i = c.asbx();
-      _write('${i.a} ${i.b}');
+      _write('${i.a}'.padRight(4) + ' ${i.b}');
       break;
     case IAx:
       final ax = c.ax();
