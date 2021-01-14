@@ -379,6 +379,9 @@ abstract class LuaState {
   /// at the given index.
   void setMetatable(int idx);
 
+  /// Get a table from stack.
+  bool getMetatable(int idx);
+
   /// Pops a value from the stack and sets it as the new value of global name.
   void setGlobal(String name);
 

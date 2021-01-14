@@ -2,40 +2,31 @@ import 'dart:io';
 import 'package:luart/src/api/lua_state.dart';
 
 Future<void> main() async {
-  //测试读取binary
-  final fileBytes = await File('luac.out').readAsBytes();
-
-  //print(byteData2String(fileBytes.buffer.asByteData()));
-  //listProto(unDump(fileBytes));
-
-  //测试luastack和state
-  /*LuaState luaState = newLuaState();
-  luaState.pushInt(1);
-  luaState.pushString('2.0');
-  luaState.pushString('3.0');
-  luaState.pushNumber(4.0);
-  printState(luaState);
-
-  luaState.arith(ArithOp(LUA_OPADD));
-  printState(luaState);
-  luaState.arith(ArithOp(LUA_OPBNOT));
-  printState(luaState);
-  luaState.len(2);
-  printState(luaState);
-  luaState.concat(3);
-  printState(luaState);
-  luaState.pushBool(luaState.compare(1, 2, CompareOp(LUA_OPEQ)));
-  printState(luaState);*/
-
-  //测试lua vm
-  //luaMain(unDump(fileBytes));
-
   //测试调用方法
+  final fileBytes = await File('luac10.out').readAsBytes();
   var ls = LuaState();
   ls.register('print', print_);
   ls.load(fileBytes, 'luac.out');
   print('');
   ls.call(0, 0);
+
+  final fileBytes11 = await File('luac11.out').readAsBytes();
+  ls = LuaState();
+  ls.register('getmetayable', getMetaTab);
+  ls.register('setmetatable', setMetaTab);
+  ls.load(fileBytes11, 'luac.out');
+  print('\noutputs:');
+  ls.call(0, 0);
+}
+
+int getMetaTab(LuaState ls){
+  if(!ls.getMetatable(1)) ls.pushNil();
+  return 1;
+}
+
+int setMetaTab(LuaState ls){
+  ls.setMetatable(1);
+  return 1;
 }
 
 int print_(LuaState ls){
