@@ -5,8 +5,8 @@ import 'package:luart/luart.dart';
 import 'package:luart/src/constants.dart';
 
 extension LuaAuxlib on LuaState {
-  void loadString(String source) {
-    load(Uint8List.fromList(utf8.encode(source)), 'source');
+  void loadString(String source, [String chunkName = 'source']) {
+    load(Uint8List.fromList(utf8.encode(source)), chunkName);
   }
 
   bool doString(String source) {
