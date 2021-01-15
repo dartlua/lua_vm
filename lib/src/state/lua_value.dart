@@ -22,25 +22,21 @@ LuaType typeOf(Object? value) {
   throw TypeError();
 }
 
-bool convert2Boolean(Object val) {
-  dynamic v = val;
+bool convert2Boolean(Object? v) {
   if (v == null) return false;
   if (v is bool) return v;
   if (v is int) return v == 0 ? false : true;
   return true;
 }
 
-double convert2Float(Object val) {
-  dynamic value = val;
+double convert2Float(Object value) {
   if (value is double) return value;
   if (value is int) return value.toDouble();
   if (value is String) return double.parse(value);
-  if (value is bool) return value ? 1.0 : 0.0;
   throw TypeError();
 }
 
-String convert2String(Object val) {
-  dynamic value = val;
+String convert2String(Object value) {
   if (value is String) return value;
   if (value is int) return value.toString();
   if (value is double) return value.toString();
@@ -48,22 +44,19 @@ String convert2String(Object val) {
   throw TypeError();
 }
 
-int convert2Int(Object val) {
-  dynamic value = val;
+int convert2Int(Object value) {
   if (value is String) return num.parse(value).toInt();
   if (value is double) return value.round();
   if (value is int) return value;
-  if (value is bool) return value ? 1 : 0;
   throw TypeError();
 }
 
-void setMetatableFor(Object val, LuaTable? metaTable, LuaState luaState) {
-  dynamic table = val;
-  if (table is LuaTable) {
-    table.metaTable = metaTable;
+void setMetatableFor(Object value, LuaTable? metaTable, LuaState luaState) {
+  if (value is LuaTable) {
+    value.metaTable = metaTable;
     return;
   }
-  luaState.registry!.put('_MT${typeOf(val)}', metaTable);
+  luaState.registry!.put('_MT${typeOf(value)}', metaTable);
 }
 
 LuaTable? getMetaTable(Object val, LuaState luaState) {

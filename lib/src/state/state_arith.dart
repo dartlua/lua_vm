@@ -72,8 +72,7 @@ mixin LuaStateArith implements LuaState {
   @override
   void arith(LuaArithOp op) {
     Object? a;
-    Object? b;
-    b = stack!.pop();
+    var b = stack!.pop();
     if (op != LuaArithOp.unm && op != LuaArithOp.bnot) {
       a = stack!.pop();
     } else {
@@ -99,14 +98,11 @@ mixin LuaStateArith implements LuaState {
 }
 
 num? _arith(Object? a, Object? b, Operator op) {
-  //todo 有差异，当类型转换失败时直接throw停止，而不是返回null
-  if (op.floatFunc == null) {
-    return op.intFunc!(convert2Int(a!), convert2Int(b!));
+  if (op.floatFunc != null) {
+    return op.floatFunc!(convert2Float(a!), convert2Float(b!));
   }
 
   if (op.intFunc != null) {
     return op.intFunc!(convert2Int(a!), convert2Int(b!));
   }
-
-  return op.floatFunc!(convert2Float(a!), convert2Float(b!));
 }
