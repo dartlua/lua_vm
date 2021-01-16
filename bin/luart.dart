@@ -14,6 +14,7 @@ bool loadStringWithReturn(LuaState ls, String source) {
 
 void repl() {
   final ls = LuaState();
+  ls.openBaseLib();
 
   print('Luart Repl');
 

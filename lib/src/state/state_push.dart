@@ -18,6 +18,6 @@ mixin LuaStatePush implements LuaState {
   void pushString(String s) => stack!.push(s);
 
   @override
-  void pushDartFunction(DartFunction dartFunc) =>
+  void pushDartFunction(LuaDartFunction dartFunc) =>
       stack!.push(LuaClosure.fromDartFunction(dartFunc, 0));
 }

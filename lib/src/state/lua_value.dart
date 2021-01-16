@@ -2,7 +2,6 @@ import 'package:luart/luart.dart';
 import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_table.dart';
 
-
 // class Object extends Object {
 //   dynamic luaValue;
 
@@ -39,13 +38,11 @@ double convert2Float(Object val) {
   throw TypeError();
 }
 
-String convert2String(Object val) {
-  dynamic value = val;
+String? convert2String(Object value) {
   if (value is String) return value;
   if (value is int) return value.toString();
   if (value is double) return value.toString();
   if (value is bool) return value ? 'true' : 'false';
-  throw TypeError();
 }
 
 int convert2Int(Object val) {
@@ -81,7 +78,9 @@ Object? callMetaMethod(
 ) {
   var mm = getMetafield(a, metaMethod, luaState);
   if (mm == null) {
-    mm = getMetafield(b!, metaMethod, luaState);
+    if (b != null) {
+      mm = getMetafield(b, metaMethod, luaState);
+    }
     if (mm == null) {
       return null;
     }

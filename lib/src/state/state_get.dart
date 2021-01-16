@@ -71,6 +71,19 @@ mixin LuaStateGet implements LuaState {
   }
 
   @override
+  LuaType rawGet(int idx) {
+    final t = stack!.get(idx)!;
+    final k = stack!.pop();
+    return _getTable(t, k, true);
+  }
+
+  @override
+  LuaType rawGetI(int idx, int i) {
+    final t = stack!.get(idx)!;
+    return _getTable(t, i, true);
+  }
+
+  @override
   LuaType getGlobal(String name) =>
       _getTable(registry!.get(LUA_RIDX_GLOBALS)!, name, false);
 }

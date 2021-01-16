@@ -20,3 +20,12 @@ class LuaArithmeticError extends LuaVmError {
 class LuaCompilerError extends LuaError {
   LuaCompilerError([String message = 'lua compiler error']) : super(message);
 }
+
+class LuaRuntimeError extends LuaError {
+  LuaRuntimeError(this.error);
+
+  @override
+  final message = 'lua runtime error';
+
+  final Object? error;
+}

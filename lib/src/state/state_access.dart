@@ -4,27 +4,8 @@ import 'package:luart/src/state/lua_value.dart';
 
 mixin LuaStateAccess implements LuaVM {
   @override
-  String typeName(LuaType luaType) {
-    switch (luaType) {
-      case LuaType.none:
-        return 'no value';
-      case LuaType.nil:
-        return 'nil';
-      case LuaType.boolean:
-        return 'boolean';
-      case LuaType.number:
-        return 'number';
-      case LuaType.string:
-        return 'string';
-      case LuaType.table:
-        return 'table';
-      case LuaType.function:
-        return 'function';
-      case LuaType.thread:
-        return 'thread';
-      default:
-        return 'userdata';
-    }
+  String typeName(int idx) {
+    return type(idx).typeName;
   }
 
   @override
@@ -71,5 +52,5 @@ mixin LuaStateAccess implements LuaVM {
   double toNumber(int idx) => convert2Float(stack!.get(idx)!);
 
   @override
-  String toStr(int idx) => convert2String(stack!.get(idx)!);
+  String? toDartString(int idx) => convert2String(stack!.get(idx)!);
 }

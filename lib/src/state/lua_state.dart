@@ -112,7 +112,7 @@ class LuaStateImpl
   }
 
   @override
-  DartFunction? toDartFunction(int idx) {
+  LuaDartFunction? toDartFunction(int idx) {
     final val = stack!.get(idx)!;
     if (val is LuaClosure) return val.dartFunc;
     return null;
@@ -122,13 +122,13 @@ class LuaStateImpl
   void pushGlobalTable() => getI(LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
 
   @override
-  void register(String name, DartFunction dartFunc) {
+  void register(String name, LuaDartFunction dartFunc) {
     pushDartFunction(dartFunc);
     setGlobal(name);
   }
 
   @override
-  void pushDartClosure(DartFunction f, int n) {
+  void pushDartClosure(LuaDartFunction f, int n) {
     final closure = LuaClosure.fromDartFunction(f, n);
     for (var i = n; i > 0; i--) {
       closure.upValues[n - 1] = LuaUpValue(stack!.pop());
@@ -143,6 +143,7 @@ class LuaStateImpl
     });
   }
 
+  @override
   int rawLen(int idx) {
     final val = stack!.get(idx)!;
     final x = val;
@@ -196,7 +197,7 @@ class LuaStateImpl
 
     try {
       call(nArgs, nResults);
-    } catch (e) {
+    } catch (e, st) {
       if (msgHandler != 0) {
         rethrow;
       }

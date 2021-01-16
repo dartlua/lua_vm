@@ -10,4 +10,14 @@ class LuaParser {
     lexer.nextTokenOfKind(LuaTokens.eof);
     return block;
   }
+
+  static int? parseInt(String str) {
+    // TODO
+    return int.tryParse(str);
+  }
+
+  static double? parseNumber(String str) {
+    // TODO
+    return double.tryParse(str);
+  }
 }

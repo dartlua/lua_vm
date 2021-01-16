@@ -15,7 +15,7 @@ class LuaClosure {
   }
 
   LuaPrototype? proto;
-  DartFunction? dartFunc;
+  LuaDartFunction? dartFunc;
   late List<LuaUpValue?> upValues;
 }
 

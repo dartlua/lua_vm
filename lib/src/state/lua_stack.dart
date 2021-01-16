@@ -68,7 +68,9 @@ class LuaStack {
       return c.upValues[uvIndex]!.value;
     }
 
-    if (idx == LUA_REGISTRYINDEX) state.registry;
+    if (idx == LUA_REGISTRYINDEX) {
+      return state.registry;
+    }
 
     final absIdx = absIndex(idx);
     if (absIdx > 0 && absIdx <= top) return slots[absIdx - 1];
