@@ -3,18 +3,19 @@ import 'package:luart/src/api/lua_state.dart';
 
 Future<void> main() async {
   //测试调用方法
-  final fileBytes = await File('luac10.out').readAsBytes();
+  var fileBytes = await File('example/luac10.out').readAsBytes();
   var ls = LuaState();
   ls.register('print', print_);
   ls.load(fileBytes, 'luac.out');
   print('');
   ls.call(0, 0);
 
-  final fileBytes11 = await File('luac11.out').readAsBytes();
+  fileBytes = await File('example/luac.out').readAsBytes();
   ls = LuaState();
+  ls.register('print', print_);
   ls.register('getmetayable', getMetaTab);
   ls.register('setmetatable', setMetaTab);
-  ls.load(fileBytes11, 'luac.out');
+  ls.load(fileBytes, 'luac.out');
   print('\noutputs:');
   ls.call(0, 0);
 }
@@ -38,15 +39,6 @@ int print_(LuaState ls){
   return 0;
 }
 
-// int getMetaTab(LuaState ls) {
-//   if (!ls.getMetaTable_(1)) ls.pushNull();
-//   return 1;
-// }
-
-// int setMetaTab(LuaState ls) {
-//   ls.setMetaTable_(1);
-//   return 1;
-// }
 
 /*
 void luaMain(ProtoType proto){

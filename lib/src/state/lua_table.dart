@@ -48,7 +48,7 @@ class LuaTable {
   int get len {
     var count = 0;
     for (var i = 0; i < list.length; i++) {
-      if (!list[i].key is int) {
+      if (!(list[i].key is int)) {
         continue;
       }
       if (list[i].value != null) {

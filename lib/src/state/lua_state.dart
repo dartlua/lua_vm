@@ -70,7 +70,6 @@ class LuaStateImpl
   void loadProto(int idx) {
     final subProto = stack!.closure!.proto!.protos[idx];
     final c = LuaClosure.fromLuaProto(subProto);
-    stack!.push(c);
 
     var i = 0;
     for (var val in subProto.upvalues) {
@@ -78,7 +77,7 @@ class LuaStateImpl
       if (val.inStack == 1) {
         stack!.openUVs ??= <int, LuaUpValue?>{};
 
-        if (i == 0 && c.upValues.isEmpty) {
+        if (i == c.upValues.length) {
           c.upValues.add(LuaUpValue(stack!.slots[uvIndex]));
         } else {
           c.upValues[i] = stack!.openUVs![uvIndex];
@@ -88,7 +87,7 @@ class LuaStateImpl
           stack!.openUVs![uvIndex] = c.upValues[i];
         }
       } else {
-        if (i == 0 && c.upValues.isEmpty) {
+        if (i == c.upValues.length) {
           c.upValues.add(stack!.closure!.upValues[uvIndex]);
         } else {
           c.upValues[i] = stack!.closure!.upValues[uvIndex];
@@ -96,6 +95,7 @@ class LuaStateImpl
       }
       i++;
     }
+    stack!.push(c);
   }
 
   @override
@@ -109,13 +109,6 @@ class LuaStateImpl
     final val = stack!.get(idx)!;
     if (val is LuaClosure) return val.dartFunc != null;
     return false;
-  }
-
-  @override
-  DartFunction? toDartFunction(int idx) {
-    final val = stack!.get(idx)!;
-    if (val is LuaClosure) return val.dartFunc;
-    return null;
   }
 
   @override
@@ -165,8 +158,12 @@ class LuaStateImpl
     stack!.push(c);
     if (proto.upvalues.isNotEmpty) {
       final env = registry!.get(LUA_RIDX_GLOBALS);
-      if (c.upValues.isEmpty) c.upValues.add(LuaUpValue(null));
-      c.upValues[0] = LuaUpValue(env);
+      final upEnv = LuaUpValue(env);
+      if (c.upValues.isEmpty) {
+        c.upValues.add(upEnv);
+      } else {
+        c.upValues[0] = upEnv;
+      }
     }
   }
 
@@ -180,7 +177,6 @@ class LuaStateImpl
         callDartClosure(nArgs, nResults, value);
       }
     } else {
-      // TODO
       final mf = getMetafield(value, '__call', this);
       if (mf is LuaClosure) {
         stack!.push(value);
@@ -265,13 +261,5 @@ class LuaStateImpl
     }
   }
 }
-
-// LuaState newLuaState() {
-//   var registry = newLuaTable(0, 0);
-//   registry.put(LUA_RIDX_GLOBALS, Object(newLuaTable(0, 0)));
-//   var ls = LuaState(registry: registry);
-//   ls.pushLuaStack(LuaStack(LUA_MINSTACK, ls));
-//   return ls;
-// }
 
 int luaUpvalueIndex(int i) => LUA_REGISTRYINDEX - i;

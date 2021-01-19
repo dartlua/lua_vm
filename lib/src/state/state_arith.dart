@@ -98,11 +98,19 @@ mixin LuaStateArith implements LuaState {
 }
 
 num? _arith(Object? a, Object? b, Operator op) {
-  if (op.floatFunc != null) {
-    return op.floatFunc!(convert2Float(a!), convert2Float(b!));
+  if (op.floatFunc == null) {
+    final x = convert2Int(a!);
+    final y = convert2Int(b!);
+    if (x.success && y.success) return op.intFunc!(x.result, y.result);
+  } else {
+    if (op.intFunc != null) {
+      final x = convert2Int(a!);
+      final y = convert2Int(b!);
+      if (x.success && y.success) return op.intFunc!(x.result, y.result);
+    }
   }
 
-  if (op.intFunc != null) {
-    return op.intFunc!(convert2Int(a!), convert2Int(b!));
-  }
+  final x = convert2Float(a!);
+  final y = convert2Float(b!);
+  if (x.success && y.success) return op.floatFunc!(x.result, y.result);
 }
