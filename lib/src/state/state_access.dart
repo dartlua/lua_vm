@@ -2,29 +2,12 @@ import 'package:luart/luart.dart';
 import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/state/lua_value.dart';
 
+import 'lua_closure.dart';
+
 mixin LuaStateAccess implements LuaVM {
   @override
-  String typeName(LuaType luaType) {
-    switch (luaType) {
-      case LuaType.none:
-        return 'no value';
-      case LuaType.nil:
-        return 'nil';
-      case LuaType.boolean:
-        return 'boolean';
-      case LuaType.number:
-        return 'number';
-      case LuaType.string:
-        return 'string';
-      case LuaType.table:
-        return 'table';
-      case LuaType.function:
-        return 'function';
-      case LuaType.thread:
-        return 'thread';
-      default:
-        return 'userdata';
-    }
+  String typeName(int idx) {
+    return type(idx).typeName;
   }
 
   @override
@@ -74,7 +57,7 @@ mixin LuaStateAccess implements LuaVM {
   String? toDartString(int idx) => convert2String(stack!.get(idx)!);
 
   @override
-  DartFunction? toDartFunction(int idx) {
+  LuaDartFunction? toDartFunction(int idx) {
     final val = stack!.get(idx)!;
     if (val is LuaClosure) return val.dartFunc;
     return null;

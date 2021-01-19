@@ -53,9 +53,9 @@ mixin LuaStateSet implements LuaState {
     final val = stack!.get(idx);
     final mtVal = stack!.pop();
     if (mtVal == null) {
-      setMetatableFor(val!, null, this);
+      setMetaTableFor(val!, null, this);
     } else if (mtVal is LuaTable) {
-      setMetatableFor(val!, mtVal, this);
+      setMetaTableFor(val!, mtVal, this);
     } else {
       throw TypeError();
     }
