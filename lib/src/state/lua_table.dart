@@ -8,7 +8,12 @@ class LuaTable {
   String toString() => 'Table<$list, $metaTable>';
 
   Object? get(Object value) {
-    if (value is int) return list[value - 1].value;
+    if (value is int) {
+      if (value > list.length) {
+        return null;
+      }
+      return list[value - 1].value;
+    }
     var index = getIndex(value);
     return index == -1 ? null : list.elementAt(index).value;
   }
@@ -58,6 +63,19 @@ class LuaTable {
       break;
     }
     return count;
+  }
+
+  List<Object> get keys {
+    var keyList = <Object>[];
+    list.forEach((element) => keyList.add(element.key));
+    return keyList;
+  }
+
+  Object? nextKey(Object? key) {
+    if (key == null) return keys[0];
+    var idx = keys.indexOf(key) + 1;
+    if (idx == keys.length) return null;
+    return keys[idx];
   }
 }
 

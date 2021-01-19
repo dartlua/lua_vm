@@ -3,14 +3,14 @@ import 'package:luart/src/api/lua_state.dart';
 
 Future<void> main() async {
   //测试调用方法
-  var fileBytes = await File('example/luac10.out').readAsBytes();
+  var fileBytes = await File('ch10.out').readAsBytes();
   var ls = LuaState();
   ls.register('print', print_);
   ls.load(fileBytes, 'luac.out');
   print('');
   ls.call(0, 0);
 
-  fileBytes = await File('example/luac.out').readAsBytes();
+  fileBytes = await File('ch11.out').readAsBytes();
   ls = LuaState();
   ls.register('print', print_);
   ls.register('getmetayable', getMetaTab);
@@ -18,7 +18,54 @@ Future<void> main() async {
   ls.load(fileBytes, 'luac.out');
   print('\noutputs:');
   ls.call(0, 0);
+
+  fileBytes = await File('ch12.out').readAsBytes();
+  ls = LuaState();
+  ls.register('print', print_);
+  ls.register('getmetayable', getMetaTab);
+  ls.register('setmetatable', setMetaTab);
+  ls.register('next', next);
+  ls.register('pairs', pairs);
+  ls.register('ipairs', iPairs);
+  ls.load(fileBytes, 'luac.out');
+  print('\noutputs:');
+  ls.call(0, 0);
 }
+
+int next(LuaState ls) {
+  ls.setTop(2); /* create a 2nd argument if there isn't one */
+  if (ls.next(1)) {
+    return 2;
+  } else {
+    ls.pushNil();
+    return 1;
+  }
+}
+
+int pairs(LuaState ls) {
+  ls.pushDartFunction(next); /* will return generator, */
+  ls.pushValue(1);         /* state, */
+  ls.pushNil();
+  return 3;
+}
+
+int iPairs(LuaState ls) {
+  ls.pushDartFunction(_iPairsAux); /* iteration function */
+  ls.pushValue(1);               /* state */
+  ls.pushInt(0);             /* initial value */
+  return 3;
+}
+
+int _iPairsAux(LuaState ls) {
+  var i = ls.toInt(2) + 1;
+  ls.pushInt(i);
+  if (ls.getI(1, i) == LuaType.nil) {
+    return 1;
+  } else {
+    return 2;
+  }
+}
+
 
 int getMetaTab(LuaState ls){
   if(!ls.getMetatable(1)) ls.pushNil();
@@ -34,7 +81,6 @@ int print_(LuaState ls){
   var nArgs = ls.getTop();
   for(var i = 1; i <= nArgs; i++){
     print(ls.stack!.get(i));
-    if(i < nArgs) print('\t');
   }
   return 0;
 }

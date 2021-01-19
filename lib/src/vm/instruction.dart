@@ -401,3 +401,20 @@ void setUpval(int inst, LuaVM vm) {
   final operand = inst.abc();
   vm.copy(operand.a + 1, luaUpvalueIndex(operand.b + 1));
 }
+
+void tForCall(int i, LuaVM vm) {
+  final inst = i.abc();
+
+  _pushFuncAndArgs(inst.a + 1, 3, vm);
+  vm.call(2, inst.c);
+  _popResults(inst.a + 4, inst.c + 1, vm);
+}
+
+void tForLoop(int i, LuaVM vm) {
+  final operand = i.asbx();
+
+  if (!vm.isNil(operand.a + 2)) {
+    vm.copy(operand.a + 2, operand.a + 1);
+    vm.addPC(operand.b);
+  }
+}
