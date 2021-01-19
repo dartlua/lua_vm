@@ -18,6 +18,7 @@ LuaType typeOf(Object? value) {
   if (value is double) return LuaType.number;
   if (value is String) return LuaType.string;
   if (value is LuaTable) return LuaType.table;
+  if (value is LuaError) return LuaType.string;
 
   throw TypeError();
 }

@@ -9,9 +9,11 @@ class LuaTable {
 
   Object? get(Object value) {
     if (value is int) {
+      //
       if (value > list.length) {
         return null;
       }
+      //
       return list[value - 1].value;
     }
     var index = getIndex(value);
@@ -72,7 +74,9 @@ class LuaTable {
   }
 
   Object? nextKey(Object? key) {
+    //
     if (key == null) return keys[0];
+    //
     var idx = keys.indexOf(key) + 1;
     if (idx == keys.length) return null;
     return keys[idx];

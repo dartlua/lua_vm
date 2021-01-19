@@ -3,14 +3,14 @@ import 'package:luart/src/api/lua_state.dart';
 
 Future<void> main() async {
   //测试调用方法
-  var fileBytes = await File('ch10.out').readAsBytes();
+  var fileBytes = await File('example/ch10.out').readAsBytes();
   var ls = LuaState();
   ls.register('print', print_);
   ls.load(fileBytes, 'luac.out');
   print('');
   ls.call(0, 0);
 
-  fileBytes = await File('ch11.out').readAsBytes();
+  fileBytes = await File('example/ch11.out').readAsBytes();
   ls = LuaState();
   ls.register('print', print_);
   ls.register('getmetayable', getMetaTab);
@@ -19,7 +19,7 @@ Future<void> main() async {
   print('\noutputs:');
   ls.call(0, 0);
 
-  fileBytes = await File('ch12.out').readAsBytes();
+  fileBytes = await File('example/ch12.out').readAsBytes();
   ls = LuaState();
   ls.register('print', print_);
   ls.register('getmetayable', getMetaTab);
@@ -30,6 +30,26 @@ Future<void> main() async {
   ls.load(fileBytes, 'luac.out');
   print('\noutputs:');
   ls.call(0, 0);
+
+  fileBytes = await File('example/ch13.out').readAsBytes();
+  ls = LuaState();
+  ls.register('print', print_);
+  ls.register('error', error);
+	ls.register('pcall', pCall);
+	ls.load(fileBytes, 'ch13.lua');
+	ls.call(0, 0);
+}
+
+int error(LuaState ls) {
+	return ls.error();
+}
+
+int pCall(LuaState ls) {
+	final nArgs = ls.getTop() - 1;
+	final status = ls.pCall(nArgs, -1, 0);
+	ls.pushBool(status == LuaStatus.ok);
+	ls.insert(1);
+	return ls.getTop();
 }
 
 int next(LuaState ls) {
