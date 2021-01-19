@@ -2,6 +2,7 @@ import 'package:luart/luart.dart';
 import 'package:luart/src/compiler/ast/lua_exp.dart';
 import 'package:luart/src/compiler/lexer/lexer.dart';
 import 'package:luart/src/compiler/lexer/token.dart';
+import 'package:luart/src/compiler/parser/lua_parser.dart';
 import 'package:luart/src/compiler/parser/optimizer.dart';
 import 'package:luart/src/compiler/parser/parse_block.dart';
 import 'package:luart/src/compiler/parser/parse_prefix_exp.dart';
@@ -297,12 +298,12 @@ LuaExp parseExp0(LuaLexer lexer) {
 LuaExp parseNumberExp(LuaLexer lexer) {
   final token = lexer.nextToken();
 
-  final intValue = int.tryParse(token.value);
+  final intValue = LuaParser.parseInt(token.value);
   if (intValue != null) {
     return LuaIntegerExp(line: token.line, value: intValue);
   }
 
-  final doubleValue = double.tryParse(token.value);
+  final doubleValue = LuaParser.parseNumber(token.value);
   if (doubleValue != null) {
     return LuaFloatExp(line: token.line, value: doubleValue);
   }

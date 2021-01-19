@@ -1,6 +1,5 @@
 import 'package:luart/luart.dart';
 import 'package:luart/src/api/lua_vm.dart';
-import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_value.dart';
 
 mixin LuaStateAccess implements LuaVM {
@@ -31,7 +30,8 @@ mixin LuaStateAccess implements LuaVM {
   @override
   LuaType type(int idx) {
     if (stack!.isValid(idx)) {
-      return typeOf(stack!.get(idx));
+      var val = stack!.get(idx);
+      return typeOf(val);
     }
     return LuaType.none;
   }
@@ -49,10 +49,10 @@ mixin LuaStateAccess implements LuaVM {
   bool isBool(int idx) => type(idx) == LuaType.boolean;
 
   @override
-  bool isInt(int idx) => convert2Int(stack!.get(idx)!) is int;
+  bool isInt(int idx) => stack!.get(idx)! is int;
 
   @override
-  bool isNumber(int idx) => convert2Float(stack!.get(idx)!) is double;
+  bool isNumber(int idx) => stack!.get(idx)! is double;
 
   @override
   bool isTable(int idx) => type(idx) == LuaType.table;
@@ -71,7 +71,7 @@ mixin LuaStateAccess implements LuaVM {
   double toNumber(int idx) => convert2Float(stack!.get(idx)!).result;
 
   @override
-  String toStr(int idx) => convert2String(stack!.get(idx)!);
+  String? toDartString(int idx) => convert2String(stack!.get(idx)!);
 
   @override
   DartFunction? toDartFunction(int idx) {

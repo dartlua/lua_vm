@@ -1,4 +1,5 @@
 import 'package:luart/luart.dart';
+import 'package:luart/src/compiler/parser/lua_parser.dart';
 import 'package:luart/src/state/lua_table.dart';
 import 'package:luart/src/state/lua_value.dart';
 
@@ -36,8 +37,8 @@ mixin LuaStateMisc implements LuaState {
     } else if (n >= 2) {
       for (var i = 1; i < n; i++) {
         if (isString(-1) && isString(-2)) {
-          final s2 = toStr(-1);
-          final s1 = toStr(-2);
+          final s2 = toDartString(-1) ?? '';
+          final s1 = toDartString(-2) ?? '';
           stack!.pop();
           stack!.pop();
           stack!.push(s1 + s2);
@@ -55,5 +56,28 @@ mixin LuaStateMisc implements LuaState {
         throw Exception('concat error');
       }
     }
+  }
+
+  @override
+  Never error() {
+    final e = stack!.pop();
+    throw LuaRuntimeError(e);
+  }
+
+  @override
+  bool stringToNumber(String s) {
+    final i = LuaParser.parseInt(s);
+    if (i != null) {
+      pushInt(i);
+      return true;
+    }
+
+    final f = LuaParser.parseNumber(s);
+    if (f != null) {
+      pushNumber(f);
+      return true;
+    }
+
+    return false;
   }
 }

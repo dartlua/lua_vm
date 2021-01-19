@@ -40,6 +40,31 @@ enum LuaType {
   thread,
 }
 
+extension LuaTypeX on LuaType {
+  String get typeName {
+    switch (this) {
+      case LuaType.none:
+        return 'no value';
+      case LuaType.nil:
+        return 'nil';
+      case LuaType.boolean:
+        return 'boolean';
+      case LuaType.number:
+        return 'number';
+      case LuaType.string:
+        return 'string';
+      case LuaType.table:
+        return 'table';
+      case LuaType.function:
+        return 'function';
+      case LuaType.thread:
+        return 'thread';
+      default:
+        return 'userdata';
+    }
+  }
+}
+
 enum LuaStatus {
 	ok,
 	isYield,
@@ -51,7 +76,7 @@ enum LuaStatus {
 	errFile,
 }
 
-typedef DartFunction = int Function(LuaState);
+typedef LuaDartFunction = int Function(LuaState);
 
 abstract class LuaState {
   factory LuaState() = LuaStateImpl;
@@ -129,9 +154,8 @@ abstract class LuaState {
 
   /** access functions (stack -> Dart) **/
 
-  /// Returns the name of the type encoded by the value [tp], which must be one
-  /// the values of [LuaType]
-  String typeName(LuaType tp);
+  /// Returns the type name of the value in the given valid index
+  String typeName(int idx);
 
   /// Returns the type of the value in the given valid index, or [LuaType.none]
   /// for a non-valid (but acceptable) index.
@@ -197,16 +221,17 @@ abstract class LuaState {
   double toNumber(int idx);
 
   /// Converts the Lua value at the given index to a Dart string. The Lua value
-  /// must be a string or a number; otherwise, a [TypeError] is thrown.
-  String toStr(int idx);
+  /// must be a string or a number; otherwise, [null] is returned.
+  String? toDartString(int idx);
 
   /// Converts a value at the given index to a Dart function. That value must be
   /// a Dart function; otherwise, returns [null].
-  DartFunction? toDartFunction(int idx);
+  LuaDartFunction? toDartFunction(int idx);
 
   // LuaState toThread(int idx) ;
   // dynamic toPointer(int idx);
-  // int rawLen(int idx);
+
+  int rawLen(int idx);
 
   // /* push functions (Dart -> stack) */
 
@@ -231,10 +256,10 @@ abstract class LuaState {
   ///
   /// Any function to be callable by Lua must follow the correct protocol to
   /// receive its parameters and return its results.
-  void pushDartFunction(DartFunction f);
+  void pushDartFunction(LuaDartFunction f);
 
   /// Pushes a new Dart closure onto the stack.
-  void pushDartClosure(DartFunction f, int n);
+  void pushDartClosure(LuaDartFunction f, int n);
 
   /// Pushes the global environment onto the stack.
   void pushGlobalTable();
@@ -322,14 +347,14 @@ abstract class LuaState {
   LuaType getI(int idx, int i);
 
   /// Similar to [getTable], but does a raw access (i.e., without metamethods).
-  // LuaType rawGet(int idx);
+  LuaType rawGet(int idx);
 
   /// Pushes onto the stack the value t[n], where t is the table at the given
   /// index. The access is raw, that is, it does not invoke the __index
   /// metamethod.
   ///
   /// Returns the type of the pushed value.
-  // LuaType rawGetI(int idx, int i);
+  LuaType rawGetI(int idx, int i);
 
   /// Pushes onto the stack the metatable associated with name tname in the
   /// registry ([null] if there is no metatable associated with that name).
@@ -387,7 +412,7 @@ abstract class LuaState {
 
   /// Sets the Dart function f as the new value of global name. `register(name,
   /// f)` is equivalent to `state.pushDartFunction(f); state.setGlobal(name);`
-  void register(String name, DartFunction f);
+  void register(String name, LuaDartFunction f);
 
   /* 'load' and 'call' functions (load and run Lua code) */
 
@@ -489,14 +514,14 @@ abstract class LuaState {
 
   /// Generates a Lua error, using the value at the top of the stack as the
   /// error object. This function does a long jump, and therefore never returns
-  // int error();
+  Never error();
 
   /// Converts [s] to a number, pushes that number into the stack. The
   /// conversion can result in an integer or a float, according to the lexical
   /// conventions of Lua. The string may have leading and trailing spaces and a
   /// sign. If the string is not a valid numeral, returns false and pushes
   /// nothing.
-  // bool stringToNumber(String s);
+  bool stringToNumber(String s);
 
   /* coroutine functions */
 
