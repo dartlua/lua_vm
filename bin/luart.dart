@@ -14,7 +14,7 @@ bool loadStringWithReturn(LuaState ls, String source) {
 
 void repl() {
   final ls = LuaState();
-  ls.openBaseLib();
+  ls.openLibs();
 
   print('Luart Repl');
 
@@ -27,10 +27,11 @@ void repl() {
     }
 
     try {
-      ls.loadString(line, '=stdin');
-    } catch (e) {
+      ls.loadString(line, 'stdin');
+    } catch (e, st) {
       if (!loadStringWithReturn(ls, line)) {
-        rethrow;
+        print(e);
+        print(st);
       }
     }
 

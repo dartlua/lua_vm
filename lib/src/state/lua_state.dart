@@ -173,7 +173,12 @@ class LuaStateImpl
 
   @override
   void call(int nArgs, int nResults) {
-    final value = stack!.get(-(nArgs + 1))!;
+    final value = stack!.get(-(nArgs + 1));
+
+    if (value == null) {
+      throw LuaRuntimeError('attempt to call a nil value');
+    }
+
     if (value is LuaClosure) {
       if (value.proto != null) {
         callLuaClosure(nArgs, nResults, value);

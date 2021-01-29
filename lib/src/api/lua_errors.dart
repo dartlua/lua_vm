@@ -28,4 +28,9 @@ class LuaRuntimeError extends LuaError {
   final message = 'lua runtime error';
 
   final Object? error;
+
+  @override
+  String toString() {
+    return error == null ? 'LuaRuntimeError' : 'LuaRuntimeError: $error';
+  }
 }

@@ -5,6 +5,7 @@ import 'package:luart/luart.dart';
 import 'package:luart/src/constants.dart';
 import 'package:luart/src/state/lua_value.dart';
 import 'package:luart/src/stdlib/stdlib_base.dart';
+import 'package:luart/src/stdlib/stdlib_math.dart';
 
 extension LuaAuxlib on LuaState {
   void loadString(String source, [String chunkName = 'source']) {
@@ -24,10 +25,6 @@ extension LuaAuxlib on LuaState {
   Never errorMessage(Object? message) {
     pushString(message.toString());
     error();
-  }
-
-  void openBaseLib() {
-    openBase(this);
   }
 
   void setFuncs(Map<String, LuaDartFunction> funcs, [int upvalues = 0]) {
@@ -78,7 +75,7 @@ extension LuaAuxlib on LuaState {
           final tt = getMetafield(idx, '__name', this);
           late String kind;
           if (tt == LuaType.string) {
-            kind = checkString(-1);
+            kind = mustCheckString(-1);
           } else {
             kind = typeName(idx);
           }
@@ -91,7 +88,7 @@ extension LuaAuxlib on LuaState {
           }
       }
     }
-    return checkString(-1);
+    return mustCheckString(-1);
   }
 
   void checkType(int idx, LuaType t) {
@@ -100,37 +97,48 @@ extension LuaAuxlib on LuaState {
     }
   }
 
-  int checkInt(int idx, {int? fallback}) {
+  int? checkInt(int idx) {
     try {
       final i = toInt(idx);
       return i;
     } catch (e) {
-      if (fallback != null) {
-        return fallback;
-      }
-      _intError(idx);
+      return null;
     }
   }
 
-  double checkNumber(int idx, {double? fallback}) {
+  double? checkNumber(int idx) {
     try {
       final i = toNumber(idx);
       return i;
     } catch (e) {
-      if (fallback != null) {
-        return fallback;
-      }
-      _tagError(idx, LuaType.number);
+      return null;
     }
   }
 
-  String checkString(int idx, {String? fallback}) {
-    final s = toDartString(idx);
-    if (s != null) {
-      return s;
+  String? checkString(int idx) {
+    return toDartString(idx);
+  }
+
+  int mustCheckInt(int idx) {
+    final result = checkInt(idx);
+    if (result != null) {
+      return result;
     }
-    if (fallback != null) {
-      return fallback;
+    _intError(idx);
+  }
+
+  double mustCheckNumber(int idx) {
+    final result = checkNumber(idx);
+    if (result != null) {
+      return result;
+    }
+    _tagError(idx, LuaType.number);
+  }
+
+  String mustCheckString(int idx) {
+    final result = checkString(idx);
+    if (result != null) {
+      return result;
     }
     _tagError(idx, LuaType.string);
   }
@@ -159,5 +167,66 @@ extension LuaAuxlib on LuaState {
     final msg = tname + ' expected, got ' + typeArg;
     pushString(msg);
     return argError(arg, msg);
+  }
+
+  // [-0, +1, m]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_newlib
+  void newLib(Map<String, LuaDartFunction> funcs) {
+    createTable(0, funcs.length);
+    setFuncs(funcs, 0);
+  }
+
+  // [-0, +0, e]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_openlibs
+  void openLibs() {
+    final libs = <String, LuaDartFunction>{
+      '_G':        openBaseLib,
+      'math':      openMathLib,
+      // 'table':     openTableLib,
+      // 'string':    openStringLib,
+      // 'utf8':      openUTF8Lib,
+      // 'os':        openOSLib,
+      // 'package':   openPackageLib,
+      // 'coroutine': openCoroutineLib,
+    };
+
+    for (var lib in libs.entries) {
+      requireF(lib.key, lib.value, global: true);
+      pop(1);
+    }
+  }
+
+  // [-0, +1, e]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_requiref
+  void requireF(String modname, LuaDartFunction openf, {bool global = true}) {
+    getSubTable(LUA_REGISTRYINDEX, '_LOADED');
+    getField(-1, modname); /* LOADED[modname] */
+    if (!toBool(-1)) {   /* package not already loaded? */
+      pop(1); /* remove field */
+      pushDartFunction(openf);
+      pushString(modname);   /* argument to open function */
+      call(1, 1);            /* call 'openf' to open module */
+      pushValue(-1);         /* make copy of module (call result) */
+      setField(-3, modname); /* _LOADED[modname] = module */
+    }
+    remove(-2); /* remove _LOADED table */
+    if (global) {
+      pushValue(-1);      /* copy of module */
+      setGlobal(modname); /* _G[modname] = module */
+    }
+  }
+
+  // [-0, +1, e]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_getsubtable
+  bool getSubTable(int idx, String fname) {
+    if (getField(idx, fname) == LuaType.table) {
+      return true; /* table already there */
+    }
+    pop(1); /* remove previous result */
+    idx = stack!.absIndex(idx);
+    newTable();
+    pushValue(-1);        /* copy to be left at top */
+    setField(idx, fname); /* assign new table to field */
+    return false;              /* false, because did not find table there */
   }
 }

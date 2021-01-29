@@ -59,7 +59,7 @@ class LuaStdlibBase {
   // http://www.lua.org/manual/5.3/manual.html#pdf-error
   // lua-5.3.4/src/lbaselib.c#luaB_error()
   int baseError(LuaState ls) {
-    final level = ls.checkInt(2, fallback: 1);
+    final level = ls.checkInt(2) ?? 1;
     ls.setTop(1);
     if (ls.type(1) == LuaType.string && level > 0) {
       // ls.where(level) /* add extra information */
@@ -74,11 +74,11 @@ class LuaStdlibBase {
   // lua-5.3.4/src/lbaselib.c#luaB_select()
   int baseSelect(LuaState ls) {
     final n = ls.getTop();
-    if (ls.type(1) == LuaType.string && ls.checkString(1) == '#') {
+    if (ls.type(1) == LuaType.string && ls.mustCheckString(1) == '#') {
       ls.pushInt(n - 1);
       return 1;
     } else {
-      var i = ls.checkInt(1);
+      var i = ls.mustCheckInt(1);
       if (i < 0) {
         i = n + i;
       } else if (i > n) {
@@ -103,7 +103,7 @@ class LuaStdlibBase {
   }
 
   int _iPairsAux(LuaState ls) {
-    final i = ls.checkInt(2) + 1;
+    final i = ls.mustCheckInt(2) + 1;
     ls.pushInt(i);
     if (ls.getI(1, i) == LuaType.nil) {
       return 1;
@@ -241,7 +241,7 @@ class LuaStdlibBase {
     } else {
       ls.checkType(1, LuaType.string); /* no numbers as strings */
       final s = ls.toDartString(1)!.trim();
-      final base = ls.checkInt(2);
+      final base = ls.mustCheckInt(2);
       if (base < 2 || base > 36) {
         ls.argError(2, 'base out of range');
       }
@@ -256,7 +256,7 @@ class LuaStdlibBase {
   }
 }
 
-void openBase(LuaState ls) {
+int openBaseLib(LuaState ls) {
   final defaultBehavior = LuaBaselibBehavior(print: stdout.write);
   final baselib = LuaStdlibBase(defaultBehavior);
   final funcs = <String, LuaDartFunction>{
@@ -294,4 +294,6 @@ void openBase(LuaState ls) {
 
   ls.pushString('Lua 5.3');
   ls.setField(-2, '_VERSION');
+
+  return 1;
 }

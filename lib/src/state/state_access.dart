@@ -43,7 +43,7 @@ mixin LuaStateAccess implements LuaVM {
       type(idx) == LuaType.string || type(idx) == LuaType.number;
 
   @override
-  bool toBool(int idx) => convert2Boolean(stack!.get(idx)!);
+  bool toBool(int idx) => convert2Boolean(stack!.get(idx));
 
   @override
   int toInt(int idx) => convert2Int(stack!.get(idx)!);
