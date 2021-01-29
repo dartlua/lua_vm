@@ -5,8 +5,6 @@ abstract class LuaVM with LuaState {
 
   void addPC(int n);
 
-  int fetch();
-
   void getConst(int idx);
 
   void getRK(int rk);

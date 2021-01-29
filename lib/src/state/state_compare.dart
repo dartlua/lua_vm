@@ -8,66 +8,53 @@ mixin LuaStateCompare implements LuaState {
     if (!stack!.isValid(idx1) || !stack!.isValid(idx2)) return false;
     final a = stack!.get(idx1)!;
     final b = stack!.get(idx2)!;
-    return _eq(a, b, this);
+    return _eq(a, b, null);
   }
 
   @override
   bool compare(int idx1, int idx2, LuaCompareOp op) {
     if (!stack!.isValid(idx1) || !stack!.isValid(idx2)) return false;
-    var a = stack!.get(idx1);
-    var b = stack!.get(idx2);
-    LuaState ls = this;
+    final a = stack!.get(idx1);
+    final b = stack!.get(idx2);
     switch (op) {
       case LuaCompareOp.eq:
-        return _eq(a!, b!, ls);
+        return _eq(a!, b!, this);
       case LuaCompareOp.lt:
-        return _lt(a!, b!, ls);
+        return _lt(a!, b!, this);
       case LuaCompareOp.le:
-        return _le(a!, b!, ls);
+        return _le(a!, b!, this);
       default:
         throw UnsupportedError('Unsupported Compare Operation');
     }
   }
 }
 
-bool _eq(Object a, Object b, LuaState ls) {
-  dynamic aa = a;
-  dynamic bb = b;
-  if (aa == null) return bb == null;
-  if (aa is bool) return aa == bb;
-  if (aa is String) return aa == bb;
-  if (aa is int) return bb is int ? aa == bb : aa.toDouble() == bb;
-  if (aa is double) return bb is double ? aa == bb : aa == bb.toDouble();
-  if (aa is LuaTable && bb is LuaTable && aa != bb) {
-    final result = callMetaMethod(a, b, '__eq', ls);
+bool _eq(Object? a, Object? b, LuaState? ls) {
+  if (a == null) return b == null;
+  if (a is LuaTable && b is LuaTable && a != b) {
+    final result = callMetaMethod(a, b, '__eq', ls!);
     if (result != null) return convert2Boolean(result);
   }
   return a == b;
 }
 
 bool _lt(Object a, Object b, LuaState ls) {
-  dynamic aa = a;
-  dynamic bb = b;
-  if (aa is String) {
-    return aa.compareTo(bb is String ? bb : bb.toString()) == -1 ? true : false;
+  if (a is String) {
+    return a.compareTo(b is String ? b : b.toString()) == -1 ? true : false;
   }
-  if (aa is int) return bb is int ? aa < bb : aa.toDouble() < bb;
-  if (aa is double) return bb is double ? aa < bb : aa < bb.toDouble();
+  if (a is num && b is num) return a < b;
   final result = callMetaMethod(a, b, '__lt', ls);
   if (result != null) return convert2Boolean(result);
   throw UnsupportedError('Unsupported comparison between '
-      '${aa.runtimeType} and ${bb.runtimeType}');
+      '${a.runtimeType} and ${b.runtimeType}');
 }
 
 bool _le(dynamic a, dynamic b, LuaState ls) {
   if (a is String) {
     return a.compareTo(b is String ? b : b.toString()) < 1 ? true : false;
   }
-  if (a is int) {
-    return b is int ? a <= b : a.toDouble() <= b;
-  }
-  if (a is double) {
-    return b is double ? a <= b : a <= b.toDouble();
+  if (a is num && b is num) {
+    return a <= b;
   }
 
   var result = callMetaMethod(a, b, '__le', ls);

@@ -77,7 +77,22 @@ mixin LuaStateMisc implements LuaState {
       pushNumber(f);
       return true;
     }
-
     return false;
+  }
+
+  @override
+  bool next(int idx) {
+    var val = stack!.get(idx);
+    if (val is LuaTable) {
+      var key = stack!.pop();
+      var nextKey = val.nextKey(key);
+      if (nextKey != null) {
+        stack!.push(nextKey);
+        stack!.push(val.get(nextKey));
+        return true;
+      }
+      return false;
+    }
+    throw LuaError('LuaTable expected');
   }
 }

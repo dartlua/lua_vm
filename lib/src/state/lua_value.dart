@@ -1,6 +1,7 @@
 import 'package:luart/luart.dart';
 import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_table.dart';
+import 'package:luart/src/api/lua_result.dart';
 
 // class Object extends Object {
 //   dynamic luaValue;
@@ -17,6 +18,7 @@ LuaType typeOf(Object? value) {
   if (value is double) return LuaType.number;
   if (value is String) return LuaType.string;
   if (value is LuaTable) return LuaType.table;
+  if (value is LuaError) return LuaType.string;
 
   throw TypeError();
 }
@@ -28,11 +30,11 @@ bool convert2Boolean(Object? v) {
   return true;
 }
 
-double convert2Float(Object value) {
-  if (value is double) return value;
-  if (value is int) return value.toDouble();
-  if (value is String) return double.parse(value);
-  throw TypeError();
+LuaResult convert2Float(Object value) {
+  if (value is double) return LuaResult.double(value, true);
+  if (value is int) return LuaResult.double(value.toDouble(), true);
+  if (value is String) return LuaResult.double(double.parse(value), true);
+  return LuaResult.double(0, false);
 }
 
 String? convert2String(Object value) {
@@ -42,14 +44,14 @@ String? convert2String(Object value) {
   if (value is bool) return value ? 'true' : 'false';
 }
 
-int convert2Int(Object value) {
-  if (value is String) return num.parse(value).toInt();
-  if (value is double) return value.round();
-  if (value is int) return value;
-  throw TypeError();
+LuaResult convert2Int(Object value) {
+  if (value is String) return LuaResult.int(num.parse(value).toInt(), true);
+  if (value is double) return LuaResult.int(value.round(), true);
+  if (value is int) return LuaResult.int(value, true);
+  return LuaResult.int(0, false);
 }
 
-void setMetatableFor(Object value, LuaTable? metaTable, LuaState luaState) {
+void setMetaTableFor(Object value, LuaTable? metaTable, LuaState luaState) {
   if (value is LuaTable) {
     value.metaTable = metaTable;
     return;

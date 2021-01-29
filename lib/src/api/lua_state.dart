@@ -523,6 +523,8 @@ abstract class LuaState {
   /// nothing.
   bool stringToNumber(String s);
 
+  bool next(int idx);
+
   /* coroutine functions */
 
   // LuaState newThread();

@@ -23,9 +23,9 @@ class LuaStack {
   }
 
   void check(int n) {
-    final free = slots.length - top;
-    slots.addAll(List.filled(free, null));
-    // slots.fillRange(free, free + n - 1, null);
+    for (var free = slots.length - top; free < n; free++) {
+      slots.add(null);
+    }
   }
 
   void push(Object? val) {
@@ -68,9 +68,7 @@ class LuaStack {
       return c.upValues[uvIndex]!.value;
     }
 
-    if (idx == LUA_REGISTRYINDEX) {
-      return state.registry;
-    }
+    if (idx == LUA_REGISTRYINDEX) return state.registry;
 
     final absIdx = absIndex(idx);
     if (absIdx > 0 && absIdx <= top) return slots[absIdx - 1];
@@ -80,9 +78,8 @@ class LuaStack {
   void set(int idx, Object? value) {
     if (idx < LUA_REGISTRYINDEX) {
       final uvIndex = LUA_REGISTRYINDEX - idx - 1;
-      final c = closure;
-      if (c != null && uvIndex < c.upValues.length) {
-        c.upValues[uvIndex]!.value = value;
+      if (closure != null && uvIndex < closure!.upValues.length) {
+        closure!.upValues[uvIndex]!.value = value;
       }
       return;
     }

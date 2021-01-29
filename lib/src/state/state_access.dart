@@ -2,6 +2,8 @@ import 'package:luart/luart.dart';
 import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/state/lua_value.dart';
 
+import 'lua_closure.dart';
+
 mixin LuaStateAccess implements LuaVM {
   @override
   String typeName(int idx) {
@@ -46,11 +48,18 @@ mixin LuaStateAccess implements LuaVM {
   bool toBool(int idx) => convert2Boolean(stack!.get(idx));
 
   @override
-  int toInt(int idx) => convert2Int(stack!.get(idx)!);
+  int toInt(int idx) => convert2Int(stack!.get(idx)!).result;
 
   @override
-  double toNumber(int idx) => convert2Float(stack!.get(idx)!);
+  double toNumber(int idx) => convert2Float(stack!.get(idx)!).result;
 
   @override
   String? toDartString(int idx) => convert2String(stack!.get(idx)!);
+
+  @override
+  LuaDartFunction? toDartFunction(int idx) {
+    final val = stack!.get(idx)!;
+    if (val is LuaClosure) return val.dartFunc;
+    return null;
+  }
 }
