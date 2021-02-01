@@ -6,6 +6,7 @@ import 'package:luart/src/constants.dart';
 import 'package:luart/src/state/lua_value.dart';
 import 'package:luart/src/stdlib/stdlib_base.dart';
 import 'package:luart/src/stdlib/stdlib_math.dart';
+import 'package:luart/src/stdlib/stdlib_os.dart';
 
 extension LuaAuxlib on LuaState {
   void loadString(String source, [String chunkName = 'source']) {
@@ -185,7 +186,7 @@ extension LuaAuxlib on LuaState {
       // 'table':     openTableLib,
       // 'string':    openStringLib,
       // 'utf8':      openUTF8Lib,
-      // 'os':        openOSLib,
+      'os':        openOsLib,
       // 'package':   openPackageLib,
       // 'coroutine': openCoroutineLib,
     };

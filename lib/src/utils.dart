@@ -50,3 +50,12 @@ String byteData2String(ByteData b) {
 }
 
 int byte2Int(ByteData b) => b.getInt8(0);
+
+int dayInYear(DateTime time) {
+  // see: https://stackoverflow.com/a/8619946
+  final now = DateTime.now();
+  final start = DateTime(now.year);
+  final offset = start.timeZoneOffset - now.timeZoneOffset;
+  final diff = now.difference(start) + offset;
+  return diff.inDays;
+}

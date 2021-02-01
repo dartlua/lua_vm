@@ -3,6 +3,57 @@ import 'dart:math' as math;
 import 'package:luart/auxlib.dart';
 import 'package:luart/src/api/lua_state.dart';
 
+int openMathLib(LuaState ls) {
+  final mathlib = LuaStdlibMath();
+  final funcs = <String, LuaDartFunction>{
+    'random': mathlib.random,
+    'randomseed': mathlib.randomSeed,
+    'max': mathlib.max,
+    'min': mathlib.min,
+    'exp': mathlib.exp,
+    'log': mathlib.log,
+    'deg': mathlib.deg,
+    'rad': mathlib.rad,
+    'sin': mathlib.sin,
+    'cos': mathlib.cos,
+    'tan': mathlib.tan,
+    'asin': mathlib.asin,
+    'acos': mathlib.acos,
+    'atan': mathlib.atan,
+    'ceil': mathlib.ceil,
+    'floor': mathlib.floor,
+    'fmod': mathlib.fmod,
+    'modf': mathlib.modf,
+    'abs': mathlib.abs,
+    'sqrt': mathlib.sqrt,
+    'ult': mathlib.ult,
+    'tointeger': mathlib.toInteger,
+    'type': mathlib.type,
+    /* placeholders */
+    // "pi":         nil,
+    // "huge":       nil,
+    // "maxinteger": nil,
+    // "mininteger": nil,
+  };
+
+  // From https://github.com/dart-lang/sdk/issues/41717
+  final minInt =
+      (double.infinity is int) ? -double.infinity as int : (-1 << 63);
+  final maxInt = (double.infinity is int) ? double.infinity as int : ~minInt;
+
+  ls.newLib(funcs);
+  ls.pushNumber(math.pi);
+  ls.setField(-2, 'pi');
+  ls.pushNumber(double.infinity);
+  ls.setField(-2, 'huge');
+  ls.pushInt(maxInt);
+  ls.setField(-2, 'maxinteger');
+  ls.pushInt(minInt);
+  ls.setField(-2, 'mininteger');
+
+  return 1;
+}
+
 class LuaStdlibMath {
   var _rand = math.Random();
 
@@ -341,55 +392,4 @@ class LuaStdlibMath {
     }
     return 1;
   }
-}
-
-int openMathLib(LuaState ls) {
-  final mathlib = LuaStdlibMath();
-  final funcs = <String, LuaDartFunction>{
-    'random': mathlib.random,
-    'randomseed': mathlib.randomSeed,
-    'max': mathlib.max,
-    'min': mathlib.min,
-    'exp': mathlib.exp,
-    'log': mathlib.log,
-    'deg': mathlib.deg,
-    'rad': mathlib.rad,
-    'sin': mathlib.sin,
-    'cos': mathlib.cos,
-    'tan': mathlib.tan,
-    'asin': mathlib.asin,
-    'acos': mathlib.acos,
-    'atan': mathlib.atan,
-    'ceil': mathlib.ceil,
-    'floor': mathlib.floor,
-    'fmod': mathlib.fmod,
-    'modf': mathlib.modf,
-    'abs': mathlib.abs,
-    'sqrt': mathlib.sqrt,
-    'ult': mathlib.ult,
-    'tointeger': mathlib.toInteger,
-    'type': mathlib.type,
-    /* placeholders */
-    // "pi":         nil,
-    // "huge":       nil,
-    // "maxinteger": nil,
-    // "mininteger": nil,
-  };
-
-  // From https://github.com/dart-lang/sdk/issues/41717
-  final minInt =
-      (double.infinity is int) ? -double.infinity as int : (-1 << 63);
-  final maxInt = (double.infinity is int) ? double.infinity as int : ~minInt;
-
-  ls.newLib(funcs);
-  ls.pushNumber(math.pi);
-  ls.setField(-2, 'pi');
-  ls.pushNumber(double.infinity);
-  ls.setField(-2, 'huge');
-  ls.pushInt(maxInt);
-  ls.setField(-2, 'maxinteger');
-  ls.pushInt(minInt);
-  ls.setField(-2, 'mininteger');
-
-  return 1;
 }

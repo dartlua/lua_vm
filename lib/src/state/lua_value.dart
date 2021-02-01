@@ -62,7 +62,7 @@ void setMetaTableFor(Object value, LuaTable? metaTable, LuaState luaState) {
 LuaTable? getMetaTable(Object val, LuaState luaState) {
   if (val is LuaTable) return val.metaTable;
   final mt = luaState.registry!.get('_MT${typeOf(val)}');
-  if (mt != null && mt is LuaTable) return mt.metaTable;
+  if (mt != null && mt is LuaTable) return mt;
   return null;
 }
 

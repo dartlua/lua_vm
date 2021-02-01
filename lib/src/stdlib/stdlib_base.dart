@@ -3,6 +3,48 @@ import 'dart:io';
 import 'package:luart/auxlib.dart';
 import 'package:luart/luart.dart';
 
+int openBaseLib(LuaState ls) {
+  final defaultBehavior = LuaBaselibBehavior(print: stdout.write);
+  final baselib = LuaStdlibBase(defaultBehavior);
+  final funcs = <String, LuaDartFunction>{
+    'print': baselib.basePrint,
+    'assert': baselib.baseAssert,
+    'error': baselib.baseError,
+    'select': baselib.baseSelect,
+    'ipairs': baselib.baseIPairs,
+    // 'pairs':        baselib.basePairs,
+    // 'next':         baselib.baseNext,
+    // 'load':         baselib.baseLoad,
+    // 'loadfile':     baselib.baseLoadFile,
+    // 'dofile':       baselib.baseDoFile,
+    'pcall': baselib.basePCall,
+    // 'xpcall':       baselib.baseXPCall,
+    // 'getmetatable': baselib.baseGetMetatable,
+    // 'setmetatable': baselib.baseSetMetatable,
+    'rawequal': baselib.baseRawEqual,
+    'rawlen': baselib.baseRawLen,
+    'rawget': baselib.baseRawGet,
+    'rawset': baselib.baseRawSet,
+    'type': baselib.baseType,
+    'tostring': baselib.baseToString,
+    'tonumber': baselib.baseToNumber,
+    // /* placeholders */
+    // "_G":       nil,
+    // "_VERSION": nil,
+  };
+
+  ls.pushGlobalTable();
+  ls.setFuncs(funcs);
+
+  ls.pushValue(-1);
+  ls.setField(-2, '_G');
+
+  ls.pushString('Lua 5.3');
+  ls.setField(-2, '_VERSION');
+
+  return 1;
+}
+
 class LuaBaselibBehavior {
   const LuaBaselibBehavior({required this.print});
 
@@ -254,46 +296,4 @@ class LuaStdlibBase {
     ls.pushNil(); /* not a number */
     return 1;
   }
-}
-
-int openBaseLib(LuaState ls) {
-  final defaultBehavior = LuaBaselibBehavior(print: stdout.write);
-  final baselib = LuaStdlibBase(defaultBehavior);
-  final funcs = <String, LuaDartFunction>{
-    'print': baselib.basePrint,
-    'assert': baselib.baseAssert,
-    'error': baselib.baseError,
-    'select': baselib.baseSelect,
-    'ipairs': baselib.baseIPairs,
-    // 'pairs':        baselib.basePairs,
-    // 'next':         baselib.baseNext,
-    // 'load':         baselib.baseLoad,
-    // 'loadfile':     baselib.baseLoadFile,
-    // 'dofile':       baselib.baseDoFile,
-    'pcall': baselib.basePCall,
-    // 'xpcall':       baselib.baseXPCall,
-    // 'getmetatable': baselib.baseGetMetatable,
-    // 'setmetatable': baselib.baseSetMetatable,
-    'rawequal': baselib.baseRawEqual,
-    'rawlen': baselib.baseRawLen,
-    'rawget': baselib.baseRawGet,
-    'rawset': baselib.baseRawSet,
-    'type': baselib.baseType,
-    'tostring': baselib.baseToString,
-    'tonumber': baselib.baseToNumber,
-    // /* placeholders */
-    // "_G":       nil,
-    // "_VERSION": nil,
-  };
-
-  ls.pushGlobalTable();
-  ls.setFuncs(funcs);
-
-  ls.pushValue(-1);
-  ls.setField(-2, '_G');
-
-  ls.pushString('Lua 5.3');
-  ls.setField(-2, '_VERSION');
-
-  return 1;
 }
