@@ -190,7 +190,7 @@ class LuaStdlibBase {
   // lua-5.3.4/src/lbaselib.c#luaB_load()
   int baseLoad(LuaState ls) {
   	var chunk = ls.toDartString(1);
-  	var mode = ls.optString(3, 'bt');
+  	/*var mode = */ls.optString(3, 'bt');
   	var env = 0; /* 'env' index or 0 if no 'env' */
   	if (!ls.isNone(4)) {
   		env = 4;

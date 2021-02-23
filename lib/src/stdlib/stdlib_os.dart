@@ -27,12 +27,13 @@ int openOsLib(LuaState ls) {
 class LuaLibOsBehavior {}
 
 class LuaStdlibOs {
+  final startupTime = DateTime.now().microsecondsSinceEpoch;
   // os.clock ()
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.clock
   // lua-5.3.4/src/loslib.c#os_clock()
   int clock(LuaState ls) {
-    // TODO: use StopWatch to simulate the c clock?
-    ls.pushNumber(0.0);
+    final c = (DateTime.now().microsecondsSinceEpoch - startupTime) / 1000000;
+    ls.pushNumber(c);
     return 1;
   }
 
