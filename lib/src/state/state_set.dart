@@ -31,7 +31,7 @@ mixin LuaStateSet implements LuaState {
     }
 
     if (!raw) {
-      final mf = getMetafield(table, '__newindex', this);
+      final mf = getMetaField(table, '__newindex', this);
       if (mf is LuaTable) {
         _setTable(mf, k, v, false);
         return;

@@ -72,10 +72,10 @@ Object? callMetaMethod(
   String metaMethod,
   LuaState luaState,
 ) {
-  var mm = getMetafield(a, metaMethod, luaState);
+  var mm = getMetaField(a, metaMethod, luaState);
   if (mm == null) {
     if (b != null) {
-      mm = getMetafield(b, metaMethod, luaState);
+      mm = getMetaField(b, metaMethod, luaState);
     }
     if (mm == null) {
       return null;
@@ -90,7 +90,7 @@ Object? callMetaMethod(
   return luaState.stack!.pop();
 }
 
-Object? getMetafield(Object val, String fieldName, LuaState ls) {
+Object? getMetaField(Object val, String fieldName, LuaState ls) {
   var mt = getMetaTable(val, ls);
   if (mt != null) return mt.get(fieldName);
   return null;

@@ -32,7 +32,7 @@ mixin LuaStateGet implements LuaState {
       }
     }
     if (!raw) {
-      final mf = getMetafield(t, '__index', this);
+      final mf = getMetaField(t, '__index', this);
       if (mf != null) {
         if (mf is LuaTable) return _getTable(mf, k, false);
         if (mf is LuaClosure) {

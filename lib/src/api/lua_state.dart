@@ -418,7 +418,7 @@ abstract class LuaState {
 
   /// Loads a Lua chunk without running it. If there are no errors, [load]
   /// pushes the compiled chunk as a Lua function on top of the stack.
-  void load(Uint8List chunk, String chunkName);
+  LuaStatus load(Uint8List chunk, String chunkName);
 
   /// Calls a function.
   ///

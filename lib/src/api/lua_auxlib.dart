@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:luart/luart.dart';
@@ -73,7 +74,7 @@ extension LuaAuxlib on LuaState {
           pushString('nil');
           break;
         default:
-          final tt = getMetafield(idx, '__name', this);
+          final tt = getMetaField(idx, '__name', this);
           late String kind;
           if (tt == LuaType.string) {
             kind = mustCheckString(-1);
@@ -120,6 +121,13 @@ extension LuaAuxlib on LuaState {
     return toDartString(idx);
   }
 
+  // [-0, +0, v]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_optstring
+  String? optString(int arg, String def) {
+  	if (isNoneOrNil(arg)) return def;
+  	return checkString(arg);
+  }
+
   int mustCheckInt(int idx) {
     final result = checkInt(idx);
     if (result != null) {
@@ -158,7 +166,7 @@ extension LuaAuxlib on LuaState {
 
   Never typeError(int arg, String tname) {
     late String typeArg; /* name for the type of the actual argument */
-    if (getMetafield(arg, '__name', this) == LuaType.string) {
+    if (getMetaField(arg, '__name', this) == LuaType.string) {
       typeArg = toDartString(-1)!; /* use the given type name */
     } else if (type(arg) == LuaType.lightuserdata) {
       typeArg = 'light userdata'; /* special name for messages */
@@ -229,5 +237,48 @@ extension LuaAuxlib on LuaState {
     pushValue(-1);        /* copy to be left at top */
     setField(idx, fname); /* assign new table to field */
     return false;              /* false, because did not find table there */
+  }
+
+  LuaType getMetafield(int obj, String event) {
+  	if (!getMetatable(obj)) { /* no metatable? */
+  		return LuaType.nil;
+  	}
+  
+  	pushString(event);
+  	var tt = rawGet(-2);
+  	if (tt == LuaType.nil) { /* is metafield nil? */
+  		pop(2); /* remove metatable and metafield */
+  	} else {
+  		remove(-2); /* remove only metatable */
+  	}
+  	return tt; /* return metafield type */
+  }
+
+  // [-0, +1, m]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_loadfile
+  LuaStatus loadFile(String filename) {
+  	return loadFileX(filename, 'bt');
+  }
+  
+  // [-0, +1, m]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_loadfilex
+  LuaStatus loadFileX(String filename, String mode) {
+    var data = File('example/ch10.out').readAsBytesSync();
+  	return load(data, '@' + filename);
+  }
+
+  // [-0, +0, v]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_argcheck
+  void argCheck(bool cond, int arg, String extraMsg) {
+  	if (!cond) {
+  		argError(arg, extraMsg);
+  	}
+  }
+
+  // [-0, +0, v]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_error
+  int error2(String fmt, {Object? a}) {
+	  pushString(fmt); // todo
+	  return error();
   }
 }

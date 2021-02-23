@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:luart/auxlib.dart';
 import 'package:luart/luart.dart';
@@ -12,15 +13,15 @@ int openBaseLib(LuaState ls) {
     'error': baselib.baseError,
     'select': baselib.baseSelect,
     'ipairs': baselib.baseIPairs,
-    // 'pairs':        baselib.basePairs,
-    // 'next':         baselib.baseNext,
-    // 'load':         baselib.baseLoad,
-    // 'loadfile':     baselib.baseLoadFile,
-    // 'dofile':       baselib.baseDoFile,
+    'pairs':        baselib.basePairs,
+    'next':         baselib.baseNext,
+    'load':         baselib.baseLoad,
+    'loadfile':     baselib.baseLoadFile,
+    'dofile':       baselib.baseDoFile,
     'pcall': baselib.basePCall,
-    // 'xpcall':       baselib.baseXPCall,
-    // 'getmetatable': baselib.baseGetMetatable,
-    // 'setmetatable': baselib.baseSetMetatable,
+    'xpcall':       baselib.baseXPCall,
+    'getmetatable': baselib.baseGetMetatable,
+    'setmetatable': baselib.baseSetMetatable,
     'rawequal': baselib.baseRawEqual,
     'rawlen': baselib.baseRawLen,
     'rawget': baselib.baseRawGet,
@@ -28,9 +29,9 @@ int openBaseLib(LuaState ls) {
     'type': baselib.baseType,
     'tostring': baselib.baseToString,
     'tonumber': baselib.baseToNumber,
-    // /* placeholders */
-    // "_G":       nil,
-    // "_VERSION": nil,
+     /* placeholders */
+    '_G':       (_) => -1,// todo
+    '_VERSION': (_) => -2,// todo
   };
 
   ls.pushGlobalTable();
@@ -154,46 +155,141 @@ class LuaStdlibBase {
     }
   }
 
-  // // // pairs (t)
-  // // // http://www.lua.org/manual/5.3/manual.html#pdf-pairs
-  // // // lua-5.3.4/src/lbaselib.c#luaB_pairs()
-  // int basePairs(LuaState ls) {
-  //   ls.checkAny(1);
-  //   if (ls.getMetafield(1, '__pairs') == LuaType.nil) { /* no metamethod? */
-  //     ls.pushDartFunction(baseNext); /* will return generator, */
-  //     ls.pushValue(1);             /* state, */
-  //     ls.pushNil();
-  //   } else {
-  //     ls.pushValue(1); /* argument 'self' to metamethod */
-  //     ls.call(1, 3);   /* get 3 values from metamethod */
-  //   }
-  //   return 3;
-  // }
-
-  // // next (table [, index])
-  // // http://www.lua.org/manual/5.3/manual.html#pdf-next
-  // // lua-5.3.4/src/lbaselib.c#luaB_next()
-  // int baseNext(LuaState ls) {
-  //   ls.checkType(1, LuaType.table);
-  //   ls.setTop(2); /* create a 2nd argument if there isn't one */
-  //   if (ls.next(1)) {
-  //     return 2;
-  //   } else {
-  //     ls.pushNil();
-  //     return 1;
-  //   }
-  // }
-
-  // pcall (f [, arg1, ···])
-  // http://www.lua.org/manual/5.3/manual.html#pdf-pcall
-  int basePCall(LuaState ls) {
-    final nArgs = ls.getTop() - 1;
-    final status = ls.pCall(nArgs, -1, 0);
-    ls.pushBool(status == LuaStatus.ok);
-    ls.insert(1);
-    return ls.getTop();
+   // pairs (t)
+   // http://www.lua.org/manual/5.3/manual.html#pdf-pairs
+   // lua-5.3.4/src/lbaselib.c#luaB_pairs()
+   int basePairs(LuaState ls) {
+     ls.checkAny(1);
+     if (ls.getMetafield(1, '__pairs') == LuaType.nil) { /* no metamethod? */
+       ls.pushDartFunction(baseNext); /* will return generator, */
+       ls.pushValue(1);             /* state, */
+       ls.pushNil();
+     } else {
+       ls.pushValue(1); /* argument 'self' to metamethod */
+       ls.call(1, 3);   /* get 3 values from metamethod */
+     }
+     return 3;
+   }
+  
+    // next (table [, index])
+    // http://www.lua.org/manual/5.3/manual.html#pdf-next
+    // lua-5.3.4/src/lbaselib.c#luaB_next()
+    int baseNext(LuaState ls) {
+      ls.checkType(1, LuaType.table);
+      ls.setTop(2); /* create a 2nd argument if there isn't one */
+      if (ls.next(1)) {
+        return 2;
+      } else {
+        ls.pushNil();
+        return 1;
+      }
+    }
+  
+    // load (chunk [, chunkname [, mode [, env]]])
+  // http://www.lua.org/manual/5.3/manual.html#pdf-load
+  // lua-5.3.4/src/lbaselib.c#luaB_load()
+  int baseLoad(LuaState ls) {
+  	var chunk = ls.toDartString(1);
+  	var mode = ls.optString(3, 'bt');
+  	var env = 0; /* 'env' index or 0 if no 'env' */
+  	if (!ls.isNone(4)) {
+  		env = 4;
+  	}
+  	if (chunk != null) { /* loading a string? */
+  		var chunkName = ls.optString(2, chunk);
+  		var status = ls.load(Uint8List.fromList(chunkName!.codeUnits), chunkName);
+  	  return loadAux(ls, status, env);
+  	} else { /* loading from a reader function */
+  		throw LuaError('loading from a reader function'); // todo
+  	}
   }
-
+  
+  // lua-5.3.4/src/lbaselib.c#load_aux()
+  int loadAux(LuaState ls, LuaStatus status, int envIdx) {
+  	if (status == LuaStatus.ok) {
+  		if (envIdx != 0) { /* 'env' parameter? */
+  			throw LuaError('todo');
+  		}
+  		return 1;
+  	} else { /* error (message is on top of the stack) */
+  		ls.pushNil();
+  		ls.insert(-2); /* put before error message */
+  		return 2;      /* return nil plus error message */
+  	}
+  }
+  
+  // loadfile ([filename [, mode [, env]]])
+  // http://www.lua.org/manual/5.3/manual.html#pdf-loadfile
+  // lua-5.3.4/src/lbaselib.c#luaB_loadfile()
+  int baseLoadFile(LuaState ls) {
+  	var fname = ls.optString(1, '');
+  	var mode = ls.optString(1, 'bt');
+  	var env = 0; /* 'env' index or 0 if no 'env' */
+  	if (!ls.isNone(3)) {
+  		env = 3;
+  	}
+  	var status = ls.loadFileX(fname!, mode!);
+  	return loadAux(ls, status, env);
+  }
+  
+  // dofile ([filename])
+  // http://www.lua.org/manual/5.3/manual.html#pdf-dofile
+  // lua-5.3.4/src/lbaselib.c#luaB_dofile()
+  int baseDoFile(LuaState ls) {
+  	var fname = ls.optString(1, 'bt');
+  	ls.setTop(1);
+  	if (ls.loadFile(fname!) != LuaStatus.ok ){
+  		return ls.error();
+  	}
+  	ls.call(0, -1); //LUA_MULTRET
+  	return ls.getTop() - 1;
+  }
+  
+    // pcall (f [, arg1, ···])
+    // http://www.lua.org/manual/5.3/manual.html#pdf-pcall
+    int basePCall(LuaState ls) {
+      final nArgs = ls.getTop() - 1;
+      final status = ls.pCall(nArgs, -1, 0);
+      ls.pushBool(status == LuaStatus.ok);
+      ls.insert(1);
+      return ls.getTop();
+    }
+  
+    // xpcall (f, msgh [, arg1, ···])
+  // http://www.lua.org/manual/5.3/manual.html#pdf-xpcall
+  int baseXPCall(LuaState ls) {
+  	throw LuaError('todo');
+  }
+  
+  // getmetatable (object)
+  // http://www.lua.org/manual/5.3/manual.html#pdf-getmetatable
+  // lua-5.3.4/src/lbaselib.c#luaB_getmetatable()
+  int baseGetMetatable(LuaState ls) {
+  	ls.checkAny(1);
+  	if (!ls.getMetatable(1)) {
+  		ls.pushNil();
+  		return 1; /* no metatable */
+  	}
+  	ls.getMetafield(1, '__metatable');
+  	return 1; /* returns either __metatable field (if present) or metatable */
+  }
+  
+  // setmetatable (table, metatable)
+  // http://www.lua.org/manual/5.3/manual.html#pdf-setmetatable
+  // lua-5.3.4/src/lbaselib.c#luaB_setmetatable()
+  int baseSetMetatable(LuaState ls) {
+  	var t = ls.type(2);
+  	ls.checkType(1, LuaType.table);
+  	ls.argCheck(t == LuaType.nil || t == LuaType.table, 2,
+  		'nil or table expected');
+  	if (ls.getMetafield(1, '__metatable') != LuaType.nil) {
+  		return ls.error2('cannot change a protected metatable');
+  	}
+  	ls.setTop(2);
+  	ls.setMetatable(1);
+  	return 1;
+  }
+  
   // // rawequal (v1, v2)
   // // http://www.lua.org/manual/5.3/manual.html#pdf-rawequal
   // // lua-5.3.4/src/lbaselib.c#luaB_rawequal()

@@ -146,7 +146,7 @@ class LuaStateImpl
   }
 
   @override
-  void load(Uint8List chunk, String chunkName) {
+  LuaStatus load(Uint8List chunk, String chunkName) {
     late LuaPrototype proto;
 
     if (isBinaryChunk(chunk)) {
@@ -166,6 +166,7 @@ class LuaStateImpl
         c.upValues[0] = upEnv;
       }
     }
+    return LuaStatus.ok;
   }
 
   @override
@@ -183,7 +184,7 @@ class LuaStateImpl
         callDartClosure(nArgs, nResults, value);
       }
     } else {
-      final mf = getMetafield(value, '__call', this);
+      final mf = getMetaField(value, '__call', this);
       if (mf is LuaClosure) {
         stack!.push(value);
         insert(-(nArgs + 2));
