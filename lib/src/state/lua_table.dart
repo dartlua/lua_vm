@@ -27,7 +27,7 @@ class LuaTable {
       if (list.length < key) {
         fillListWithNull(key);
       }
-      list[key - 1] = KV(key, val!);
+      list[key - 1] = KV(key, val);
       return;
     }
     if (get(key) != null) {
