@@ -18,26 +18,44 @@ void repl() {
 
   print('Luart Repl');
 
+  String? line;
+  var blockLines = '';
+  var startCount = 0;
+  var endCount = 0;
+  var topValue;
+
   while (true) {
     stdout.write('> ');
 
-    final line = stdin.readLineSync();
-    if (line == null) {
-      exit(0);
+    line = stdin.readLineSync();
+    if (line == null) exit(0);
+    if (line.contains(RegExp('function .*|for .* do'))) {
+      startCount++;
+    }
+    if (line.endsWith('end')) {
+      blockLines += line + ' ';
+      endCount++;
+    }
+
+    var isBlock = startCount == endCount;
+    if (!isBlock) {
+      blockLines += line + ' ';
+      continue;
     }
 
     try {
-      ls.loadString(line, 'stdin');
+      ls.loadString(blockLines == '' ? line : blockLines, 'stdin');
+      blockLines = '';
     } catch (e, st) {
       if (!loadStringWithReturn(ls, line)) {
         print(e);
         print(st);
       }
     }
-
+    
     ls.pCall(0, -1, 0);
-
-    print(ls.stack!.popN(ls.getTop()).join('\t'));
+    topValue = ls.stack!.popN(ls.getTop()).join('\t');
+    if (topValue != '') print(topValue);
   }
 }
 
