@@ -59,7 +59,7 @@ void setMetaTableFor(Object value, LuaTable? metaTable, LuaState luaState) {
   luaState.registry!.put('_MT${typeOf(value)}', metaTable);
 }
 
-LuaTable? getMetaTable(Object val, LuaState luaState) {
+LuaTable? getMetaTable(Object? val, LuaState luaState) {
   if (val is LuaTable) return val.metaTable;
   final mt = luaState.registry!.get('_MT${typeOf(val)}');
   if (mt != null && mt is LuaTable) return mt;
@@ -90,7 +90,7 @@ Object? callMetaMethod(
   return luaState.stack!.pop();
 }
 
-Object? getMetaField(Object val, String fieldName, LuaState ls) {
+Object? getMetaField(Object? val, String fieldName, LuaState ls) {
   var mt = getMetaTable(val, ls);
   if (mt != null) return mt.get(fieldName);
   return null;

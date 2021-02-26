@@ -17,12 +17,12 @@ mixin LuaStateGet implements LuaState {
 
   @override
   LuaType getTable(int idx) {
-    var t = stack!.get(idx)!;
+    var t = stack!.get(idx);
     var k = stack!.pop();
     return _getTable(t, k, false);
   }
 
-  LuaType _getTable(Object t, Object? k, bool raw) {
+  LuaType _getTable(Object? t, Object? k, bool raw) {
     final tbl = t;
     if (tbl is LuaTable) {
       final v = tbl.get(k!);
@@ -44,7 +44,7 @@ mixin LuaStateGet implements LuaState {
         }
       }
     }
-    throw TypeError();
+    return LuaType.nil;
   }
 
   @override
