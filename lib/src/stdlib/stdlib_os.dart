@@ -1,5 +1,7 @@
 // import 'dart:io';
 
+import 'dart:io';
+
 import 'package:luart/auxlib.dart';
 import 'package:luart/luart.dart';
 import 'package:luart/src/utils.dart';
@@ -11,13 +13,13 @@ int openOsLib(LuaState ls) {
     'difftime': lib.diffTime,
     'time': lib.time,
     'date': lib.date,
-    // 'remove':    lib.remove,
-    // 'rename':    lib.rename,
-    // 'tmpname':   lib.tmpName,
-    // 'getenv':    lib.getEnv,
-    // 'execute':   lib.execute,
-    // 'exit':      lib.exit,
-    // 'setlocale': lib.setLocale,
+    'remove':    lib.remove,
+    'rename':    lib.rename,
+    'tmpname':   lib.tmpName,
+    'getenv':    lib.getEnv,
+    'execute':   lib.execute,
+    'exit':      lib.osExit,
+    'setlocale': lib.setLocale,
   };
 
   ls.newLib(funcs);
@@ -95,9 +97,9 @@ class LuaStdlibOs {
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.date
   // lua-5.3.4/src/loslib.c#os_date()
   int date(LuaState ls) {
-    var format = ls.checkString(1) ?? '%c';
+    var format = ls.optString(1, '%c');
 
-    late DateTime t;
+    DateTime t;
 
     if (ls.isInt(2)) {
       final seconds = ls.toInt(2);
@@ -106,7 +108,7 @@ class LuaStdlibOs {
       t = DateTime.now();
     }
 
-    if (format != '' && format[0] == '!') {
+    if (format != '' && format![0] == '!') {
       /* UTC? */
       format = format.substring(1); /* skip '!' */
       t = t.toUtc();
@@ -123,11 +125,10 @@ class LuaStdlibOs {
       _setField(ls, 'wday', t.weekday + 1);
       _setField(ls, 'yday', dayInYear(t));
     } else if (format == '%c') {
-      ls.pushString(format); // TODO
+      ls.pushString(t.toString()); // not equal to lua format
     } else {
-      ls.pushString(format); // TODO
+      ls.pushString(format!); // TODO
     }
-
     return 1;
   }
 
@@ -138,80 +139,84 @@ class LuaStdlibOs {
 
   // os.remove (filename)
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.remove
-  // int remove(LuaState ls) {
-  //   final filename = ls.mustCheckString(1);
-  //   try {
-  //     File(filename).deleteSync();
-  //     ls.pushBool(true);
-  //     return 1;
-  //   } catch (e) {
-  //     ls.pushNil();
-  //     ls.pushString(e.toString());
-  //     return 2;
-  //   }
-  // }
+  int remove(LuaState ls) {
+    final filename = ls.mustCheckString(1);
+    try {
+      File(filename).deleteSync();
+      ls.pushBool(true);
+      return 1;
+    } catch (e) {
+      ls.pushNil();
+      ls.pushString(e.toString());
+      return 2;
+    }
+  }
 
   // os.rename (oldname, newname)
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.rename
-  // int rename(LuaState ls) {
-  //   final oldName = ls.mustCheckString(1);
-  //   final newName = ls.mustCheckString(2);
-  //   try {
-  //     File(oldName).renameSync(newName);
-  //     ls.pushBool(true);
-  //     return 1;
-  //   } catch (e) {
-  //     ls.pushNil();
-  //     ls.pushString(e.toString());
-  //     return 2;
-  //   }
-  // }
+  int rename(LuaState ls) {
+    final oldName = ls.mustCheckString(1);
+    final newName = ls.mustCheckString(2);
+    try {
+      File(oldName).renameSync(newName);
+      ls.pushBool(true);
+      return 1;
+    } catch (e) {
+      ls.pushNil();
+      ls.pushString(e.toString());
+      return 2;
+    }
+  }
 
   // os.tmpname ()
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.tmpname
-  // int tmpName(LuaState ls) {
-  //   Directory.systemTemp
-  // }
+  int tmpName(LuaState ls) {
+    ls.pushString(Directory.systemTemp.path);
+    return 1;
+  }
 
   // os.getenv (varname)
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.getenv
   // lua-5.3.4/src/loslib.c#os_getenv()
-  // int getEnv(LuaState ls) {
-  //   final key = ls.mustCheckString(1);
-  //   final val = Platform.environment[key];
-  //   if (val != null) {
-  //     ls.pushString(val);
-  //   } else {
-  //     ls.pushNil();
-  //   }
-  //   return 1;
-  // }
+  int getEnv(LuaState ls) {
+    final key = ls.mustCheckString(1);
+    // TODO: platform无法在web使用，尝试使用universal_io解决
+    final val = Platform.environment[key];
+    if (val != null) {
+      ls.pushString(val);
+    } else {
+      ls.pushNil();
+    }
+    return 1;
+  }
 
   // os.execute ([command])
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.execute
-  // int execute(LuaState ls) {
-  //   // TODO
-  // }
+  int execute(LuaState ls) {
+    // TODO
+    return 2;
+  }
 
   // os.exit ([code [, close]])
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.exit
   // lua-5.3.4/src/loslib.c#os_exit()
-  // int osExit(LuaState ls) {
-  //   if (ls.isBool(1)) {
-  //     if (ls.toBool(1)) {
-  //       exit(0);
-  //     } else {
-  //       exit(1);// todo
-  //     }
-  //   } else {
-  //     final code = ls.checkInt(1) ?? 1;
-  //     exit(code);
-  //   }
-  // }
+  int osExit(LuaState ls) {
+    if (ls.isBool(1)) {
+      if (ls.toBool(1)) {
+        exit(0);
+      } else {
+        exit(1);// todo
+      }
+    } else {
+      final code = ls.checkInt(1) ?? 1;
+      exit(code);
+    }
+  }
 
   // os.setlocale (locale [, category])
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.setlocale
-  // int setLocale(LuaState ls) {
-  //   // TODO
-  // }
+  int setLocale(LuaState ls) {
+    // TODO
+    return 2;
+  }
 }

@@ -8,6 +8,8 @@ import 'package:luart/src/state/lua_value.dart';
 import 'package:luart/src/stdlib/stdlib_base.dart';
 import 'package:luart/src/stdlib/stdlib_math.dart';
 import 'package:luart/src/stdlib/stdlib_os.dart';
+import 'package:luart/src/stdlib/stdlib_table.dart';
+import 'package:sprintf/sprintf.dart';
 
 extension LuaAuxlib on LuaState {
   void loadString(String source, [String chunkName = 'source']) {
@@ -191,7 +193,7 @@ extension LuaAuxlib on LuaState {
     final libs = <String, LuaDartFunction>{
       '_G':        openBaseLib,
       'math':      openMathLib,
-      // 'table':     openTableLib,
+      'table':     openTableLib,
       // 'string':    openStringLib,
       // 'utf8':      openUTF8Lib,
       'os':        openOsLib,
@@ -277,8 +279,18 @@ extension LuaAuxlib on LuaState {
 
   // [-0, +0, v]
   // http://www.lua.org/manual/5.3/manual.html#luaL_error
-  int error2(String fmt, {Object? a}) {
-	  pushString(fmt); // todo
+  int error2(String fmt, [Object? a, Object? b]) {
+    var s = fmt;
+    if (a != null ) s = sprintf(fmt, a);
+    if (b != null) s = sprintf(s, b);
+	  pushString(s);
 	  return error();
+  }
+
+  int optInt(int arg, int def) {
+  	if (isNoneOrNil(arg)) {
+  		return def;
+  	}
+  	return checkInt(arg)!;
   }
 }

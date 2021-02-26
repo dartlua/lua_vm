@@ -13,6 +13,10 @@ You can write UI in Flutter and handle backend data by LuaDart.
 - [x] Compiler on device.
 - [ ] Standard library.
 
+# Known Issue
+- Different date format(eg: LuaDart: 2021-02-25 17:40:06.368250).
+- Temporarily, os.getenv() is unavailable on web. 
+
 # Contributor
 Welcome everyone to contribute to this project.
 

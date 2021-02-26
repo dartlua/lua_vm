@@ -30,8 +30,8 @@ int openBaseLib(LuaState ls) {
     'tostring': baselib.baseToString,
     'tonumber': baselib.baseToNumber,
      /* placeholders */
-    '_G':       (_) => -1,// todo
-    '_VERSION': (_) => -2,// todo
+    // '_G':       (_) => -1,
+    // '_VERSION': (_) => -2,
   };
 
   ls.pushGlobalTable();

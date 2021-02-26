@@ -100,7 +100,7 @@ class LuaStateImpl
 
   @override
   bool isFunction(int idx) {
-    final val = stack!.get(idx)!;
+    final val = stack!.get(idx);
     return val is LuaClosure;
   }
 

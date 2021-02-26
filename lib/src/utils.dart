@@ -59,3 +59,18 @@ int dayInYear(DateTime time) {
   final diff = now.difference(start) + offset;
   return diff.inDays;
 }
+
+
+/* helper */
+
+/* translate a relative string position: negative means back from end */
+int posRelat(int pos, int _len) {
+	var _pos = pos;
+	if (_pos >= 0) {
+		return _pos;
+	} else if (-_pos > _len) {
+		return 0;
+	} else {
+		return _len + _pos + 1;
+	}
+}

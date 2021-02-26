@@ -44,7 +44,7 @@ mixin LuaStateGet implements LuaState {
         }
       }
     }
-    return LuaType.nil;
+    throw LuaError('$k: called on a nil value');// OR return LuaType.nil;
   }
 
   @override
