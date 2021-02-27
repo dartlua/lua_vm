@@ -74,3 +74,90 @@ int posRelat(int pos, int _len) {
 		return _len + _pos + 1;
 	}
 }
+
+var tagPattern = RegExp('%[ #+-0]?[0-9]*(\.[0-9]+)?[cdeEfgGioqsuxX%]');
+
+List<String> parseFmtStr(String fmt) {
+	if (fmt == '' || !fmt.contains('%')) {
+		return [fmt];
+	}
+
+	var parsed = List<String>.empty(growable: true);
+	while (true) {
+		if (fmt == '') {
+			break;
+		}
+
+		final loc = tagPattern.firstMatch(fmt);
+		if (loc == null) {
+			parsed.add(fmt);
+			break;
+		}
+
+		final head = fmt.substring(0, loc.start);
+		final tag = fmt.substring(loc.start, loc.end);
+		final tail = fmt.substring(loc.end);
+
+		if (head != '') {
+			parsed.add(head);
+		}
+		parsed.add(tag);
+		fmt = tail;
+	}
+	return parsed;
+}
+
+TwoResult find(String s, String pattern, int init, bool plain) {
+	var tail = s;
+  var start, end;
+	if (init > 1) {
+		tail = s.substring(init-1);
+	}
+
+	if (plain) {
+		start = tail.indexOf(pattern);
+		end = start + pattern.length - 1;
+	} else {
+    final re = RegExp(pattern);
+    final loc = re.firstMatch(tail);
+		if (loc == null) {
+			start = end = -1;
+		} else {
+			start = loc.start;
+      end = loc.end - 1;
+		}
+	}
+	if (start >= 0) {
+		start += s.length - tail.length + 1;
+		end += s.length - tail.length + 1;
+	}
+
+	return TwoResult(start, end);
+}
+
+List<RegExpMatch>? match(String s, String pattern, int init) {
+	var tail = s;
+	if (init > 1) {
+		tail = s.substring(init-1);
+	}
+
+  final re = RegExp(pattern); 
+	return re.allMatches(tail).toList(); 
+}
+
+class TwoResult {
+  dynamic a;
+  dynamic b;
+  TwoResult(this.a, this.b);
+}
+// todo
+// return String, int
+TwoResult gsub(String s, String pattern, String repl, int n) {
+  final re = RegExp(pattern);
+  final matches = re.allMatches(s).toList();
+  for (var i = 0; i < n && i <= matches.length; i++) {
+    s = s.replaceRange(matches[i].start, matches[i].end, repl);
+  }
+	return TwoResult(s, matches.length < n ? matches.length : n);
+}
+

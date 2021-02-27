@@ -48,17 +48,17 @@ mixin LuaStateAccess implements LuaVM {
   bool toBool(int idx) => convert2Boolean(stack!.get(idx));
 
   @override
-  int toInt(int idx) => convert2Int(stack!.get(idx)!).result;
+  int toInt(int idx) => convert2Int(stack!.get(idx)).result;
 
   @override
-  double toNumber(int idx) => convert2Float(stack!.get(idx)!).result;
+  double toNumber(int idx) => convert2Float(stack!.get(idx)).result;
 
   @override
-  String? toDartString(int idx) => convert2String(stack!.get(idx)!);
+  String? toDartString(int idx) => convert2String(stack!.get(idx));
 
   @override
   LuaDartFunction? toDartFunction(int idx) {
-    final val = stack!.get(idx)!;
+    final val = stack!.get(idx);
     if (val is LuaClosure) return val.dartFunc;
     return null;
   }

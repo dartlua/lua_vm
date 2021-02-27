@@ -1,16 +1,17 @@
 import 'dart:io';
 import 'package:luart/src/api/lua_state.dart';
+import 'package:luart/auxlib.dart';
 
 Future<void> main() async {
   //测试调用方法
-  var fileBytes = await File('example/ch10.out').readAsBytes();
+  var fileBytes = await File('example/ch10.lua').readAsBytes();
   var ls = LuaState();
   ls.register('print', print_);
   ls.load(fileBytes, 'luac.out');
   print('');
   ls.call(0, 0);
 
-  fileBytes = await File('example/ch11.out').readAsBytes();
+  fileBytes = await File('example/ch11.lua').readAsBytes();
   ls = LuaState();
   ls.register('print', print_);
   ls.register('getmetayable', getMetaTab);
@@ -19,7 +20,7 @@ Future<void> main() async {
   print('\noutputs:');
   ls.call(0, 0);
 
-  fileBytes = await File('example/ch12.out').readAsBytes();
+  fileBytes = await File('example/ch12.lua').readAsBytes();
   ls = LuaState();
   ls.register('print', print_);
   ls.register('getmetayable', getMetaTab);
@@ -31,13 +32,19 @@ Future<void> main() async {
   print('\noutputs:');
   ls.call(0, 0);
 
-  fileBytes = await File('example/ch13.out').readAsBytes();
+  fileBytes = await File('example/ch13.lua').readAsBytes();
   ls = LuaState();
   ls.register('print', print_);
   ls.register('error', error);
 	ls.register('pcall', pCall);
 	ls.load(fileBytes, 'ch13.lua');
 	ls.call(0, 0);
+
+  ls = LuaState();
+  ls.openLibs();
+	ls.loadString('for word in string.gmatch("Hello Lua user", "%a+") do print(word) end');
+	ls.call(0, 0);
+  ls.pop(ls.getTop());
 }
 
 int error(LuaState ls) {

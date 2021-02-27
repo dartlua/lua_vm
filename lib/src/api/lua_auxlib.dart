@@ -8,6 +8,7 @@ import 'package:luart/src/state/lua_value.dart';
 import 'package:luart/src/stdlib/stdlib_base.dart';
 import 'package:luart/src/stdlib/stdlib_math.dart';
 import 'package:luart/src/stdlib/stdlib_os.dart';
+import 'package:luart/src/stdlib/stdlib_string.dart';
 import 'package:luart/src/stdlib/stdlib_table.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -194,7 +195,7 @@ extension LuaAuxlib on LuaState {
       '_G':        openBaseLib,
       'math':      openMathLib,
       'table':     openTableLib,
-      // 'string':    openStringLib,
+      'string':    openStringLib,
       // 'utf8':      openUTF8Lib,
       'os':        openOsLib,
       // 'package':   openPackageLib,
@@ -279,11 +280,12 @@ extension LuaAuxlib on LuaState {
 
   // [-0, +0, v]
   // http://www.lua.org/manual/5.3/manual.html#luaL_error
-  int error2(String fmt, [Object? a, Object? b]) {
-    var s = fmt;
-    if (a != null ) s = sprintf(fmt, a);
-    if (b != null) s = sprintf(s, b);
-	  pushString(s);
+  int error2(String fmt, [List? args]) {
+    if (args == null) {
+      pushString(fmt);
+    } else {
+      pushString(sprintf(fmt, args));
+    }
 	  return error();
   }
 
@@ -292,5 +294,17 @@ extension LuaAuxlib on LuaState {
   		return def;
   	}
   	return checkInt(arg)!;
+  }
+
+  // [-0, +0, v]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_checkstack
+  void checkStack2(int sz, String msg) {
+  	if (!checkStack(sz)) {
+  		if (msg != '') {
+  			error2('stack overflow (%s)', [msg]);
+  		} else {
+  			error2('stack overflow');
+  		}
+  	}
   }
 }

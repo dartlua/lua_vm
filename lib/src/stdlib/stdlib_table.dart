@@ -1,5 +1,6 @@
 import 'package:luart/auxlib.dart';
 import 'package:luart/luart.dart';
+import 'package:luart/src/constants.dart';
 
 int openTableLib(LuaState ls) {
   final lib = LuaStdlibTable();
@@ -18,13 +19,6 @@ int openTableLib(LuaState ls) {
 }
 
 class LuaLibTableBehavior {}
-
-const	TAB_R  = 1;               /* read */
-const	TAB_W  = 2;               /* write */
-const	TAB_L  = 4;               /* length */
-const	TAB_RW = TAB_R | TAB_W; /* read/write */
-const LUA_MAXINTEGER = 9223372036854775807;
-const MAX_LEN = 1000000;
 
 class LuaStdlibTable {
   int tabMove(LuaState ls) {
@@ -123,7 +117,7 @@ class LuaStdlibTable {
   		ls.getI(1, k);
   		if (!ls.isString(-1)) {
   			ls.error2("invalid value (%s) at index %d in table for 'concat'",
-  				ls.type(-1).typeName, i);
+  				[ls.type(-1).typeName, i]);
   		}
   		buf[k-i] = ls.toDartString(-1)!;
   		ls.pop(1);

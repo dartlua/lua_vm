@@ -15,8 +15,8 @@ bool loadStringWithReturn(LuaState ls, String source) {
 void repl() {
   final ls = LuaState();
   ls.openLibs();
-
-  print('Luart Repl');
+  
+  print('Luart Repl\nbased on Lua5.3');
 
   String? line;
   var blockLines = '';
