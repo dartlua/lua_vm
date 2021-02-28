@@ -22,12 +22,7 @@ Future<void> main() async {
 
   fileBytes = await File('example/ch12.lua').readAsBytes();
   ls = LuaState();
-  ls.register('print', print_);
-  ls.register('getmetayable', getMetaTab);
-  ls.register('setmetatable', setMetaTab);
-  ls.register('next', next);
-  ls.register('pairs', pairs);
-  ls.register('ipairs', iPairs);
+  ls.openLibs();
   ls.load(fileBytes, 'luac.out');
   print('\noutputs:');
   ls.call(0, 0);
@@ -42,7 +37,7 @@ Future<void> main() async {
 
   ls = LuaState();
   ls.openLibs();
-	ls.loadString('for word in string.gmatch("Hello Lua user", "%a+") do print(word) end');
+	ls.loadString('print(utf8.codepoint("abc",1,3))');
 	ls.call(0, 0);
   ls.pop(ls.getTop());
 }

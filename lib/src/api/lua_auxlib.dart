@@ -10,6 +10,7 @@ import 'package:luart/src/stdlib/stdlib_math.dart';
 import 'package:luart/src/stdlib/stdlib_os.dart';
 import 'package:luart/src/stdlib/stdlib_string.dart';
 import 'package:luart/src/stdlib/stdlib_table.dart';
+import 'package:luart/src/stdlib/stdlib_utf8.dart';
 import 'package:sprintf/sprintf.dart';
 
 extension LuaAuxlib on LuaState {
@@ -196,7 +197,7 @@ extension LuaAuxlib on LuaState {
       'math':      openMathLib,
       'table':     openTableLib,
       'string':    openStringLib,
-      // 'utf8':      openUTF8Lib,
+      'utf8':      openUTF8Lib,
       'os':        openOsLib,
       // 'package':   openPackageLib,
       // 'coroutine': openCoroutineLib,
