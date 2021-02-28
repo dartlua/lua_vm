@@ -113,3 +113,12 @@ const LUA_MAXINTEGER = 9223372036854775807;
 const MAX_LEN = 1000000;
 const MAX_UNICODE = 1114111;
 const UTF8PATT = r'[\x00-\x7F\xC2-\xF4][\x80-\xB F]*';
+/* key, in the registry, for table of loaded modules */
+const LUA_LOADED_TABLE = '_LOADED';
+/* key, in the registry, for table of preloaded loaders */
+const LUA_PRELOAD_TABLE = '_PRELOAD';
+const	LUA_DIRSEP    = '/';
+const	LUA_PATH_SEP  = ';';
+const	LUA_PATH_MARK = '?';
+const	LUA_EXEC_DIR  = '!';
+const	LUA_IGMARK    = '-';
