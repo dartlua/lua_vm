@@ -336,7 +336,7 @@ class LuaStdlibString {
   		return 1;
   	} else {
   		for (var i = 0; i < captures.length; i += 2) {
-  			final capture = s.substring(captures[i].start, captures[i+1].end);
+  			final capture = s.substring(captures[i].start, captures[i].end);
   			ls.pushString(capture);
   		}
   		return (captures.length / 2).ceil();
@@ -365,14 +365,14 @@ class LuaStdlibString {
   	var s = ls.checkString(1)!;
   	final pattern = ls.checkString(2);
     final gmatchAux = (_) {
-      var captures = match(s, pattern!, 1);
-  	  if (captures != null) {
-  	  	for (var i = 0; i < captures.length; i += 2) {
+      var captures = match(s, pattern!, 1)!;
+  	  if (captures.isNotEmpty) {
+  	  	for (var i = 0; i < captures.length; i++) {
   	  		final capture = s.substring(captures[i].start, captures[i].end);
   	  		ls.pushString(capture);
   	  	}
-  	  	s = s.substring(captures[captures.length-1].end);
-  	  	return (captures.length / 2).ceil();
+  	  	s = s.substring(captures.first.end);
+  	  	return captures.length;
   	  }
   	  return 0;
     };

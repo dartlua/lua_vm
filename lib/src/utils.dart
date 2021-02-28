@@ -118,7 +118,7 @@ TwoResult find(String s, String pattern, int init, bool plain) {
 		start = tail.indexOf(pattern);
 		end = start + pattern.length - 1;
 	} else {
-    final re = RegExp(pattern);
+    final re = RegExp(replaceFormatter(pattern));
     final loc = re.firstMatch(tail);
 		if (loc == null) {
 			start = end = -1;
@@ -141,8 +141,12 @@ List<RegExpMatch>? match(String s, String pattern, int init) {
 		tail = s.substring(init-1);
 	}
 
-  final re = RegExp(pattern); 
+  final re = RegExp(replaceFormatter(pattern)); 
 	return re.allMatches(tail).toList(); 
+}
+
+String replaceFormatter(String s) {
+  return s.replaceAll('%d', '[0-9]').replaceAll('%a', '[A-z]');
 }
 
 class TwoResult {

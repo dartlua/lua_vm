@@ -7,18 +7,21 @@ You can write UI in Flutter and handle backend data by LuaDart.
 
 # TODO
 - [x] Read and parse Lua binary.
-- [x] Lua VM include Lua Stack, State and etc..
-- [x] A complete Lua VM.
+- [x] A complete Lua VM include Lua Stack, State and etc...
 - [x] Execute Lua script.
 - [x] Compiler on device.
-- [ ] Standard library.
+- [x] Standard library.
 
 # Known Issue
 First of all, try `dart bin/luart.dart` to enter Luart REPL Terminal to understand which commands are not available.
-- Different date format.(eg: LuaDart: 2021-02-25 17:40:06.368250)
-- Temporarily, `os.getenv()` is unavailable on web. Unable to use `os.execute()` and `os.setlocale()` on all.
-- string.format() can't format `%q`.(LuaDart replace `%q` with `%s` by default)
-- Formatter match, eg: can't use `string.find("Deadline is 30/05/1999, firm", "%d%d/%d%d/%d%d%d%d")` to match date
+|function|description|eg.|will fix?|platform|
+|:-|:-|:-|:-|:-|
+|`os.date()`|different format|2021-02-25 17:40:06.368250|will fix|all|
+|`os.getenv()`|unavailable on web|no eg.|will fix|web|
+|`os.execute()`|unavailable|no eg.|may not fix|all|
+|`os.setlocale()`|unavailable|no eg.|may not fix|all|
+|`string.format()`| can't format `%q`.Will replace `%q` with `%s` by default.|`string.format("%q", "One\nTwo")` equals to `string.format("%s", "One\nTwo")`|may fix|all|
+|~~`string.format()`~~|~~Formatter match(like `%d`) can't use~~|~~stdin:`string.find("Deadline is 30/05/1999, firm", "%d%d/%d%d/%d%d%d%d")`output:`nil`~~|fixed|~~all~~|
 
 # Contributor
 Welcome everyone to contribute to this project.

@@ -16,7 +16,7 @@ void repl() {
   final ls = LuaState();
   ls.openLibs();
   
-  print('Luart Repl\nbased on Lua5.3');
+  print('Luart Repl (Lua5.3)');
 
   String? line;
   var blockLines = '';
@@ -44,10 +44,14 @@ void repl() {
     }
 
     try {
-      ls.loadString(blockLines == '' ? line : blockLines, 'stdin');
+      var cmd = blockLines == '' ? line : blockLines;
+      if (cmd.contains('==') || !cmd.contains(RegExp('=|return |print(.*)'))) {
+        cmd = 'print($cmd)';
+      }
+      ls.loadString(cmd, 'stdin');
       blockLines = '';
     } catch (e, st) {
-      if (!loadStringWithReturn(ls, line)) {
+      if (loadStringWithReturn(ls, line)) {
         print(e);
         print(st);
       }

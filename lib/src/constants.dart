@@ -111,3 +111,4 @@ const	TAB_L  = 4;               /* length */
 const	TAB_RW = TAB_R | TAB_W; /* read/write */
 const LUA_MAXINTEGER = 9223372036854775807;
 const MAX_LEN = 1000000;
+const MAX_UNICODE = 1114111;
