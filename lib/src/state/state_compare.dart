@@ -18,11 +18,11 @@ mixin LuaStateCompare implements LuaState {
     final b = stack!.get(idx2);
     switch (op) {
       case LuaCompareOp.eq:
-        return _eq(a!, b!, this);
+        return _eq(a, b, this);
       case LuaCompareOp.lt:
-        return _lt(a!, b!, this);
+        return _lt(a, b, this);
       case LuaCompareOp.le:
-        return _le(a!, b!, this);
+        return _le(a, b, this);
       default:
         throw UnsupportedError('Unsupported Compare Operation');
     }
@@ -38,7 +38,7 @@ bool _eq(Object? a, Object? b, LuaState? ls) {
   return a == b;
 }
 
-bool _lt(Object a, Object b, LuaState ls) {
+bool _lt(Object? a, Object? b, LuaState ls) {
   if (a is String) {
     return a.compareTo(b is String ? b : b.toString()) == -1 ? true : false;
   }
@@ -49,7 +49,7 @@ bool _lt(Object a, Object b, LuaState ls) {
       '${a.runtimeType} and ${b.runtimeType}');
 }
 
-bool _le(dynamic a, dynamic b, LuaState ls) {
+bool _le(Object? a, Object? b, LuaState ls) {
   if (a is String) {
     return a.compareTo(b is String ? b : b.toString()) < 1 ? true : false;
   }

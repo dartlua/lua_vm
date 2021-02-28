@@ -70,7 +70,7 @@ LuaTable? getMetaTable(Object? val, LuaState luaState) {
 }
 
 Object? callMetaMethod(
-  Object a,
+  Object? a,
   Object? b,
   String metaMethod,
   LuaState luaState,
