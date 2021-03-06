@@ -17,7 +17,7 @@ int openUTF8Lib(LuaState ls) {
 
   ls.newLib(funcs);
   ls.pushString(UTF8PATT);
-	ls.setField(-2, "charpattern");
+	ls.setField(-2, 'charpattern');
 	return 1;
 }
 

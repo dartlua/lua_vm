@@ -4,7 +4,7 @@ import 'package:luart/luart.dart';
 import 'package:luart/auxlib.dart';
 import 'package:luart/src/constants.dart';
 
-int openStringLib(LuaState ls) {
+int openPackageLib(LuaState ls) {
   final lib = LuaStdlibPackage();
   final funcs = <String, LuaDartFunction>{
     'searchpath': lib.pkgSearchPath,
@@ -13,21 +13,21 @@ int openStringLib(LuaState ls) {
   ls.newLib(funcs);
   createSearchersTable(ls);
 	/* set paths */
-	ls.pushString("./?.lua;./?/init.lua");
-	ls.setField(-2, "path");
+	ls.pushString('./?.lua;./?/init.lua');
+	ls.setField(-2, 'path');
 	/* store config information */
-	ls.pushString(LUA_DIRSEP + "\n" + LUA_PATH_SEP + "\n" +
-		LUA_PATH_MARK + "\n" + LUA_EXEC_DIR + "\n" + LUA_IGMARK + "\n");
-	ls.setField(-2, "config");
+	ls.pushString(LUA_DIRSEP + '\n' + LUA_PATH_SEP + '\n' +
+		LUA_PATH_MARK + '\n' + LUA_EXEC_DIR + '\n' + LUA_IGMARK + '\n');
+	ls.setField(-2, 'config');
 	/* set field 'loaded' */
 	ls.getSubTable(LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
-	ls.setField(-2, "loaded");
+	ls.setField(-2, 'loaded');
 	/* set field 'preload' */
 	ls.getSubTable(LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
-	ls.setField(-2, "preload");
+	ls.setField(-2, 'preload');
 	ls.pushGlobalTable();
 	ls.pushValue(-2);        /* set 'package' as upvalue for next lib */
-	ls.setFuncs(<String, LuaDartFunction>{'require': lib.pkgRequire}, 1); /* open lib into global table */
+	ls.setFuncs({'require': lib.pkgRequire}, 1); /* open lib into global table */
 	ls.pop(1);
   return 1;
 }
@@ -35,7 +35,7 @@ int openStringLib(LuaState ls) {
 void createSearchersTable(LuaState ls) {
 	final searchers = [preloadSearcher, luaSearcher];
 	/* create 'searchers' table */
-	ls.createTable(searchers.length, 0);
+	ls.createTable(searchers.length, searchers.length);
 	/* fill it with predefined searchers */
   var idx = 0;
   searchers.forEach((element) {
@@ -124,8 +124,6 @@ void _findLoader(LuaState ls, String name) {
 	}
 }
 
-class LuaLibPackageBehavior {}
-
 class LuaStdlibPackage {
   // package.searchpath (name, path [, sep [, rep]])
   // http://www.lua.org/manual/5.3/manual.html#pdf-package.searchpath
@@ -172,5 +170,4 @@ class LuaStdlibPackage {
   	}
   	return 1;
   }
-
 }

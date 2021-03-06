@@ -2,7 +2,7 @@
 ![Lua](https://img.shields.io/badge/Lua-5.3-green)
 
 # Lua-Dart
-With this project, you can run or compile Lua script on your device.(iOS Android Web)
+With this project, you can run or compile Lua script on your device(iOS Android Web).  
 You can write UI in Flutter and handle backend data by LuaDart.
 
 # TODO
@@ -23,8 +23,9 @@ First of all, try `dart bin/luart.dart` to enter Luart REPL Terminal to understa
 |`string.format()`| can't format `%q`.Will replace `%q` with `%s` by default.|`string.format("%q", "One\nTwo")` equals to `string.format("%s", "One\nTwo")`|may fix|all|
 |~~`string.format()`~~|~~Formatter match(like `%d`) can't use~~|~~stdin:`string.find("Deadline is 30/05/1999, firm", "%d%d/%d%d/%d%d%d%d")`output:`nil`~~|fixed|~~all~~|
 
-# Contributor
+# Thanks
 Welcome everyone to contribute to this project.
+Especially thanks [luago](https://github.com/zxh0/luago-book)
 
 # License
 ```

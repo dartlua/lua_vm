@@ -10,13 +10,13 @@ void main() async {
     });
 
     test('add number to table throws LuaArithmeticError', () {
-      // ls.pushNumber(1);
-      // ls.newTable();
+      ls.pushNumber(1);
+      ls.newTable();
 
-      // expect(
-      //   () => ls.arith(LuaArithOp.add),
-      //   throwsA(isA<LuaArithmeticError>()),
-      // );
+      expect(
+        () => ls.arith(LuaArithOp.add),
+        throwsA(isA<LuaArithmeticError>()),
+      );
     });
   });
 }

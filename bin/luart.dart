@@ -58,8 +58,6 @@ void repl() {
     }
     
     ls.pCall(0, -1, 0);
-    topValue = ls.stack!.popN(ls.getTop()).join('\t');
-    if (topValue != '') print(topValue);
   }
 }
 

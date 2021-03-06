@@ -8,6 +8,7 @@ import 'package:luart/src/state/lua_value.dart';
 import 'package:luart/src/stdlib/stdlib_base.dart';
 import 'package:luart/src/stdlib/stdlib_math.dart';
 import 'package:luart/src/stdlib/stdlib_os.dart';
+import 'package:luart/src/stdlib/stdlib_package.dart';
 import 'package:luart/src/stdlib/stdlib_string.dart';
 import 'package:luart/src/stdlib/stdlib_table.dart';
 import 'package:luart/src/stdlib/stdlib_utf8.dart';
@@ -199,7 +200,7 @@ extension LuaAuxlib on LuaState {
       'string':    openStringLib,
       'utf8':      openUTF8Lib,
       'os':        openOsLib,
-      // 'package':   openPackageLib,
+      'package':   openPackageLib,
       // 'coroutine': openCoroutineLib,
     };
 
