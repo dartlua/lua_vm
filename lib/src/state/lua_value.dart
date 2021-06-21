@@ -26,7 +26,6 @@ LuaType typeOf(Object? value) {
 bool convert2Boolean(Object? v) {
   if (v == null) return false;
   if (v is bool) return v;
-  if (v is int) return v == 0 ? false : true;
   return true;
 }
 
@@ -37,11 +36,11 @@ LuaResult convert2Float(Object? value) {
   return LuaResult.double(0, false);
 }
 
-String? convert2String(Object? value) {
+String convert2String(Object? value) {
   if (value is String) return value;
   if (value is int) return value.toString();
   if (value is double) return value.toString();
-  if (value is bool) return value ? 'true' : 'false';
+  return '';
 }
 
 LuaResult convert2Int(Object? value) {
@@ -69,7 +68,7 @@ LuaTable? getMetaTable(Object? val, LuaState luaState) {
   return null;
 }
 
-Object? callMetaMethod(
+LuaResult callMetaMethod(
   Object? a,
   Object? b,
   String metaMethod,
@@ -77,11 +76,9 @@ Object? callMetaMethod(
 ) {
   var mm = getMetaField(a, metaMethod, luaState);
   if (mm == null) {
-    if (b != null) {
-      mm = getMetaField(b, metaMethod, luaState);
-    }
+    mm = getMetaField(b, metaMethod, luaState);
     if (mm == null) {
-      return null;
+      return LuaResult(null, false);
     }
   }
 
@@ -90,7 +87,7 @@ Object? callMetaMethod(
   luaState.stack!.push(a);
   luaState.stack!.push(b);
   luaState.call(2, 1);
-  return luaState.stack!.pop();
+  return LuaResult(luaState.stack!.pop(), true);
 }
 
 Object? getMetaField(Object? val, String fieldName, LuaState ls) {

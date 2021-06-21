@@ -7,11 +7,11 @@ class LuaClosure {
 
   LuaClosure.fromLuaProto(this.proto) {
     final upvalueCount = proto!.upvalues.length;
-    if (upvalueCount > 0) upValues = List.filled(upvalueCount, LuaUpValue(null));
+    if (upvalueCount > 0) upValues = List.filled(upvalueCount, null);
   }
 
   LuaClosure.fromDartFunction(this.dartFunc, int nUpvalues) {
-    if (nUpvalues > 0) upValues = List.filled(nUpvalues, LuaUpValue(null));
+    if (nUpvalues > 0) upValues = List.filled(nUpvalues, null);
   }
 
   LuaPrototype? proto;
@@ -19,8 +19,4 @@ class LuaClosure {
   late List<LuaUpValue?> upValues;
 }
 
-class LuaUpValue {
-  Object? value;
-
-  LuaUpValue(this.value);
-}
+typedef LuaUpValue = Object?;

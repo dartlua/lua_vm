@@ -60,7 +60,7 @@ extension LuaAuxlib on LuaState {
   // [-0, +1, e]
   // http://www.lua.org/manual/5.3/manual.html#luaL_tolstring
   String toDartStringL(int idx) {
-    if (callMetaMethod(idx, null, '__tostring', this) != null) {
+    if (callMetaMethod(idx, null, '__tostring', this).success) {
       /* metafield? */
       if (!isString(-1)) {
         ;

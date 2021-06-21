@@ -78,7 +78,7 @@ class LuaStateImpl
         stack!.openUVs ??= <int, LuaUpValue?>{};
 
         if (i == c.upValues.length) {
-          c.upValues.add(LuaUpValue(stack!.slots[uvIndex]));
+          c.upValues.add(stack!.slots[uvIndex]);
         } else {
           c.upValues[i] = stack!.openUVs![uvIndex];
         }
@@ -124,7 +124,7 @@ class LuaStateImpl
   void pushDartClosure(LuaDartFunction f, int n) {
     final closure = LuaClosure.fromDartFunction(f, n);
     for (var i = n; i > 0; i--) {
-      closure.upValues[n - 1] = LuaUpValue(stack!.pop());
+      closure.upValues[n - 1] = stack!.pop();
     }
     stack!.push(closure);
   }
@@ -159,7 +159,7 @@ class LuaStateImpl
     stack!.push(c);
     if (proto.upvalues.isNotEmpty) {
       final env = registry!.get(LUA_RIDX_GLOBALS);
-      final upEnv = LuaUpValue(env);
+      final upEnv = env;
       if (c.upValues.isEmpty) {
         c.upValues.add(upEnv);
       } else {

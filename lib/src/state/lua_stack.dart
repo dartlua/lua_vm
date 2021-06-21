@@ -65,7 +65,7 @@ class LuaStack {
       final uvIndex = LUA_REGISTRYINDEX - idx - 1;
       final c = closure;
       if (c == null || uvIndex >= c.upValues.length) return null;
-      return c.upValues[uvIndex]!.value;
+      return c.upValues[uvIndex];
     }
 
     if (idx == LUA_REGISTRYINDEX) return state.registry;
@@ -79,7 +79,7 @@ class LuaStack {
     if (idx < LUA_REGISTRYINDEX) {
       final uvIndex = LUA_REGISTRYINDEX - idx - 1;
       if (closure != null && uvIndex < closure!.upValues.length) {
-        closure!.upValues[uvIndex]!.value = value;
+        closure!.upValues[uvIndex] = value;
       }
       return;
     }

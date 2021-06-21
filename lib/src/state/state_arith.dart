@@ -88,7 +88,7 @@ mixin LuaStateArith implements LuaState {
 
     final metaMethod = operator.metaMethod;
     final val = callMetaMethod(a!, b, metaMethod, this);
-    if (val != null) {
+    if (val.success) {
       stack!.push(val);
       return;
     }

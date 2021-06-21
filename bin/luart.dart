@@ -22,7 +22,6 @@ void repl() {
   var blockLines = '';
   var startCount = 0;
   var endCount = 0;
-  var topValue;
 
   while (true) {
     stdout.write('> ');

@@ -35,7 +35,7 @@ mixin LuaStateAccess implements LuaVM {
   bool isInt(int idx) => stack!.get(idx) is int;
 
   @override
-  bool isNumber(int idx) => stack!.get(idx) is double;
+  bool isNumber(int idx) => convert2Float(stack!.get(idx)).success;
 
   @override
   bool isTable(int idx) => type(idx) == LuaType.table;

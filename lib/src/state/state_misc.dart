@@ -18,7 +18,7 @@ mixin LuaStateMisc implements LuaState {
       return;
     }
     final result = callMetaMethod(value, value, '__len', this);
-    if (result != null) {
+    if (result.success) {
       stack!.push(result);
       return;
     }
@@ -46,9 +46,9 @@ mixin LuaStateMisc implements LuaState {
         }
 
         final b = stack!.pop();
-        final a = stack!.pop()!;
+        final a = stack!.pop();
         final result = callMetaMethod(a, b, '__concat', this);
-        if (result != null) {
+        if (result.success) {
           stack!.push(result);
           continue;
         }
