@@ -77,21 +77,14 @@ class LuaStateImpl
       if (val.inStack == 1) {
         stack!.openUVs ??= <int, LuaUpValue?>{};
 
-        if (i == c.upValues.length) {
-          c.upValues.add(stack!.slots[uvIndex]);
-        } else {
+        if (stack!.openUVs!.containsKey(uvIndex)) {
           c.upValues[i] = stack!.openUVs![uvIndex];
-        }
-
-        if (!stack!.openUVs!.containsKey(uvIndex)) {
+        } else {
+          c.upValues[i] = stack!.slots[uvIndex];
           stack!.openUVs![uvIndex] = c.upValues[i];
         }
       } else {
-        if (i == c.upValues.length) {
-          c.upValues.add(stack!.closure!.upValues[uvIndex]);
-        } else {
-          c.upValues[i] = stack!.closure!.upValues[uvIndex];
-        }
+        c.upValues[i] = stack!.closure!.upValues[uvIndex];
       }
       i++;
     }

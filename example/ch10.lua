@@ -1,4 +1,4 @@
-function newYinYinMonster ()
+function NewYinYinMonster ()
     local count = 'yin '
     return function () -- anonymous function
         count = count..count
@@ -6,11 +6,11 @@ function newYinYinMonster ()
     end
 end
 
-c1 = newYinYinMonster()
-print(c1())
-print(c1())
+C1 = NewYinYinMonster()
+print(C1())
+print(C1())
 
-c2 = newYinYinMonster()
-print(c2())
-print(c1())
-print(c2())
+C2 = NewYinYinMonster()
+print(C2())
+print(C1())
+print(C2())

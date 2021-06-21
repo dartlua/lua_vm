@@ -76,7 +76,6 @@ class Reader {
   List<int> readCode() {
     var codes = <int>[];
     var len = readUint32();
-    print('code len: $len');
     for (var i = 0; i < len; i++) {
       codes.add(readUint32());
     }
@@ -89,7 +88,6 @@ class Reader {
     for (var i = 0; i < len; i++) {
       constants.add(readConstant());
     }
-    print('constants: $constants');
     return constants;
   }
 
@@ -109,7 +107,6 @@ class Reader {
       case TAG_LONG_STR:
         return readString();
       default:
-        print('no type tag: $tag');
         throw TypeError();
     }
   }
@@ -162,7 +159,6 @@ class Reader {
   LuaPrototype readProto(String parentSource) {
     var source = readString();
     if (source == '') source = parentSource;
-    print('\nsource file: $source');
     return LuaPrototype(
       source: source,
       lineDefined: readUint32(),

@@ -23,10 +23,9 @@ mixin LuaStateGet implements LuaState {
   }
 
   LuaType _getTable(Object? t, Object? k, bool raw) {
-    final tbl = t;
-    if (tbl is LuaTable) {
-      final v = tbl.get(k!);
-      if (raw || v != null || !tbl.hasMetaField('__index')) {
+    if (t is LuaTable) {
+      final v = t.get(k!);
+      if (raw || v != null || !t.hasMetaField('__index')) {
         stack!.push(v);
         return typeOf(v);
       }

@@ -92,7 +92,7 @@ bool isBinaryChunk(List<int> data) {
 
 LuaPrototype unDump(Uint8List data) {
   var reader = Reader(data);
-  print(reader.checkHeader());
+  reader.checkHeader();
   reader.readByte();
   return reader.readProto('');
 }

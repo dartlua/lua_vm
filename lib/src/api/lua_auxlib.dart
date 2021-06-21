@@ -268,7 +268,7 @@ extension LuaAuxlib on LuaState {
   // [-0, +1, m]
   // http://www.lua.org/manual/5.3/manual.html#luaL_loadfilex
   LuaStatus loadFileX(String filename, String mode) {
-    var data = File('example/ch10.out').readAsBytesSync();
+    var data = File(filename).readAsBytesSync();
   	return load(data, '@' + filename);
   }
 

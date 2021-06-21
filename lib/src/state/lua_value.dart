@@ -19,6 +19,8 @@ LuaType typeOf(Object? value) {
   if (value is String) return LuaType.string;
   if (value is LuaTable) return LuaType.table;
   if (value is LuaError) return LuaType.string;
+  if (value is LuaState) return LuaType.thread;
+  if (value is LuaResult) return typeOf(value.result);
 
   throw TypeError();
 }
