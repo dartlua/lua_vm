@@ -1,4 +1,5 @@
 import 'package:luart/luart.dart';
+import 'package:luart/src/api/lua_result.dart';
 import 'package:luart/src/constants.dart';
 import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_table.dart';
@@ -23,6 +24,9 @@ mixin LuaStateGet implements LuaState {
   }
 
   LuaType _getTable(Object? t, Object? k, bool raw) {
+    if (t is LuaResult) {
+      t = t.result;
+    }
     if (t is LuaTable) {
       final v = t.get(k!);
       if (raw || v != null || !t.hasMetaField('__index')) {
