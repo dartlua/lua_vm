@@ -31,9 +31,9 @@ mixin LuaStateCompare implements LuaState {
 
 bool _eq(Object? a, Object? b, LuaState? ls) {
   if (a == null) return b == null;
-  if (a is LuaTable && b is LuaTable && a != b) {
-    final result = callMetaMethod(a, b, '__eq', ls!);
-    if (result.success) return convert2Boolean(result);
+  if (a is LuaTable && b is LuaTable && a != b && ls != null) {
+    final result = callMetaMethod(a, b, '__eq', ls);
+    if (result.success) return convert2Boolean(result.result);
   }
   return a == b;
 }
