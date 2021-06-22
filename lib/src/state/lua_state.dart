@@ -174,18 +174,24 @@ class LuaStateImpl
     //   throw LuaRuntimeError('attempt to call a nil value');
     // }
 
-    if (value is LuaClosure) {
-      if (value.proto != null) {
-        callLuaClosure(nArgs, nResults, value);
-      } else {
-        callDartClosure(nArgs, nResults, value);
-      }
-    } else {
+    var c = value;
+    var ok = value is LuaClosure;
+    if (!ok) {
       final mf = getMetaField(value, '__call', this);
-      if (mf is LuaClosure) {
+      c = mf;
+      ok = mf is LuaClosure;
+      if (ok) {
         stack!.push(value);
         insert(-(nArgs + 2));
         nArgs++;
+      }
+    } 
+
+    if (ok && c is LuaClosure) {
+      if (c.proto != null) {
+        callLuaClosure(nArgs, nResults, c);
+      } else {
+        callDartClosure(nArgs, nResults, c);
       }
     }
   }
