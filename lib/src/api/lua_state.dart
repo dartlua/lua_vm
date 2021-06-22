@@ -67,14 +67,14 @@ extension LuaTypeX on LuaType {
 }
 
 enum LuaStatus {
-	ok,
-	isYield,
-	errRun,
-	errSyntax,
-	errMem,
-	errGcmm,
-	errErr,
-	errFile,
+  ok,
+  isYield,
+  errRun,
+  errSyntax,
+  errMem,
+  errGcmm,
+  errErr,
+  errFile,
 }
 
 typedef LuaDartFunction = int Function(LuaState);

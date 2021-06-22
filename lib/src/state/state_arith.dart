@@ -51,6 +51,7 @@ class Operator {
 
   const Operator(this.metaMethod, this.intFunc, this.floatFunc);
 }
+
 const operators = [
   Operator('__add', iadd, fadd),
   Operator('__sub', isub, fsub),

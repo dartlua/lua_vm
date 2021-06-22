@@ -13,12 +13,12 @@ int openOsLib(LuaState ls) {
     'difftime': lib.diffTime,
     'time': lib.time,
     'date': lib.date,
-    'remove':    lib.remove,
-    'rename':    lib.rename,
-    'tmpname':   lib.tmpName,
-    'getenv':    lib.getEnv,
-    'execute':   lib.execute,
-    'exit':      lib.osExit,
+    'remove': lib.remove,
+    'rename': lib.rename,
+    'tmpname': lib.tmpName,
+    'getenv': lib.getEnv,
+    'execute': lib.execute,
+    'exit': lib.osExit,
     'setlocale': lib.setLocale,
   };
 
@@ -210,7 +210,7 @@ class LuaStdlibOs {
       if (ls.toBool(1)) {
         exit(0);
       } else {
-        exit(1);// todo
+        exit(1); // todo
       }
     } else {
       final code = ls.checkInt(1);

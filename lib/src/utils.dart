@@ -60,89 +60,88 @@ int dayInYear(DateTime time) {
   return diff.inDays;
 }
 
-
 /* helper */
 
 /* translate a relative string position: negative means back from end */
 int posRelat(int pos, int _len) {
-	var _pos = pos;
-	if (_pos >= 0) {
-		return _pos;
-	} else if (-_pos > _len) {
-		return 0;
-	} else {
-		return _len + _pos + 1;
-	}
+  var _pos = pos;
+  if (_pos >= 0) {
+    return _pos;
+  } else if (-_pos > _len) {
+    return 0;
+  } else {
+    return _len + _pos + 1;
+  }
 }
 
 var tagPattern = RegExp('%[ #+-0]?[0-9]*(\.[0-9]+)?[cdeEfgGioqsuxX%]');
 
 List<String> parseFmtStr(String fmt) {
-	if (fmt == '' || !fmt.contains('%')) {
-		return [fmt];
-	}
+  if (fmt == '' || !fmt.contains('%')) {
+    return [fmt];
+  }
 
-	var parsed = List<String>.empty(growable: true);
-	while (true) {
-		if (fmt == '') {
-			break;
-		}
+  var parsed = List<String>.empty(growable: true);
+  while (true) {
+    if (fmt == '') {
+      break;
+    }
 
-		final loc = tagPattern.firstMatch(fmt);
-		if (loc == null) {
-			parsed.add(fmt);
-			break;
-		}
+    final loc = tagPattern.firstMatch(fmt);
+    if (loc == null) {
+      parsed.add(fmt);
+      break;
+    }
 
-		final head = fmt.substring(0, loc.start);
-		final tag = fmt.substring(loc.start, loc.end);
-		final tail = fmt.substring(loc.end);
+    final head = fmt.substring(0, loc.start);
+    final tag = fmt.substring(loc.start, loc.end);
+    final tail = fmt.substring(loc.end);
 
-		if (head != '') {
-			parsed.add(head);
-		}
-		parsed.add(tag);
-		fmt = tail;
-	}
-	return parsed;
+    if (head != '') {
+      parsed.add(head);
+    }
+    parsed.add(tag);
+    fmt = tail;
+  }
+  return parsed;
 }
 
 TwoResult find(String s, String pattern, int init, bool plain) {
-	var tail = s;
+  var tail = s;
   var start, end;
-	if (init > 1) {
-		tail = s.substring(init-1);
-	}
+  if (init > 1) {
+    tail = s.substring(init - 1);
+  }
 
-	if (plain) {
-		start = tail.indexOf(pattern);
-		end = start + pattern.length - 1;
-	} else {
+  if (plain) {
+    start = tail.indexOf(pattern);
+    end = start + pattern.length - 1;
+  } else {
     final re = RegExp(replaceFormatter(pattern));
     final loc = re.firstMatch(tail);
-		if (loc == null) {
-			start = end = -1;
-		} else {
-			start = loc.start;
+    if (loc == null) {
+      start = end = -1;
+    } else {
+      start = loc.start;
       end = loc.end - 1;
-		}
-	}
-	if (start >= 0) {
-		start += s.length - tail.length + 1;
-		end += s.length - tail.length + 1;
-	}
+    }
+  }
+  if (start >= 0) {
+    start += s.length - tail.length + 1;
+    end += s.length - tail.length + 1;
+  }
 
-	return TwoResult(start, end);
+  return TwoResult(start, end);
 }
 
 List<RegExpMatch>? match(String s, String pattern, int init) {
-	var tail = s;
-	if (init > 1) {
-		tail = s.substring(init-1);
-	}
+  var tail = s;
+  if (init > 1) {
+    tail = s.substring(init - 1);
+  }
 
-  final re = RegExp(replaceFormatter(pattern)); 
-	return re.allMatches(tail).toList(); 
+  final re = RegExp(replaceFormatter(pattern));
+  return re.allMatches(tail).toList();
 }
 
 String replaceFormatter(String s) {
@@ -154,6 +153,7 @@ class TwoResult {
   dynamic b;
   TwoResult(this.a, this.b);
 }
+
 // todo
 // return String, int
 TwoResult gsub(String s, String pattern, String repl, int n) {
@@ -162,6 +162,5 @@ TwoResult gsub(String s, String pattern, String repl, int n) {
   for (var i = 0; i < n && i <= matches.length; i++) {
     s = s.replaceRange(matches[i].start, matches[i].end, repl);
   }
-	return TwoResult(s, matches.length < n ? matches.length : n);
+  return TwoResult(s, matches.length < n ? matches.length : n);
 }
-

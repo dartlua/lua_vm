@@ -1,7 +1,6 @@
 import 'package:luart/luart.dart';
 import 'package:luart/src/binary/chunk.dart';
 
-
 class LuaClosure {
   LuaClosure({this.proto, this.dartFunc});
 

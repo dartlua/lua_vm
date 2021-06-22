@@ -4,7 +4,6 @@ import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_value.dart';
 
-
 mixin LuaStateAccess implements LuaVM {
   @override
   String typeName(int idx) {

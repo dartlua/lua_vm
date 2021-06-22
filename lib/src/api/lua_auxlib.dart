@@ -72,14 +72,15 @@ extension LuaAuxlib on LuaState {
   // [-0, +(0|1), e]
   // http://www.lua.org/manual/5.3/manual.html#luaL_callmeta
   bool callMeta(int obj, String event) {
-  	obj = absIndex(obj);
-  	if (getMetafield(obj, event) == LuaType.nil) { /* no metafield? */
-  		return false;
-  	}
+    obj = absIndex(obj);
+    if (getMetafield(obj, event) == LuaType.nil) {
+      /* no metafield? */
+      return false;
+    }
 
-  	pushValue(obj);
-  	call(1, 1);
-  	return true;
+    pushValue(obj);
+    call(1, 1);
+    return true;
   }
 
   // [-0, +1, e]
@@ -88,43 +89,43 @@ extension LuaAuxlib on LuaState {
     final val = stack!.get(idx);
     if (val is LuaError) {
       pushString(val.toString());
-    }
-    else if (callMetaMethod(idx, null, '__tostring', this).success) { /* metafield? */
-	  	if (!isString(-1)) {
-		  	error2("'__tostring' must return a string");
-		  }
-  	} else {
-		  switch (type(idx)) {
-		    case LuaType.number:
-		    case LuaType.string:
-		    	pushValue(idx);
+    } else if (callMetaMethod(idx, null, '__tostring', this).success) {
+      /* metafield? */
+      if (!isString(-1)) {
+        error2("'__tostring' must return a string");
+      }
+    } else {
+      switch (type(idx)) {
+        case LuaType.number:
+        case LuaType.string:
+          pushValue(idx);
           break;
-		    case LuaType.boolean:
-		    	if (toBool(idx)) {
-		    		pushString('true');
-		    	} else {
-		    		pushString('false');
-		    	}
+        case LuaType.boolean:
+          if (toBool(idx)) {
+            pushString('true');
+          } else {
+            pushString('false');
+          }
           break;
-		    case LuaType.nil:
-		    	pushString('nil');
+        case LuaType.nil:
+          pushString('nil');
           break;
-		    default:
-		    	final tt = getMetafield(idx, '__name'); /* try name */
-		    	var kind;
-		    	if (tt == LuaType.string){
-		    		kind = checkString(-1);
-		    	} else {
-		    		kind = typeName(idx);
-		    	}
+        default:
+          final tt = getMetafield(idx, '__name'); /* try name */
+          var kind;
+          if (tt == LuaType.string) {
+            kind = checkString(-1);
+          } else {
+            kind = typeName(idx);
+          }
 
-		    	pushString(kind);
-		    	if (tt != LuaType.nil) {
-		    		remove(-2); /* remove '__name' */
-		    	}
-		  }
-	  }
-	  return checkString(-1) ?? '';
+          pushString(kind);
+          if (tt != LuaType.nil) {
+            remove(-2); /* remove '__name' */
+          }
+      }
+    }
+    return checkString(-1) ?? '';
   }
 
   // [-0, +0, v]
@@ -165,7 +166,6 @@ extension LuaAuxlib on LuaState {
     return result;
   }
 
-
   // [-0, +1, m]
   // http://www.lua.org/manual/5.3/manual.html#luaL_newlib
   void newLib(Map<String, LuaDartFunction> funcs) {
@@ -177,13 +177,13 @@ extension LuaAuxlib on LuaState {
   // http://www.lua.org/manual/5.3/manual.html#luaL_openlibs
   void openLibs() {
     final libs = <String, LuaDartFunction>{
-      '_G':        openBaseLib,
-      'math':      openMathLib,
-      'table':     openTableLib,
-      'string':    openStringLib,
-      'utf8':      openUTF8Lib,
-      'os':        openOsLib,
-      'package':   openPackageLib,
+      '_G': openBaseLib,
+      'math': openMathLib,
+      'table': openTableLib,
+      'string': openStringLib,
+      'utf8': openUTF8Lib,
+      'os': openOsLib,
+      'package': openPackageLib,
       // 'coroutine': openCoroutineLib,
     };
 
@@ -198,17 +198,18 @@ extension LuaAuxlib on LuaState {
   void requireF(String modname, LuaDartFunction openf, {bool global = true}) {
     getSubTable(LUA_REGISTRYINDEX, '_LOADED');
     getField(-1, modname); /* LOADED[modname] */
-    if (!toBool(-1)) {   /* package not already loaded? */
+    if (!toBool(-1)) {
+      /* package not already loaded? */
       pop(1); /* remove field */
       pushDartFunction(openf);
-      pushString(modname);   /* argument to open function */
-      call(1, 1);            /* call 'openf' to open module */
-      pushValue(-1);         /* make copy of module (call result) */
+      pushString(modname); /* argument to open function */
+      call(1, 1); /* call 'openf' to open module */
+      pushValue(-1); /* make copy of module (call result) */
       setField(-3, modname); /* _LOADED[modname] = module */
     }
     remove(-2); /* remove _LOADED table */
     if (global) {
-      pushValue(-1);      /* copy of module */
+      pushValue(-1); /* copy of module */
       setGlobal(modname); /* _G[modname] = module */
     }
   }
@@ -222,45 +223,47 @@ extension LuaAuxlib on LuaState {
     pop(1); /* remove previous result */
     idx = stack!.absIndex(idx);
     newTable();
-    pushValue(-1);        /* copy to be left at top */
+    pushValue(-1); /* copy to be left at top */
     setField(idx, fname); /* assign new table to field */
-    return false;              /* false, because did not find table there */
+    return false; /* false, because did not find table there */
   }
 
   LuaType getMetafield(int obj, String event) {
-  	if (!getMetatable(obj)) { /* no metatable? */
-  		return LuaType.nil;
-  	}
-  
-  	pushString(event);
-  	var tt = rawGet(-2);
-  	if (tt == LuaType.nil) { /* is metafield nil? */
-  		pop(2); /* remove metatable and metafield */
-  	} else {
-  		remove(-2); /* remove only metatable */
-  	}
-  	return tt; /* return metafield type */
+    if (!getMetatable(obj)) {
+      /* no metatable? */
+      return LuaType.nil;
+    }
+
+    pushString(event);
+    var tt = rawGet(-2);
+    if (tt == LuaType.nil) {
+      /* is metafield nil? */
+      pop(2); /* remove metatable and metafield */
+    } else {
+      remove(-2); /* remove only metatable */
+    }
+    return tt; /* return metafield type */
   }
 
   // [-0, +1, m]
   // http://www.lua.org/manual/5.3/manual.html#luaL_loadfile
   LuaStatus loadFile(String filename) {
-  	return loadFileX(filename, 'bt');
+    return loadFileX(filename, 'bt');
   }
-  
+
   // [-0, +1, m]
   // http://www.lua.org/manual/5.3/manual.html#luaL_loadfilex
   LuaStatus loadFileX(String filename, String mode) {
     var data = File(filename).readAsBytesSync();
-  	return load(data, '@' + filename);
+    return load(data, '@' + filename);
   }
 
   // [-0, +0, v]
   // http://www.lua.org/manual/5.3/manual.html#luaL_argcheck
   void argCheck(bool cond, int arg, String extraMsg) {
-  	if (!cond) {
-  		argError(arg, extraMsg);
-  	}
+    if (!cond) {
+      argError(arg, extraMsg);
+    }
   }
 
   // [-0, +0, v]
@@ -271,14 +274,14 @@ extension LuaAuxlib on LuaState {
     } else {
       pushString(sprintf(fmt, args));
     }
-	  return error();
+    return error();
   }
 
   int optInt(int arg, int def) {
-  	if (isNoneOrNil(arg)) {
-  		return def;
-  	}
-  	return checkInt(arg);
+    if (isNoneOrNil(arg)) {
+      return def;
+    }
+    return checkInt(arg);
   }
 
   double optNumber(int arg, double def) {
@@ -291,19 +294,19 @@ extension LuaAuxlib on LuaState {
   // [-0, +0, v]
   // http://www.lua.org/manual/5.3/manual.html#luaL_optstring
   String? optString(int arg, String def) {
-  	if (isNoneOrNil(arg)) return def;
-  	return checkString(arg);
+    if (isNoneOrNil(arg)) return def;
+    return checkString(arg);
   }
 
   // [-0, +0, v]
   // http://www.lua.org/manual/5.3/manual.html#luaL_checkstack
   void checkStack2(int sz, String msg) {
-  	if (!checkStack(sz)) {
-  		if (msg != '') {
-  			error2('stack overflow (%s)', [msg]);
-  		} else {
-  			error2('stack overflow');
-  		}
-  	}
+    if (!checkStack(sz)) {
+      if (msg != '') {
+        error2('stack overflow (%s)', [msg]);
+      } else {
+        error2('stack overflow');
+      }
+    }
   }
 }

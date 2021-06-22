@@ -22,9 +22,7 @@ mixin LuaStateSet implements LuaState {
 
   void _setTable(Object table, Object? k, Object? v, bool raw) {
     if (table is LuaTable) {
-      if (raw ||
-          table.get(k!) != null ||
-          !table.hasMetaField('__newindex')) {
+      if (raw || table.get(k!) != null || !table.hasMetaField('__newindex')) {
         table.put(k!, v);
         return;
       }

@@ -185,7 +185,7 @@ class LuaStateImpl
         insert(-(nArgs + 2));
         nArgs++;
       }
-    } 
+    }
 
     if (ok && c is LuaClosure) {
       if (c.proto != null) {
@@ -212,7 +212,7 @@ class LuaStateImpl
       stack!.push(e);
       return LuaStatus.errRun;
     }
-    
+
     call(nArgs, nResults);
     return LuaStatus.ok;
   }

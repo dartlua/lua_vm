@@ -3,7 +3,6 @@ import 'package:luart/src/constants.dart';
 import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_table.dart';
 
-
 class LuaStack {
   List<Object?> slots;
   int top;

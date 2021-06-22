@@ -12,8 +12,7 @@ mixin LuaStateStack implements LuaState {
     return i;
   }
 
-  void getConst(int idx) =>
-      stack!.push(stack!.closure!.proto!.constants[idx]);
+  void getConst(int idx) => stack!.push(stack!.closure!.proto!.constants[idx]);
 
   void getRK(int rk) => rk > 0xff ? getConst(rk & 0xff) : pushValue(rk + 1);
 
