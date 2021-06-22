@@ -19,7 +19,7 @@ mixin LuaStateMisc implements LuaState {
     }
     final result = callMetaMethod(value, value, '__len', this);
     if (result.success) {
-      stack!.push(result);
+      stack!.push(result.result);
       return;
     }
     if (value is LuaTable) {
@@ -59,7 +59,7 @@ mixin LuaStateMisc implements LuaState {
   }
 
   @override
-  Never error() {
+  int error() {
     final e = stack!.pop();
     throw LuaRuntimeError(e);
   }

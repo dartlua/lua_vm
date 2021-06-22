@@ -43,8 +43,8 @@ class LuaStdlibOs {
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.difftime
   // lua-5.3.4/src/loslib.c#os_difftime()
   int diffTime(LuaState ls) {
-    final t2 = ls.mustCheckInt(1);
-    final t1 = ls.mustCheckInt(2);
+    final t2 = ls.checkInt(1);
+    final t1 = ls.checkInt(2);
     ls.pushInt(t2 - t1);
     return 1;
   }
@@ -77,20 +77,20 @@ class LuaStdlibOs {
   // lua-5.3.4/src/loslib.c#getfield()
   int _getField(LuaState ls, String key, int dft) {
     final t = ls.getField(-1, key); /* get field and its type */
-    var res = ls.checkInt(-1);
-    if (res == null) {
+    var res = ls.toIntX(-1);
+    if (!res.success) {
       /* field is not an integer? */
       if (t != LuaType.nil) {
         /* some other value? */
-        return ls.errorMessage("field '$key' is not an integer");
+        return ls.error2("field '$key' is not an integer");
       } else if (dft < 0) {
         /* absent field; no default? */
-        return ls.errorMessage("field '$key' missing in date table");
+        return ls.error2("field '$key' missing in date table");
       }
-      res = dft;
+      res.result = dft;
     }
     ls.pop(1);
-    return res;
+    return res.result;
   }
 
   // os.date ([format [, time]])
@@ -140,7 +140,7 @@ class LuaStdlibOs {
   // os.remove (filename)
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.remove
   int remove(LuaState ls) {
-    final filename = ls.mustCheckString(1);
+    final filename = ls.checkString(1) ?? '';
     try {
       File(filename).deleteSync();
       ls.pushBool(true);
@@ -155,8 +155,8 @@ class LuaStdlibOs {
   // os.rename (oldname, newname)
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.rename
   int rename(LuaState ls) {
-    final oldName = ls.mustCheckString(1);
-    final newName = ls.mustCheckString(2);
+    final oldName = ls.checkString(1) ?? '';
+    final newName = ls.checkString(2) ?? '';
     try {
       File(oldName).renameSync(newName);
       ls.pushBool(true);
@@ -179,9 +179,14 @@ class LuaStdlibOs {
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.getenv
   // lua-5.3.4/src/loslib.c#os_getenv()
   int getEnv(LuaState ls) {
-    final key = ls.mustCheckString(1);
+    final key = ls.checkString(1);
+    final env = Platform.environment;
+    if (!env.containsKey(key)) {
+      ls.pushNil();
+      return 1;
+    }
     // TODO: platform无法在web使用，尝试使用universal_io解决
-    final val = Platform.environment[key];
+    final val = env[key];
     if (val != null) {
       ls.pushString(val);
     } else {
@@ -208,7 +213,7 @@ class LuaStdlibOs {
         exit(1);// todo
       }
     } else {
-      final code = ls.checkInt(1) ?? 1;
+      final code = ls.checkInt(1);
       exit(code);
     }
   }

@@ -64,7 +64,7 @@ mixin LuaStateGet implements LuaState {
 
   @override
   bool getMetatable(int idx) {
-    final val = stack!.get(idx)!;
+    final val = stack!.get(idx);
     final mt = getMetaTable(val, this);
     if (mt != null) {
       stack!.push(mt);

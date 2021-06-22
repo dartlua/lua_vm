@@ -31,12 +31,12 @@ class LuaStdlibTable {
   	}
   	_checkTab(ls, 1, TAB_R);
   	_checkTab(ls, tt, TAB_W);
-  	if (e! >= f!) { /* otherwise, nothing to move */
+  	if (e >= f) { /* otherwise, nothing to move */
   		int n, i;
   		ls.argCheck(f > 0 || e < LUA_MAXINTEGER+f, 3,
   			'too many elements to move');
   		n = e - f + 1; /* number of elements to move */
-  		ls.argCheck(t! <= LUA_MAXINTEGER-n+1, 4,
+  		ls.argCheck(t <= LUA_MAXINTEGER-n+1, 4,
   			'destination wrap around');
   		if (t > e || t <= f || (tt != 1 && !ls.compare(1, tt, LuaCompareOp.eq))) {
   			for (i = 0; i < n; i++) {

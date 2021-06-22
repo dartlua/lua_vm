@@ -1,4 +1,5 @@
 import 'package:luart/luart.dart';
+import 'package:luart/src/api/lua_result.dart';
 import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_value.dart';
@@ -51,7 +52,13 @@ mixin LuaStateAccess implements LuaVM {
   int toInt(int idx) => convert2Int(stack!.get(idx)).result;
 
   @override
+  LuaResult toIntX(int idx) => convert2Int(stack!.get(idx));
+
+  @override
   double toNumber(int idx) => convert2Float(stack!.get(idx)).result;
+
+  @override
+  LuaResult toNumberX(int idx) => convert2Float(stack!.get(idx));
 
   @override
   String? toDartString(int idx) => convert2String(stack!.get(idx));

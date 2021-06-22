@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:luart/luart.dart';
+import 'package:luart/src/api/lua_result.dart';
 import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/binary/chunk.dart';
 import 'package:luart/src/compiler/compiler.dart';
@@ -164,11 +165,14 @@ class LuaStateImpl
 
   @override
   void call(int nArgs, int nResults) {
-    final value = stack!.get(-(nArgs + 1));
-
-    if (value == null) {
-      throw LuaRuntimeError('attempt to call a nil value');
+    var value = stack!.get(-(nArgs + 1));
+    if (value is LuaResult) {
+      value = value.result;
     }
+
+    // if (value == null) {
+    //   throw LuaRuntimeError('attempt to call a nil value');
+    // }
 
     if (value is LuaClosure) {
       if (value.proto != null) {
@@ -202,7 +206,8 @@ class LuaStateImpl
       stack!.push(e);
       return LuaStatus.errRun;
     }
-
+    
+    call(nArgs, nResults);
     return LuaStatus.ok;
   }
 

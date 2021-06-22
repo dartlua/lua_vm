@@ -38,11 +38,11 @@ LuaResult convert2Float(Object? value) {
   return LuaResult.double(0, false);
 }
 
-String convert2String(Object? value) {
+String? convert2String(Object? value) {
   if (value is String) return value;
   if (value is int) return value.toString();
   if (value is double) return value.toString();
-  return '';
+  return null;
 }
 
 LuaResult convert2Int(Object? value) {

@@ -24,14 +24,34 @@ extension LuaAuxlib on LuaState {
     return pCall(0, LUA_MULTRET, 0) != LuaStatus.ok;
   }
 
-  Never argError(int arg, String msg) {
-    // bad argument #arg to 'funcname' (extramsg)
-    errorMessage('bad argument #$arg ($msg)');
+  void _intError(int arg) {
+    if (isNumber(arg)) {
+      argError(arg, 'number has no integer representation');
+    } else {
+      _tagError(arg, LuaType.number);
+    }
   }
 
-  Never errorMessage(Object? message) {
-    pushString(message.toString());
-    error();
+  void _tagError(int arg, LuaType tag) {
+    typeError(arg, tag.typeName);
+  }
+
+  int typeError(int arg, String tname) {
+    late String typeArg; /* name for the type of the actual argument */
+    if (getMetaField(arg, '__name', this) == LuaType.string) {
+      typeArg = toDartString(-1)!; /* use the given type name */
+    } else if (type(arg) == LuaType.lightuserdata) {
+      typeArg = 'light userdata'; /* special name for messages */
+    } else {
+      typeArg = type(arg).typeName; /* standard name */
+    }
+    final msg = tname + ' expected, got ' + typeArg;
+    pushString(msg);
+    return argError(arg, msg);
+  }
+
+  int argError(int arg, String msg) {
+    return error2('bad argument #$arg ($msg)');
   }
 
   void setFuncs(Map<String, LuaDartFunction> funcs, [int upvalues = 0]) {
@@ -49,53 +69,70 @@ extension LuaAuxlib on LuaState {
     pop(upvalues);
   }
 
-  // [-0, +0, v]
-  // http://www.lua.org/manual/5.3/manual.html#luaL_checkany
-  void checkAny(int arg) {
-    if (type(arg) == LuaType.none) {
-      LuaError('value expected');
-    }
+  // [-0, +(0|1), e]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_callmeta
+  bool callMeta(int obj, String event) {
+  	obj = absIndex(obj);
+  	if (getMetafield(obj, event) == LuaType.nil) { /* no metafield? */
+  		return false;
+  	}
+
+  	pushValue(obj);
+  	call(1, 1);
+  	return true;
   }
 
   // [-0, +1, e]
   // http://www.lua.org/manual/5.3/manual.html#luaL_tolstring
   String toDartStringL(int idx) {
-    if (callMetaMethod(idx, null, '__tostring', this).success) {
-      /* metafield? */
-      if (!isString(-1)) {
-        ;
-        throw LuaError("'__tostring' must return a string");
-      }
-    } else {
-      switch (type(idx)) {
-        case LuaType.string:
-          pushValue(idx);
-          break;
-        case LuaType.number:
-        case LuaType.boolean:
-          pushString(toDartString(idx)!);
-          break;
-        case LuaType.nil:
-          pushString('nil');
-          break;
-        default:
-          final tt = getMetaField(idx, '__name', this);
-          late String kind;
-          if (tt == LuaType.string) {
-            kind = mustCheckString(-1);
-          } else {
-            kind = typeName(idx);
-          }
-
-          pushString(
-            kind, /* toPointer(idx) */
-          );
-          if (tt != LuaType.nil) {
-            remove(-2) /* remove '__name' */;
-          }
-      }
+    final val = stack!.get(idx);
+    if (val is LuaError) {
+      pushString(val.toString());
     }
-    return mustCheckString(-1);
+    else if (callMetaMethod(idx, null, '__tostring', this).success) { /* metafield? */
+	  	if (!isString(-1)) {
+		  	error2("'__tostring' must return a string");
+		  }
+  	} else {
+		  switch (type(idx)) {
+		    case LuaType.number:
+		    case LuaType.string:
+		    	pushValue(idx);
+          break;
+		    case LuaType.boolean:
+		    	if (toBool(idx)) {
+		    		pushString('true');
+		    	} else {
+		    		pushString('false');
+		    	}
+          break;
+		    case LuaType.nil:
+		    	pushString('nil');
+          break;
+		    default:
+		    	final tt = getMetafield(idx, '__name'); /* try name */
+		    	var kind;
+		    	if (tt == LuaType.string){
+		    		kind = checkString(-1);
+		    	} else {
+		    		kind = typeName(idx);
+		    	}
+
+		    	pushString(kind);
+		    	if (tt != LuaType.nil) {
+		    		remove(-2); /* remove '__name' */
+		    	}
+		  }
+	  }
+	  return checkString(-1) ?? '';
+  }
+
+  // [-0, +0, v]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_checkany
+  void checkAny(int arg) {
+    if (type(arg) == LuaType.none) {
+      argError(arg, 'value expected');
+    }
   }
 
   void checkType(int idx, LuaType t) {
@@ -104,84 +141,30 @@ extension LuaAuxlib on LuaState {
     }
   }
 
-  int? checkInt(int idx) {
-    try {
-      final i = toInt(idx);
-      return i;
-    } catch (e) {
-      return null;
+  int checkInt(int idx) {
+    final result = convert2Int(stack!.get(idx));
+    if (!result.success) {
+      _intError(idx);
     }
+    return result.result;
   }
 
-  double? checkNumber(int idx) {
-    try {
-      final i = toNumber(idx);
-      return i;
-    } catch (e) {
-      return null;
+  double checkNumber(int idx) {
+    final result = convert2Float(stack!.get(idx));
+    if (!result.success) {
+      _tagError(idx, LuaType.number);
     }
+    return result.result;
   }
 
   String? checkString(int idx) {
-    return toDartString(idx);
-  }
-
-  // [-0, +0, v]
-  // http://www.lua.org/manual/5.3/manual.html#luaL_optstring
-  String? optString(int arg, String def) {
-  	if (isNoneOrNil(arg)) return def;
-  	return checkString(arg);
-  }
-
-  int mustCheckInt(int idx) {
-    final result = checkInt(idx);
-    if (result != null) {
-      return result;
+    final result = toDartString(idx);
+    if (result == null) {
+      _tagError(idx, LuaType.string);
     }
-    _intError(idx);
+    return result;
   }
 
-  double mustCheckNumber(int idx) {
-    final result = checkNumber(idx);
-    if (result != null) {
-      return result;
-    }
-    _tagError(idx, LuaType.number);
-  }
-
-  String mustCheckString(int idx) {
-    final result = checkString(idx);
-    if (result != null) {
-      return result;
-    }
-    _tagError(idx, LuaType.string);
-  }
-
-  Never _intError(int arg) {
-    if (isNumber(arg)) {
-      argError(arg, 'number has no integer representation');
-    } else {
-      _tagError(arg, LuaType.number);
-    }
-  }
-
-  Never _tagError(int arg, LuaType tag) {
-    typeError(arg, tag.typeName);
-  }
-
-  Never typeError(int arg, String tname) {
-    late String typeArg; /* name for the type of the actual argument */
-    if (getMetaField(arg, '__name', this) == LuaType.string) {
-      typeArg = toDartString(-1)!; /* use the given type name */
-    } else if (type(arg) == LuaType.lightuserdata) {
-      typeArg = 'light userdata'; /* special name for messages */
-    } else {
-      typeArg = type(arg).typeName; /* standard name */
-    }
-    final msg = tname + ' expected, got ' + typeArg;
-    pushString(msg);
-    return argError(arg, msg);
-  }
 
   // [-0, +1, m]
   // http://www.lua.org/manual/5.3/manual.html#luaL_newlib
@@ -295,7 +278,21 @@ extension LuaAuxlib on LuaState {
   	if (isNoneOrNil(arg)) {
   		return def;
   	}
-  	return checkInt(arg)!;
+  	return checkInt(arg);
+  }
+
+  double optNumber(int arg, double def) {
+    if (isNoneOrNil(arg)) {
+      return def;
+    }
+    return checkNumber(arg);
+  }
+
+  // [-0, +0, v]
+  // http://www.lua.org/manual/5.3/manual.html#luaL_optstring
+  String? optString(int arg, String def) {
+  	if (isNoneOrNil(arg)) return def;
+  	return checkString(arg);
   }
 
   // [-0, +0, v]

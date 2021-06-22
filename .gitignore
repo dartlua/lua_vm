@@ -13,3 +13,4 @@ build/
 doc/state/
 
 .vscode
+.DS_Store

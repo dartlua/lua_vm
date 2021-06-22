@@ -62,7 +62,7 @@ class LuaStdlibString {
   	final n = ls.checkInt(2);
   	final sep = ls.optString(3, '');
   
-  	if (n! <= 0) {
+  	if (n <= 0) {
   		ls.pushString('');
   	} else if (n == 1) {
   		ls.pushString(s!);
@@ -114,7 +114,7 @@ class LuaStdlibString {
   int strSub(LuaState ls)  {
   	final s = ls.checkString(1);
   	final sLen = s!.length;
-  	var i = posRelat(ls.checkInt(2)!, sLen);
+  	var i = posRelat(ls.checkInt(2), sLen);
   	var j = posRelat(ls.optInt(3, -1), sLen);
   
   	if (i < 1) {
@@ -175,7 +175,7 @@ class LuaStdlibString {
   	for (var i = 1; i <= nArgs; i++) {
   		final c = ls.checkInt(i);
   		ls.argCheck(c == c, i, 'value out of range');
-  		s[i-1] = c!;
+  		s[i-1] = c;
   	}
   
   	ls.pushString(String.fromCharCodes(s));

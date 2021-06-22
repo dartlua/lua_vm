@@ -72,14 +72,14 @@ class LuaStdlibMath {
         return 1;
       case 1: /* only upper limit */
         low = 1;
-        up = ls.mustCheckInt(1);
+        up = ls.checkInt(1);
         break;
       case 2: /* lower and upper limits */
-        low = ls.mustCheckInt(1);
-        up = ls.mustCheckInt(2);
+        low = ls.checkInt(1);
+        up = ls.checkInt(2);
         break;
       default:
-        return ls.errorMessage('wrong number of arguments');
+        return ls.error2('wrong number of arguments');
     }
 
     /* random integer in the interval [low, up] */
@@ -100,7 +100,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.randomseed
   // lua-5.3.4/src/lmathlib.c#math_randomseed()
   int randomSeed(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     _rand = math.Random(x.toInt());
     return 0;
   }
@@ -153,7 +153,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.exp
   // lua-5.3.4/src/lmathlib.c#math_exp()
   int exp(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(math.exp(x));
     return 1;
   }
@@ -162,7 +162,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.log
   // lua-5.3.4/src/lmathlib.c#math_log()
   int log(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
 
     late final double res;
 
@@ -183,7 +183,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.deg
   // lua-5.3.4/src/lmathlib.c#math_deg()
   int deg(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(x * 180 / math.pi);
     return 1;
   }
@@ -192,7 +192,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.rad
   // lua-5.3.4/src/lmathlib.c#math_rad()
   int rad(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(x * math.pi / 180);
     return 1;
   }
@@ -201,7 +201,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.sin
   // lua-5.3.4/src/lmathlib.c#math_sin()
   int sin(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(math.sin(x));
     return 1;
   }
@@ -210,7 +210,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.cos
   // lua-5.3.4/src/lmathlib.c#math_cos()
   int cos(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(math.cos(x));
     return 1;
   }
@@ -219,7 +219,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.tan
   // lua-5.3.4/src/lmathlib.c#math_tan()
   int tan(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(math.tan(x));
     return 1;
   }
@@ -228,7 +228,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.asin
   // lua-5.3.4/src/lmathlib.c#math_asin()
   int asin(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(math.asin(x));
     return 1;
   }
@@ -237,7 +237,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.acos
   // lua-5.3.4/src/lmathlib.c#math_acos()
   int acos(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(math.acos(x));
     return 1;
   }
@@ -246,8 +246,8 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.atan
   // lua-5.3.4/src/lmathlib.c#math_atan()
   int atan(LuaState ls) {
-    final y = ls.mustCheckNumber(1);
-    final x = ls.checkNumber(2) ?? 1.0;
+    final y = ls.checkNumber(1);
+    final x = ls.optNumber(2, 1.0);
     ls.pushNumber(math.atan2(y, x));
     return 1;
   }
@@ -261,7 +261,7 @@ class LuaStdlibMath {
     if (ls.isInt(1)) {
       ls.setTop(1); /* integer is its own ceil */
     } else {
-      final x = ls.mustCheckNumber(1);
+      final x = ls.checkNumber(1);
       ls.pushInt(x.ceil());
     }
     return 1;
@@ -274,7 +274,7 @@ class LuaStdlibMath {
     if (ls.isInt(1)) {
       ls.setTop(1); /* integer is its own floor */
     } else {
-      final x = ls.mustCheckNumber(1);
+      final x = ls.checkNumber(1);
       ls.pushInt(x.floor());
     }
     return 1;
@@ -298,8 +298,8 @@ class LuaStdlibMath {
         ls.pushInt(ls.toInt(1) % d);
       }
     } else {
-      final x = ls.mustCheckNumber(1);
-      final y = ls.mustCheckNumber(2);
+      final x = ls.checkNumber(1);
+      final y = ls.checkNumber(2);
       ls.pushNumber(x - (x ~/ y) * y);
     }
 
@@ -314,7 +314,7 @@ class LuaStdlibMath {
       ls.setTop(1); /* number is its own integer part */
       ls.pushNumber(0); /* no fractional part */
     } else {
-      final x = ls.mustCheckNumber(1);
+      final x = ls.checkNumber(1);
       ls.pushInt(x.truncate());
       if (x.isInfinite) {
         ls.pushNumber(0);
@@ -336,7 +336,7 @@ class LuaStdlibMath {
         ls.pushInt(-x);
       }
     } else {
-      final x = ls.mustCheckNumber(1);
+      final x = ls.checkNumber(1);
       ls.pushNumber(x.abs());
     }
     return 1;
@@ -346,7 +346,7 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.sqrt
   // lua-5.3.4/src/lmathlib.c#math_sqrt()
   int sqrt(LuaState ls) {
-    final x = ls.mustCheckNumber(1);
+    final x = ls.checkNumber(1);
     ls.pushNumber(math.sqrt(x));
     return 1;
   }
@@ -355,8 +355,8 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.ult
   // lua-5.3.4/src/lmathlib.c#math_ult()
   int ult(LuaState ls) {
-    final m = ls.mustCheckInt(1);
-    final n = ls.mustCheckInt(2);
+    final m = ls.checkInt(1);
+    final n = ls.checkInt(2);
     // is this ok?
     ls.pushBool(m.toUnsigned(m.bitLength) < n.toUnsigned(n.bitLength));
     return 1;

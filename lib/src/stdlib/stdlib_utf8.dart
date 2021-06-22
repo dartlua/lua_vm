@@ -52,7 +52,7 @@ class LuaStdlibUTF8 {
  int utfByteOffset(LuaState ls) {
   	final s = ls.checkString(1)!;
   	final sLen = s.length;
-  	var n = ls.checkInt(2)!;
+  	var n = ls.checkInt(2);
   	var i = 1;
   	if (n < 0) {
   		i = sLen + 1;
@@ -141,7 +141,7 @@ class LuaStdlibUTF8 {
   	var codePoints = List.filled(n, 0);
   
   	for (var i = 1; i <= n; i++) {
-  		final cp = ls.checkInt(i)!;
+  		final cp = ls.checkInt(i);
   		ls.argCheck(0 <= cp && cp <= MAX_UNICODE, i, 'value out of range');
   		codePoints[i-1] = cp;
   	}

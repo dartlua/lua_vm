@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:luart/src/api/lua_result.dart';
 import 'package:luart/src/state/lua_stack.dart';
 import 'package:luart/src/state/lua_table.dart';
 import 'package:luart/src/state/lua_state.dart';
@@ -214,11 +215,13 @@ abstract class LuaState {
   /// must be an integer, or a number or string convertible to an integer;
   /// otherwise, a [TypeError] is thrown.
   int toInt(int idx);
+  LuaResult toIntX(int idx);
 
   /// Converts the Lua value at the given index to a Dart double. The Lua value
   /// must be an number, or a number or string convertible to an number;
   /// otherwise, a [TypeError] is thrown.
   double toNumber(int idx);
+  LuaResult toNumberX(int idx);
 
   /// Converts the Lua value at the given index to a Dart string. The Lua value
   /// must be a string or a number; otherwise, [null] is returned.
@@ -514,7 +517,7 @@ abstract class LuaState {
 
   /// Generates a Lua error, using the value at the top of the stack as the
   /// error object. This function does a long jump, and therefore never returns
-  Never error();
+  int error();
 
   /// Converts [s] to a number, pushes that number into the stack. The
   /// conversion can result in an integer or a float, according to the lexical

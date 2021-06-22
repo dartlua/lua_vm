@@ -1,6 +1,6 @@
 local mt = {}
 
-function vector(x, y)
+local function vector(x, y)
   local v = {x = x, y = y}
   setmetatable(v, mt)
   return v
@@ -35,10 +35,10 @@ mt.__call = function(v)
   print("[" .. v.x .. ", " .. v.y .. "]")
 end
 
-v1 = vector(1, 2); v1:print()
-v2 = vector(3, 4); v2:print()
-v3 = v1 * 2;       v3:print()
-v4 = v1 + v3;      v4:print()
+local v1 = vector(1, 2); v1:print()
+local v2 = vector(3, 4); v2:print()
+local v3 = v1 * 2;       v3:print()
+local v4 = v1 + v3;      v4:print()
 print(#v2)
 print(v1 == v2)
 print(v2 == vector(3, 4))
