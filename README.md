@@ -1,9 +1,9 @@
 ![Banner](https://github.com/dartlua/lua_vm/raw/main/img/top_banner.png)
 ![Lua](https://img.shields.io/badge/Lua-5.3-green)
 
-# Lua-Dart
+# Luart
 With this project, you can run or compile Lua script on your device(iOS Android Web).  
-You can write UI in Flutter and handle backend data by LuaDart.
+You can write UI in Flutter and handle backend data by Luart.
 
 # TODO
 - [x] Read and parse Lua binary.
@@ -11,6 +11,10 @@ You can write UI in Flutter and handle backend data by LuaDart.
 - [x] Execute Lua script.
 - [x] Compiler on device.
 - [x] Standard library.
+
+# Test
+- run `dart example/test.dart`
+- run `dart test`
 
 # Known Issue
 First of all, try `dart bin/luart.dart` to enter Luart REPL Terminal to understand which commands are not available.
@@ -22,9 +26,9 @@ First of all, try `dart bin/luart.dart` to enter Luart REPL Terminal to understa
 |`os.setlocale()`|unavailable|no eg.|may not fix|all|
 |`string.format()`| can't format `%q`.Will replace `%q` with `%s` by default.|`string.format("%q", "One\nTwo")` equals to `string.format("%s", "One\nTwo")`|may fix|all|
 |~~`string.format()`~~|~~Formatter match(like `%d`) can't use~~|~~stdin:`string.find("Deadline is 30/05/1999, firm", "%d%d/%d%d/%d%d%d%d")`output:`nil`~~|fixed|~~all~~|
+|coroutine|not implement|no eg.|will add|all|
 
 # Thanks
-Welcome everyone to contribute to this project.
 Especially thanks [luago](https://github.com/zxh0/luago-book)
 
 # License
