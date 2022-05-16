@@ -1,3 +1,4 @@
+// ignore: avoid_classes_with_only_static_members
 class LuaMath {
   static int iFloorDiv(int a, int b) => (a / b).floor();
 

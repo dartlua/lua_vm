@@ -1,8 +1,6 @@
-class LuaResult {
-  dynamic result;
+class LuaResult<T> {
+  T result;
   bool success;
 
   LuaResult(this.result, this.success);
-  LuaResult.int(int this.result, this.success);
-  LuaResult.double(double this.result, this.success);
 }

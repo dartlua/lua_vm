@@ -73,7 +73,7 @@ mixin LuaStateArith implements LuaState {
   @override
   void arith(LuaArithOp op) {
     Object? a;
-    var b = stack!.pop();
+    final b = stack!.pop();
     if (op != LuaArithOp.unm && op != LuaArithOp.bnot) {
       a = stack!.pop();
     } else {
@@ -88,7 +88,7 @@ mixin LuaStateArith implements LuaState {
     }
 
     final metaMethod = operator.metaMethod;
-    final val = callMetaMethod(a!, b, metaMethod, this);
+    final val = callMetaMethod(a, b, metaMethod, this);
     if (val.success) {
       stack!.push(val);
       return;
@@ -100,18 +100,19 @@ mixin LuaStateArith implements LuaState {
 
 num? _arith(Object? a, Object? b, Operator op) {
   if (op.floatFunc == null) {
-    final x = convert2Int(a!);
-    final y = convert2Int(b!);
+    final x = convert2Int(a);
+    final y = convert2Int(b);
     if (x.success && y.success) return op.intFunc!(x.result, y.result);
   } else {
     if (op.intFunc != null) {
-      final x = convert2Int(a!);
-      final y = convert2Int(b!);
+      final x = convert2Int(a);
+      final y = convert2Int(b);
       if (x.success && y.success) return op.intFunc!(x.result, y.result);
     }
   }
 
-  final x = convert2Float(a!);
-  final y = convert2Float(b!);
+  final x = convert2Float(a);
+  final y = convert2Float(b);
   if (x.success && y.success) return op.floatFunc!(x.result, y.result);
+  return null;
 }

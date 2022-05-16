@@ -37,9 +37,9 @@ int openMathLib(LuaState ls) {
   };
 
   // From https://github.com/dart-lang/sdk/issues/41717
-  final minInt =
+  const minInt =
       (double.infinity is int) ? -double.infinity as int : (-1 << 63);
-  final maxInt = (double.infinity is int) ? double.infinity as int : ~minInt;
+  const maxInt = (double.infinity is int) ? double.infinity as int : ~minInt;
 
   ls.newLib(funcs);
   ls.pushNumber(math.pi);
@@ -63,7 +63,8 @@ class LuaStdlibMath {
   // http://www.lua.org/manual/5.3/manual.html#pdf-math.random
   // lua-5.3.4/src/lmathlib.c#math_random()
   int random(LuaState ls) {
-    late final int low, up;
+    late final int low;
+    late final int up;
 
     switch (ls.getTop()) {
       /* check number of arguments */

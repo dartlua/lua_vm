@@ -11,7 +11,7 @@ LuaPrototype compile(String chunk, String chunkName) {
 
 void _setSource(LuaPrototype proto, String chunkName) {
   proto.source = chunkName;
-  for (var f in proto.protos) {
+  for (final f in proto.protos) {
     _setSource(f, chunkName);
   }
 }

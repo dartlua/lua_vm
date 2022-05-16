@@ -77,7 +77,7 @@ class LuaStdlibOs {
   // lua-5.3.4/src/loslib.c#getfield()
   int _getField(LuaState ls, String key, int dft) {
     final t = ls.getField(-1, key); /* get field and its type */
-    var res = ls.toIntX(-1);
+    final res = ls.toIntX(-1);
     if (!res.success) {
       /* field is not an integer? */
       if (t != LuaType.nil) {
@@ -140,7 +140,7 @@ class LuaStdlibOs {
   // os.remove (filename)
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.remove
   int remove(LuaState ls) {
-    final filename = ls.checkString(1) ?? '';
+    final filename = ls.checkString(1);
     try {
       File(filename).deleteSync();
       ls.pushBool(true);
@@ -155,8 +155,8 @@ class LuaStdlibOs {
   // os.rename (oldname, newname)
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.rename
   int rename(LuaState ls) {
-    final oldName = ls.checkString(1) ?? '';
-    final newName = ls.checkString(2) ?? '';
+    final oldName = ls.checkString(1);
+    final newName = ls.checkString(2);
     try {
       File(oldName).renameSync(newName);
       ls.pushBool(true);

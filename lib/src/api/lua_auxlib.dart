@@ -21,7 +21,7 @@ extension LuaAuxlib on LuaState {
 
   bool doString(String source) {
     loadString(source);
-    return pCall(0, LUA_MULTRET, 0) != LuaStatus.ok;
+    return pCall(0, luaMultRet, 0) != LuaStatus.ok;
   }
 
   void _intError(int arg) {
@@ -39,13 +39,13 @@ extension LuaAuxlib on LuaState {
   int typeError(int arg, String tname) {
     late String typeArg; /* name for the type of the actual argument */
     if (getMetaField(arg, '__name', this) == LuaType.string) {
-      typeArg = toDartString(-1)!; /* use the given type name */
+      typeArg = toDartString(-1); /* use the given type name */
     } else if (type(arg) == LuaType.lightuserdata) {
       typeArg = 'light userdata'; /* special name for messages */
     } else {
       typeArg = type(arg).typeName; /* standard name */
     }
-    final msg = tname + ' expected, got ' + typeArg;
+    final msg = '$tname expected, got $typeArg';
     pushString(msg);
     return argError(arg, msg);
   }
@@ -59,7 +59,7 @@ extension LuaAuxlib on LuaState {
       throw LuaError('too many upvalues');
     }
 
-    for (var func in funcs.entries) {
+    for (final func in funcs.entries) {
       for (var i = 0; i < upvalues; i++) {
         pushValue(-upvalues);
       }
@@ -72,13 +72,13 @@ extension LuaAuxlib on LuaState {
   // [-0, +(0|1), e]
   // http://www.lua.org/manual/5.3/manual.html#luaL_callmeta
   bool callMeta(int obj, String event) {
-    obj = absIndex(obj);
-    if (getMetafield(obj, event) == LuaType.nil) {
+    final newObj = absIndex(obj);
+    if (getMetafield(newObj, event) == LuaType.nil) {
       /* no metafield? */
       return false;
     }
 
-    pushValue(obj);
+    pushValue(newObj);
     call(1, 1);
     return true;
   }
@@ -112,7 +112,7 @@ extension LuaAuxlib on LuaState {
           break;
         default:
           final tt = getMetafield(idx, '__name'); /* try name */
-          var kind;
+          String kind;
           if (tt == LuaType.string) {
             kind = checkString(-1);
           } else {
@@ -125,7 +125,7 @@ extension LuaAuxlib on LuaState {
           }
       }
     }
-    return checkString(-1) ?? '';
+    return checkString(-1);
   }
 
   // [-0, +0, v]
@@ -158,9 +158,10 @@ extension LuaAuxlib on LuaState {
     return result.result;
   }
 
-  String? checkString(int idx) {
+  String checkString(int idx) {
     final result = toDartString(idx);
-    if (result == null) {
+    // TODO: [result == ''] may cause unexpected error
+    if (result == '') {
       _tagError(idx, LuaType.string);
     }
     return result;
@@ -170,7 +171,7 @@ extension LuaAuxlib on LuaState {
   // http://www.lua.org/manual/5.3/manual.html#luaL_newlib
   void newLib(Map<String, LuaDartFunction> funcs) {
     createTable(0, funcs.length);
-    setFuncs(funcs, 0);
+    setFuncs(funcs);
   }
 
   // [-0, +0, e]
@@ -187,8 +188,8 @@ extension LuaAuxlib on LuaState {
       // 'coroutine': openCoroutineLib,
     };
 
-    for (var lib in libs.entries) {
-      requireF(lib.key, lib.value, global: true);
+    for (final lib in libs.entries) {
+      requireF(lib.key, lib.value);
       pop(1);
     }
   }
@@ -196,7 +197,7 @@ extension LuaAuxlib on LuaState {
   // [-0, +1, e]
   // http://www.lua.org/manual/5.3/manual.html#luaL_requiref
   void requireF(String modname, LuaDartFunction openf, {bool global = true}) {
-    getSubTable(LUA_REGISTRYINDEX, '_LOADED');
+    getSubTable(luaRegistryIndex, '_LOADED');
     getField(-1, modname); /* LOADED[modname] */
     if (!toBool(-1)) {
       /* package not already loaded? */
@@ -221,10 +222,10 @@ extension LuaAuxlib on LuaState {
       return true; /* table already there */
     }
     pop(1); /* remove previous result */
-    idx = stack!.absIndex(idx);
+    final newIdx = stack!.absIndex(idx);
     newTable();
     pushValue(-1); /* copy to be left at top */
-    setField(idx, fname); /* assign new table to field */
+    setField(newIdx, fname); /* assign new table to field */
     return false; /* false, because did not find table there */
   }
 
@@ -235,7 +236,7 @@ extension LuaAuxlib on LuaState {
     }
 
     pushString(event);
-    var tt = rawGet(-2);
+    final tt = rawGet(-2);
     if (tt == LuaType.nil) {
       /* is metafield nil? */
       pop(2); /* remove metatable and metafield */
@@ -254,8 +255,8 @@ extension LuaAuxlib on LuaState {
   // [-0, +1, m]
   // http://www.lua.org/manual/5.3/manual.html#luaL_loadfilex
   LuaStatus loadFileX(String filename, String mode) {
-    var data = File(filename).readAsBytesSync();
-    return load(data, '@' + filename);
+    final data = File(filename).readAsBytesSync();
+    return load(data, '@$filename');
   }
 
   // [-0, +0, v]

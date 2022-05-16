@@ -16,7 +16,7 @@ void dump(LuaPrototype f) {
   printHeader(f);
   printCode(f);
   printDetail(f);
-  for (var proto in f.protos) {
+  for (final proto in f.protos) {
     dump(proto);
   }
 }
@@ -33,21 +33,25 @@ void printHeader(LuaPrototype f) {
     varargFlag = '+';
   }
 
-  _writeln('\n$funcType '
-      '<${f.source}:${f.lineDefined},${f.lastLineDefined}> '
-      '(${f.codes.length} instructions)');
+  _writeln(
+    '\n$funcType '
+    '<${f.source}:${f.lineDefined},${f.lastLineDefined}> '
+    '(${f.codes.length} instructions)',
+  );
 
-  _writeln('${f.numParams}$varargFlag params, '
-      '${f.maxStackSize} slots, '
-      '${f.upvalues.length} upvalues, '
-      '${f.locVars.length} locals, '
-      '${f.constants.length} constants, '
-      '${f.protos.length} functions');
+  _writeln(
+    '${f.numParams}$varargFlag params, '
+    '${f.maxStackSize} slots, '
+    '${f.upvalues.length} upvalues, '
+    '${f.locVars.length} locals, '
+    '${f.constants.length} constants, '
+    '${f.protos.length} functions',
+  );
 }
 
 void printCode(LuaPrototype f) {
   var pc = 0;
-  for (var c in f.codes) {
+  for (final c in f.codes) {
     var line = '-';
     if (f.lineInfo.isNotEmpty) {
       line = f.lineInfo[pc].toString();
@@ -62,18 +66,18 @@ void printCode(LuaPrototype f) {
 
 void printOperands(int c) {
   switch (c.opMode()) {
-    case IABC:
+    case iABC:
       final i = c.abc();
 
       _write(i.a.toString().padRight(4));
-      if (c.bMode() != OpArgN) {
+      if (c.bMode() != opArgN) {
         if (i.b > 0xFF) {
           _write(' ${-1 - (i.b & 0xFF)}'.padRight(5));
         } else {
           _write(' ${i.b}'.padRight(5));
         }
       }
-      if (c.cMode() != OpArgN) {
+      if (c.cMode() != opArgN) {
         if (i.c > 0xFF) {
           _write(' ${-1 - (i.c & 0xFF)}'.padRight(5));
         } else {
@@ -81,21 +85,21 @@ void printOperands(int c) {
         }
       }
       break;
-    case IABx:
+    case iABx:
       final i = c.abx();
 
       _write(i.a.toString().padRight(4));
-      if (c.bMode() == OpArgK) {
+      if (c.bMode() == opArgK) {
         _write(' ${-1 - i.b}');
-      } else if (c.bMode() == OpArgU) {
+      } else if (c.bMode() == opArgU) {
         _write(' ${i.b}');
       }
       break;
-    case IAsBx:
+    case iAsBx:
       final i = c.asbx();
-      _write('${i.a}'.padRight(4) + ' ${i.b}');
+      _write('${'${i.a}'.padRight(4)} ${i.b}');
       break;
-    case IAx:
+    case iAx:
       final ax = c.ax();
       _write(-1 - ax);
       break;
@@ -105,27 +109,27 @@ void printOperands(int c) {
 void printDetail(LuaPrototype f) {
   _writeln('constants (${f.constants.length}):');
   var i = 1;
-  for (var k in f.constants) {
+  for (final k in f.constants) {
     _writeln('\t$i\t${constantToString(k)}');
     i++;
   }
 
   _writeln('locals (${f.locVars.length}):');
   i = 0;
-  for (var l in f.locVars) {
+  for (final l in f.locVars) {
     _writeln('\t$i\t${l.varName}\t${l.startPC + 1}\t${l.endPC + 1}');
     i++;
   }
 
   _writeln('upvalues (${f.upvalues.length}):');
   i = 0;
-  for (var u in f.upvalues) {
+  for (final u in f.upvalues) {
     _writeln('\t$i\t${upvalName(f, i)}\t${u.inStack}\t${u.idx}');
     i++;
   }
 }
 
-String constantToString(Object k) {
+String constantToString(Object? k) {
   switch (k.runtimeType) {
     case Null:
       return 'nil';

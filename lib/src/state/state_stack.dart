@@ -64,7 +64,7 @@ mixin LuaStateStack implements LuaState {
   @override
   void setTop(int idx) {
     final newTop = stack!.absIndex(idx);
-    if (newTop < 0) throw StackUnderflowError();
+    if (newTop < 0) throw const StackUnderflowError();
     final n = stack!.top - newTop;
     if (n > 0) {
       for (var i = 0; i < n; i++) {

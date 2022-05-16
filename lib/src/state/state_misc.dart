@@ -37,8 +37,8 @@ mixin LuaStateMisc implements LuaState {
     } else if (n >= 2) {
       for (var i = 1; i < n; i++) {
         if (isString(-1) && isString(-2)) {
-          final s2 = toDartString(-1) ?? '';
-          final s1 = toDartString(-2) ?? '';
+          final s2 = toDartString(-1);
+          final s1 = toDartString(-2);
           stack!.pop();
           stack!.pop();
           stack!.push(s1 + s2);
@@ -82,10 +82,10 @@ mixin LuaStateMisc implements LuaState {
 
   @override
   bool next(int idx) {
-    var val = stack!.get(idx);
+    final val = stack!.get(idx);
     if (val is LuaTable) {
-      var key = stack!.pop();
-      var nextKey = val.nextKey(key);
+      final key = stack!.pop();
+      final nextKey = val.nextKey(key);
       if (nextKey != null) {
         stack!.push(nextKey);
         stack!.push(val.get(nextKey));

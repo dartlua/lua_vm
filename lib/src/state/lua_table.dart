@@ -16,7 +16,7 @@ class LuaTable {
       //
       return list[value - 1].value;
     }
-    var index = getIndex(value);
+    final index = getIndex(value);
     return index == -1 ? null : list.elementAt(index).value;
   }
 
@@ -34,7 +34,7 @@ class LuaTable {
       list[getIndex(key)] = KV(key, val);
       return;
     }
-    list.add(KV(key, val!));
+    list.add(KV(key, val));
   }
 
   void fillListWithNull(int count) {
@@ -55,7 +55,7 @@ class LuaTable {
   int get len {
     var count = 0;
     for (var i = 0; i < list.length; i++) {
-      if (!(list[i].key is int)) {
+      if (list[i].key is! int) {
         continue;
       }
       if (list[i].value != null) {
@@ -67,9 +67,11 @@ class LuaTable {
     return count;
   }
 
-  List<Object> get keys {
-    var keyList = <Object>[];
-    list.forEach((element) => keyList.add(element.key));
+  List<Object?> get keys {
+    final keyList = <Object?>[];
+    for (final element in list) {
+      keyList.add(element.key);
+    }
     return keyList;
   }
 
@@ -77,7 +79,7 @@ class LuaTable {
     //
     if (key == null) return keys[0];
     //
-    var idx = keys.indexOf(key) + 1;
+    final idx = keys.indexOf(key) + 1;
     if (idx == keys.length) return null;
     return keys[idx];
   }
@@ -86,8 +88,8 @@ class LuaTable {
 KV nullKV = KV(null, null);
 
 class KV {
-  dynamic key;
-  dynamic value;
+  Object? key;
+  Object? value;
 
   KV(this.key, this.value);
 

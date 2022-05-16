@@ -195,7 +195,10 @@ class LuaLexer {
       case '[':
         if (test('[[') || test('[=')) {
           return LuaToken(
-              line: _line, kind: LuaTokens.string, value: scanLongString());
+            line: _line,
+            kind: LuaTokens.string,
+            value: scanLongString(),
+          );
         } else {
           next(1);
           return LuaToken(line: _line, kind: LuaTokens.sepLbrack, value: '[');
@@ -296,7 +299,8 @@ class LuaLexer {
     final openingLongBracketMatch = reOpeningLongBracket.firstMatch(chunk);
     if (openingLongBracketMatch == null) {
       throw error(
-          "invalid long string delimiter near '${chunk.substring(0, 2)}'");
+        "invalid long string delimiter near '${chunk.substring(0, 2)}'",
+      );
     }
 
     final openingLongBracket = openingLongBracketMatch.group(0)!;
@@ -334,8 +338,9 @@ class LuaLexer {
     throw error('unfinished string');
   }
 
-  String escape(String str) {
+  String escape(String string) {
     final buf = StringBuffer();
+    var str = string;
 
     while (str.isNotEmpty) {
       if (!str.startsWith(r'\')) {
@@ -350,40 +355,47 @@ class LuaLexer {
 
       switch (str[1]) {
         case 'a':
-          buf.write('\a');
+          // buf.write('\a');
+          buf.writeCharCode(7);
           str = str.substring(2);
           continue;
         case 'b':
-          buf.write('\b');
+          // buf.write('\b');
+          buf.writeCharCode(8);
           str = str.substring(2);
           continue;
         case 'f':
-          buf.write('\f');
+          // buf.write('\f');
+          buf.writeCharCode(12);
           str = str.substring(2);
           continue;
         case 'n':
         case '\n':
-          buf.write('\n');
+          // buf.write('\n');
+          buf.writeCharCode(10);
           str = str.substring(2);
           continue;
         case 'r':
-          buf.write('\r');
+          // buf.write('\r');
+          buf.writeCharCode(13);
           str = str.substring(2);
           continue;
         case 't':
-          buf.write('\t');
+          // buf.write('\t');
+          buf.writeCharCode(9);
           str = str.substring(2);
           continue;
         case 'v':
-          buf.write('\v');
+          // buf.write('\v');
+          buf.writeCharCode(11);
           str = str.substring(2);
           continue;
         case '"':
           buf.write('"');
           str = str.substring(2);
           continue;
-        case '\'':
-          buf.write('\'');
+        case "'":
+          buf.write("'");
           str = str.substring(2);
           continue;
         case '\\':

@@ -18,8 +18,8 @@ mixin LuaStateGet implements LuaState {
 
   @override
   LuaType getTable(int idx) {
-    var t = stack!.get(idx);
-    var k = stack!.pop();
+    final t = stack!.get(idx);
+    final k = stack!.pop();
     return _getTable(t, k, false);
   }
 
@@ -88,5 +88,5 @@ mixin LuaStateGet implements LuaState {
 
   @override
   LuaType getGlobal(String name) =>
-      _getTable(registry!.get(LUA_RIDX_GLOBALS)!, name, false);
+      _getTable(registry!.get(luaRIdxGlobals), name, false);
 }

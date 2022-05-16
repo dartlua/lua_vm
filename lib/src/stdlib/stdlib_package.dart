@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:luart/luart.dart';
 import 'package:luart/auxlib.dart';
+import 'package:luart/luart.dart';
 import 'package:luart/src/constants.dart';
 
 int openPackageLib(LuaState ls) {
@@ -16,22 +16,14 @@ int openPackageLib(LuaState ls) {
   ls.pushString('./?.lua;./?/init.lua');
   ls.setField(-2, 'path');
   /* store config information */
-  ls.pushString(LUA_DIRSEP +
-      '\n' +
-      LUA_PATH_SEP +
-      '\n' +
-      LUA_PATH_MARK +
-      '\n' +
-      LUA_EXEC_DIR +
-      '\n' +
-      LUA_IGMARK +
-      '\n');
+  ls.pushString(
+      '$luaDirSep\n$luaPathSep\n$luaPathMark\n$luaExecDir\n$luaIGMark\n');
   ls.setField(-2, 'config');
   /* set field 'loaded' */
-  ls.getSubTable(LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
+  ls.getSubTable(luaRegistryIndex, luaLoadedTable);
   ls.setField(-2, 'loaded');
   /* set field 'preload' */
-  ls.getSubTable(LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
+  ls.getSubTable(luaRegistryIndex, luaPreloadTable);
   ls.setField(-2, 'preload');
   ls.pushGlobalTable();
   ls.pushValue(-2); /* set 'package' as upvalue for next lib */
@@ -46,34 +38,34 @@ void createSearchersTable(LuaState ls) {
   ls.createTable(searchers.length, searchers.length);
   /* fill it with predefined searchers */
   var idx = 0;
-  searchers.forEach((element) {
+  for (final element in searchers) {
     ls.pushValue(-2); /* set 'package' as upvalue for all searchers */
     ls.pushDartClosure(element, 1);
     ls.rawSetI(-2, idx + 1);
     idx++;
-  });
+  }
   ls.setField(-2, 'searchers'); /* put it in field 'searchers' */
 }
 
 int preloadSearcher(LuaState ls) {
-  final name = ls.checkString(1)!;
-  ls.getField(LUA_REGISTRYINDEX, '_PRELOAD');
+  final name = ls.checkString(1);
+  ls.getField(luaRegistryIndex, '_PRELOAD');
   if (ls.getField(-1, name) == LuaType.nil) {
     /* not found? */
-    ls.pushString("\n\tno field package.preload['" + name + "']");
+    ls.pushString("\n\tno field package.preload['$name']");
   }
   return 1;
 }
 
 int luaSearcher(LuaState ls) {
-  final name = ls.checkString(1)!;
+  final name = ls.checkString(1);
   ls.getField(1, 'path');
   final path = ls.toDartString(-1);
-  if (path == null) {
+  if (path == '') {
     ls.error2('package path must be a string');
     return 0;
   }
-  final filename = _searchPath(name, path, '.', LUA_DIRSEP);
+  final filename = _searchPath(name, path, '.', luaDirSep);
   if (filename == null) {
     ls.pushString('can not find package');
     return 1;
@@ -84,8 +76,10 @@ int luaSearcher(LuaState ls) {
     ls.pushString(filename); /* will be 2nd argument to module */
     return 2; /* return open function and file name */
   } else {
-    return ls.error2("error loading module '%s' from file '%s':\n\t%s",
-        [ls.checkString(1), filename, ls.checkString(-1)]);
+    return ls.error2(
+      "error loading module '%s' from file '%s':\n\t%s",
+      [ls.checkString(1), filename, ls.checkString(-1)],
+    );
   }
 }
 
@@ -94,9 +88,9 @@ String? _searchPath(String name, String path, String sep, String dirSep) {
     name = name.replaceAll(sep, dirSep);
   }
 
-  var l = path.split(LUA_PATH_SEP);
+  final l = path.split(luaPathSep);
   for (var i = 0; i < l.length; i++) {
-    l[i] = l[i].replaceAll(LUA_PATH_MARK, name);
+    l[i] = l[i].replaceAll(luaPathMark, name);
     if (File(l[i]).existsSync()) {
       return l[i];
     }
@@ -112,7 +106,7 @@ void _findLoader(LuaState ls, String name) {
   }
 
   /* to build error message */
-  var errMsg = "module '" + name + "' not found:";
+  var errMsg = "module '$name' not found:";
 
   /*  iterate over available searchers to find a loader */
   for (var i = 1;; i++) {
@@ -130,7 +124,7 @@ void _findLoader(LuaState ls, String name) {
     } else if (ls.isString(-2)) {
       /* searcher returned error message? */
       ls.pop(1); /* remove extra return */
-      errMsg += ls.checkString(-1)!; /* concatenate error message */
+      errMsg += ls.checkString(-1); /* concatenate error message */
     } else {
       ls.pop(2); /* remove both returns */
     }
@@ -142,10 +136,10 @@ class LuaStdlibPackage {
   // http://www.lua.org/manual/5.3/manual.html#pdf-package.searchpath
   // loadlib.c#ll_searchpath
   int pkgSearchPath(LuaState ls) {
-    final name = ls.checkString(1)!;
-    final path = ls.checkString(2)!;
+    final name = ls.checkString(1);
+    final path = ls.checkString(2);
     final sep = ls.optString(3, '.')!;
-    final rep = ls.optString(4, LUA_DIRSEP)!;
+    final rep = ls.optString(4, luaDirSep)!;
     final filename = _searchPath(name, path, sep, rep);
     if (filename != null) {
       ls.pushString(filename);
@@ -160,9 +154,9 @@ class LuaStdlibPackage {
   // require (modname)
   // http://www.lua.org/manual/5.3/manual.html#pdf-require
   int pkgRequire(LuaState ls) {
-    final name = ls.checkString(1)!;
+    final name = ls.checkString(1);
     ls.setTop(1); /* LOADED table will be at index 2 */
-    ls.getField(LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
+    ls.getField(luaRegistryIndex, luaLoadedTable);
     ls.getField(2, name); /* LOADED[name] */
     if (ls.toBool(-1)) {
       /* is it there? */

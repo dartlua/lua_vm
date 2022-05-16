@@ -7,7 +7,7 @@ import 'package:luart/src/state/lua_value.dart';
 mixin LuaStateSet implements LuaState {
   @override
   void setGlobal(String name) {
-    final t = registry!.get(LUA_RIDX_GLOBALS)!;
+    final t = registry!.get(luaRIdxGlobals)!;
     final v = stack!.pop();
     _setTable(t, name, v, false);
   }

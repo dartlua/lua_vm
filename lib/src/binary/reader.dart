@@ -10,19 +10,19 @@ class Reader {
   Reader(this.data);
 
   ByteData readByte() {
-    var b = data.sublist(0, 1).buffer.asByteData(0, 1);
+    final b = data.sublist(0, 1).buffer.asByteData(0, 1);
     data = data.sublist(1);
     return b;
   }
 
   int readUint32() {
-    var n = data.sublist(0, 4);
+    final n = data.sublist(0, 4);
     data = data.sublist(4);
     return n.buffer.asByteData().getUint32(0, Endian.little);
   }
 
   int readUint64() {
-    var n = data.sublist(0, 8);
+    final n = data.sublist(0, 8);
     data = data.sublist(8);
     return n.buffer.asByteData().getUint64(0, Endian.little);
   }
@@ -30,13 +30,13 @@ class Reader {
   int readLuaInteger() => readUint64();
 
   double readLuaNumber() {
-    var n = data.sublist(0, 8);
+    final n = data.sublist(0, 8);
     data = data.sublist(8);
     return n.buffer.asByteData().getFloat64(0, Endian.little);
   }
 
   ByteData readBytes(int n) {
-    var bytes = data.sublist(0, n).buffer.asByteData(0);
+    final bytes = data.sublist(0, n).buffer.asByteData();
     data = data.sublist(n);
     return bytes;
   }
@@ -53,58 +53,58 @@ class Reader {
   }
 
   String checkHeader() {
-    if (byteData2String(readBytes(4)) != LUA_SIGNATURE) {
+    if (byteData2String(readBytes(4)) != luaSignature) {
       return 'not compiled chunk';
     }
-    if (byteData2String(readByte()) != LUAC_VERSION) return 'mismatch version';
-    if (byteData2String(readByte()) != LUAC_FORMAT) return 'mismatch format';
-    if (byteData2String(readBytes(6)) != LUAC_DATA) return 'wrong luac_data';
-    if (readByte().getUint8(0) != CINT_SIZE) return 'wrong cint size';
-    if (readByte().getUint8(0) != CSIZET_SIZE) return 'wrong csizet size';
-    if (readByte().getUint8(0) != INSTRUCTION_SIZE) {
+    if (byteData2String(readByte()) != luacVersion) return 'mismatch version';
+    if (byteData2String(readByte()) != luacFormat) return 'mismatch format';
+    if (byteData2String(readBytes(6)) != luacData) return 'wrong luac_data';
+    if (readByte().getUint8(0) != cIntSize) return 'wrong cint size';
+    if (readByte().getUint8(0) != cSizetSize) return 'wrong csizet size';
+    if (readByte().getUint8(0) != instructionSize) {
       return 'wrong instruction size';
     }
-    if (readByte().getUint8(0) != LUA_INTEGER_SIZE) {
+    if (readByte().getUint8(0) != luaIntegerSize) {
       return 'wrong lua integer size';
     }
-    if (readByte().getUint8(0) != LUA_NUMBER_SIZE) return 'wrong lua num size';
-    if (readLuaInteger() != LUAC_INT) return 'endianness mismatch';
-    if (readLuaNumber() != LUAC_NUM) return 'format mismatch';
+    if (readByte().getUint8(0) != luaNumberSize) return 'wrong lua num size';
+    if (readLuaInteger() != luacInt) return 'endianness mismatch';
+    if (readLuaNumber() != luacNum) return 'format mismatch';
     return 'check header: all ok';
   }
 
   List<int> readCode() {
-    var codes = <int>[];
-    var len = readUint32();
+    final codes = <int>[];
+    final len = readUint32();
     for (var i = 0; i < len; i++) {
       codes.add(readUint32());
     }
     return codes;
   }
 
-  List readConstants() {
-    var constants = [];
-    var len = readUint32();
+  List<Object?> readConstants() {
+    final constants = <Object?>[];
+    final len = readUint32();
     for (var i = 0; i < len; i++) {
       constants.add(readConstant());
     }
     return constants;
   }
 
-  dynamic readConstant() {
-    var tag = byteData2String(readByte());
+  Object? readConstant() {
+    final tag = byteData2String(readByte());
     switch (tag) {
-      case TAG_NIL:
+      case tagNil:
         return null;
-      case TAG_BOOLEAN:
+      case tagBoolean:
         return byteData2String(readByte()) != '00';
-      case TAG_INTEGER:
+      case tagInteger:
         return readLuaInteger();
-      case TAG_NUMBER:
+      case tagNumber:
         return readLuaNumber();
-      case TAG_SHORT_STR:
+      case tagShortStr:
         return readString();
-      case TAG_LONG_STR:
+      case tagLongStr:
         return readString();
       default:
         throw TypeError();
@@ -112,8 +112,8 @@ class Reader {
   }
 
   List<Upvalue> readUpvalues() {
-    var upValues = <Upvalue>[];
-    var len = readUint32();
+    final upValues = <Upvalue>[];
+    final len = readUint32();
     for (var i = 0; i < len; i++) {
       upValues.add(Upvalue(byte2Int(readByte()), byte2Int(readByte())));
     }
@@ -121,8 +121,8 @@ class Reader {
   }
 
   List<LuaPrototype> readProtos(String parentSource) {
-    var protos = <LuaPrototype>[];
-    var len = readUint32();
+    final protos = <LuaPrototype>[];
+    final len = readUint32();
     for (var i = 0; i < len; i++) {
       protos.add(readProto(parentSource));
     }
@@ -130,8 +130,8 @@ class Reader {
   }
 
   List<int> readLineInfo() {
-    var lineInfo = <int>[];
-    var len = readUint32();
+    final lineInfo = <int>[];
+    final len = readUint32();
     for (var i = 0; i < len; i++) {
       lineInfo.add(readUint32());
     }
@@ -139,8 +139,8 @@ class Reader {
   }
 
   List<LocVar> readLocVars() {
-    var locVars = <LocVar>[];
-    var len = readUint32();
+    final locVars = <LocVar>[];
+    final len = readUint32();
     for (var i = 0; i < len; i++) {
       locVars.add(LocVar(readString(), readUint32(), readUint32()));
     }
@@ -148,8 +148,8 @@ class Reader {
   }
 
   List<String> readUpvalueNames() {
-    var names = <String>[];
-    var len = readUint32();
+    final names = <String>[];
+    final len = readUint32();
     for (var i = 0; i < len; i++) {
       names.add(readString());
     }

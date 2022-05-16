@@ -54,7 +54,7 @@ class LuaPrototype {
   int? isVararg;
   int maxStackSize;
   List<int> codes;
-  List constants;
+  List<Object?> constants;
   List<Upvalue> upvalues;
   List<LuaPrototype> protos;
   List<int> lineInfo;
@@ -91,7 +91,7 @@ bool isBinaryChunk(List<int> data) {
 }
 
 LuaPrototype unDump(Uint8List data) {
-  var reader = Reader(data);
+  final reader = Reader(data);
   reader.checkHeader();
   reader.readByte();
   return reader.readProto('');

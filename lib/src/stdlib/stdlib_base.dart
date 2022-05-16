@@ -68,7 +68,7 @@ class LuaStdlibBase {
       ls.pushValue(i); /* value to print */
       ls.call(1, 1);
       final s = ls.toDartString(-1); /* get result */
-      if (s == null) {
+      if (s == '') {
         return ls.error2("'tostring' must return a string to 'print'");
       }
       if (i > 1) {
@@ -190,16 +190,17 @@ class LuaStdlibBase {
   // http://www.lua.org/manual/5.3/manual.html#pdf-load
   // lua-5.3.4/src/lbaselib.c#luaB_load()
   int baseLoad(LuaState ls) {
-    var chunk = ls.toDartString(1);
+    final chunk = ls.toDartString(1);
     /*var mode = */ ls.optString(3, 'bt');
     var env = 0; /* 'env' index or 0 if no 'env' */
     if (!ls.isNone(4)) {
       env = 4;
     }
-    if (chunk != null) {
+    if (chunk != '') {
       /* loading a string? */
-      var chunkName = ls.optString(2, chunk);
-      var status = ls.load(Uint8List.fromList(chunkName!.codeUnits), chunkName);
+      final chunkName = ls.optString(2, chunk);
+      final status =
+          ls.load(Uint8List.fromList(chunkName!.codeUnits), chunkName);
       return loadAux(ls, status, env);
     } else {
       /* loading from a reader function */
@@ -227,13 +228,13 @@ class LuaStdlibBase {
   // http://www.lua.org/manual/5.3/manual.html#pdf-loadfile
   // lua-5.3.4/src/lbaselib.c#luaB_loadfile()
   int baseLoadFile(LuaState ls) {
-    var fname = ls.optString(1, '');
-    var mode = ls.optString(1, 'bt');
+    final fname = ls.optString(1, '');
+    final mode = ls.optString(1, 'bt');
     var env = 0; /* 'env' index or 0 if no 'env' */
     if (!ls.isNone(3)) {
       env = 3;
     }
-    var status = ls.loadFileX(fname!, mode!);
+    final status = ls.loadFileX(fname!, mode!);
     return loadAux(ls, status, env);
   }
 
@@ -241,7 +242,7 @@ class LuaStdlibBase {
   // http://www.lua.org/manual/5.3/manual.html#pdf-dofile
   // lua-5.3.4/src/lbaselib.c#luaB_dofile()
   int baseDoFile(LuaState ls) {
-    var fname = ls.optString(1, 'bt');
+    final fname = ls.optString(1, 'bt');
     ls.setTop(1);
     if (ls.loadFile(fname!) != LuaStatus.ok) {
       return ls.error();
@@ -283,10 +284,13 @@ class LuaStdlibBase {
   // http://www.lua.org/manual/5.3/manual.html#pdf-setmetatable
   // lua-5.3.4/src/lbaselib.c#luaB_setmetatable()
   int baseSetMetatable(LuaState ls) {
-    var t = ls.type(2);
+    final t = ls.type(2);
     ls.checkType(1, LuaType.table);
     ls.argCheck(
-        t == LuaType.nil || t == LuaType.table, 2, 'nil or table expected');
+      t == LuaType.nil || t == LuaType.table,
+      2,
+      'nil or table expected',
+    );
     if (ls.getMetafield(1, '__metatable') != LuaType.nil) {
       return ls.error2('cannot change a protected metatable');
     }
@@ -375,7 +379,7 @@ class LuaStdlibBase {
         return 1;
       } else {
         final s = ls.toDartString(1);
-        if (s != null) {
+        if (s != '') {
           if (ls.stringToNumber(s)) {
             return 1; /* successful conversion to number */
           } /* else not a number */
@@ -383,7 +387,7 @@ class LuaStdlibBase {
       }
     } else {
       ls.checkType(1, LuaType.string); /* no numbers as strings */
-      final s = ls.toDartString(1)!.trim();
+      final s = ls.toDartString(1).trim();
       final base = ls.checkInt(2);
       if (base < 2 || base > 36) {
         ls.argError(2, 'base out of range');

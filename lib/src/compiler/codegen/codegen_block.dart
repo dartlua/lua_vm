@@ -6,7 +6,7 @@ import 'package:luart/src/compiler/codegen/lua_func_info.dart';
 import 'package:luart/src/compiler/helpers.dart';
 
 void cgBlock(LuaFuncInfo fi, LuaBlock node) {
-  for (var stat in node.stats) {
+  for (final stat in node.stats) {
     cgStat(fi, stat);
   }
 

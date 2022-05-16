@@ -1,5 +1,5 @@
-import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/api/lua_state.dart';
+import 'package:luart/src/api/lua_vm.dart';
 import 'package:luart/src/constants.dart';
 import 'package:luart/src/state/lua_state.dart';
 import 'package:luart/src/vm/fpb.dart';
@@ -37,7 +37,7 @@ extension Instruction on int {
 
   InstructionAB asbx() {
     final operand = abx();
-    return InstructionAB(operand.a, operand.b - MAXARG_sBx);
+    return InstructionAB(operand.a, operand.b - maxArgSBx);
   }
 
   int ax() => this >> 6;
@@ -270,7 +270,7 @@ void setList(int inst, LuaVM vm) {
     vm.pop(1);
   }
 
-  var idx = c * LFIELDS_PER_FLUSH;
+  var idx = c * lFieldsPerFlush;
   for (var j = 1; j <= b; j++) {
     idx++;
     vm.pushValue(a + j);
@@ -363,7 +363,7 @@ void vararg(int inst, LuaVM vm) {
 void tailCall(int inst, LuaVM vm) {
   final operand = inst.abc();
   final a = operand.a + 1;
-  var nArgs = _pushFuncAndArgs(a, operand.b, vm);
+  final nArgs = _pushFuncAndArgs(a, operand.b, vm);
   vm.call(nArgs, -1);
   _popResults(a, 0, vm);
 }

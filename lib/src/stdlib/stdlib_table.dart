@@ -29,15 +29,19 @@ class LuaStdlibTable {
     if (!ls.isNoneOrNil(5)) {
       tt = 5;
     }
-    _checkTab(ls, 1, TAB_R);
-    _checkTab(ls, tt, TAB_W);
+    _checkTab(ls, 1, tabR);
+    _checkTab(ls, tt, tabW);
     if (e >= f) {
       /* otherwise, nothing to move */
-      int n, i;
+      int n;
+      int i;
       ls.argCheck(
-          f > 0 || e < LUA_MAXINTEGER + f, 3, 'too many elements to move');
+        f > 0 || e < luaMaxInteger + f,
+        3,
+        'too many elements to move',
+      );
       n = e - f + 1; /* number of elements to move */
-      ls.argCheck(t <= LUA_MAXINTEGER - n + 1, 4, 'destination wrap around');
+      ls.argCheck(t <= luaMaxInteger - n + 1, 4, 'destination wrap around');
       if (t > e || t <= f || (tt != 1 && !ls.compare(1, tt, LuaCompareOp.eq))) {
         for (i = 0; i < n; i++) {
           ls.getI(1, f + i);
@@ -58,8 +62,8 @@ class LuaStdlibTable {
   // http://www.lua.org/manual/5.3/manual.html#pdf-table.insert
   // lua-5.3.4/src/ltablib.c#tinsert()
   int tabInsert(LuaState ls) {
-    final e = _auxGetN(ls, 1, TAB_RW) + 1; /* first empty element */
-    var pos; /* where to insert new element */
+    final e = _auxGetN(ls, 1, tabRW) + 1; /* first empty element */
+    int pos; /* where to insert new element */
     switch (ls.getTop()) {
       case 2: /* called with only 2 arguments */
         pos = e;
@@ -84,7 +88,7 @@ class LuaStdlibTable {
   // http://www.lua.org/manual/5.3/manual.html#pdf-table.remove
   // lua-5.3.4/src/ltablib.c#tremove()
   int tabRemove(LuaState ls) {
-    final size = _auxGetN(ls, 1, TAB_RW);
+    final size = _auxGetN(ls, 1, tabRW);
     var pos = ls.optInt(2, size);
     if (pos != size) {
       /* validate 'pos' if given */
@@ -104,7 +108,7 @@ class LuaStdlibTable {
   // http://www.lua.org/manual/5.3/manual.html#pdf-table.concat
   // lua-5.3.4/src/ltablib.c#tconcat()
   int tabConcat(LuaState ls) {
-    final tabLen = _auxGetN(ls, 1, TAB_R);
+    final tabLen = _auxGetN(ls, 1, tabR);
     final sep = ls.optString(2, '');
     final i = ls.optInt(3, 1);
     final j = ls.optInt(4, tabLen);
@@ -118,10 +122,12 @@ class LuaStdlibTable {
     for (var k = i; k > 0 && k <= j; k++) {
       ls.getI(1, k);
       if (!ls.isString(-1)) {
-        ls.error2("invalid value (%s) at index %d in table for 'concat'",
-            [ls.type(-1).typeName, i]);
+        ls.error2(
+          "invalid value (%s) at index %d in table for 'concat'",
+          [ls.type(-1).typeName, i],
+        );
       }
-      buf[k - i] = ls.toDartString(-1)!;
+      buf[k - i] = ls.toDartString(-1);
       ls.pop(1);
     }
     ls.pushString(buf.join(sep!));
@@ -130,7 +136,7 @@ class LuaStdlibTable {
   }
 
   int _auxGetN(LuaState ls, int n, int w) {
-    _checkTab(ls, n, w | TAB_L);
+    _checkTab(ls, n, w | tabL);
     return ls.rawLen(n);
   }
 
@@ -141,11 +147,11 @@ class LuaStdlibTable {
   void _checkTab(LuaState ls, int arg, int what) {
     if (ls.type(arg) != LuaType.table) {
       /* is it not a table? */
-      final n = 1; /* number of elements to pop */
+      const n = 1; /* number of elements to pop */
       if (ls.getMetatable(arg) && /* must have metatable */
-          (what & TAB_R != 0 || _checkField(ls, '__index', n)) &&
-          (what & TAB_W != 0 || _checkField(ls, '__newindex', n)) &&
-          (what & TAB_L != 0 || _checkField(ls, '__len', n))) {
+          (what & tabR != 0 || _checkField(ls, '__index', n)) &&
+          (what & tabW != 0 || _checkField(ls, '__newindex', n)) &&
+          (what & tabL != 0 || _checkField(ls, '__len', n))) {
         ls.pop(n); /* pop metatable and tested metamethods */
       } else {
         ls.checkType(arg, LuaType.table); /* force an error */
@@ -189,7 +195,7 @@ class LuaStdlibTable {
     }
 
     final n = e - i + 1;
-    if (n <= 0 || n >= MAX_LEN || !ls.checkStack(n)) {
+    if (n <= 0 || n >= maxLen || !ls.checkStack(n)) {
       return ls.error2('too many results to unpack');
     }
 
@@ -206,7 +212,7 @@ class LuaStdlibTable {
   // table.sort (list [, comp])
   // http://www.lua.org/manual/5.3/manual.html#pdf-table.sort
   int tabSort(LuaState w) {
-    w.argCheck(w.rawLen(1) < MAX_LEN, 1, 'array too big');
+    w.argCheck(w.rawLen(1) < maxLen, 1, 'array too big');
     final n = w.rawLen(1);
     w.quickSort(w, 0, n, maxDepth(n));
     return 0;
@@ -250,8 +256,8 @@ extension TableSort on LuaState {
       }
       maxDepth--;
       final result = doPivot(data, a, b);
-      var mlo = result.a;
-      var mhi = result.b;
+      final mlo = result.a;
+      final mhi = result.b;
       // Avoiding recursion on the larger subproblem guarantees
       // a stack depth of at most lg(b-a).
       if (mlo - a < b - mhi) {
@@ -299,7 +305,7 @@ PivotResult doPivot(LuaState data, int lo, int hi) {
   //	data[b <= i < c] unexamined
   //	data[c <= i < hi-1] > pivot
   //	data[hi-1] >= pivot
-  var pivot = lo;
+  final pivot = lo;
   var a = lo + 1;
   var c = hi - 1;
 
@@ -401,7 +407,7 @@ int maxDepth(int n) {
 
 void heapSort(LuaState data, int a, int b) {
   final first = a;
-  final lo = 0;
+  const lo = 0;
   final hi = b - a;
 
   // Build heap with greatest element at top.

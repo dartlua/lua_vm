@@ -16,7 +16,7 @@ int openUTF8Lib(LuaState ls) {
   };
 
   ls.newLib(funcs);
-  ls.pushString(UTF8PATT);
+  ls.pushString(utf8Pattern);
   ls.setField(-2, 'charpattern');
   return 1;
 }
@@ -28,7 +28,7 @@ class LuaStdlibUTF8 {
   // http://www.lua.org/manual/5.3/manual.html#pdf-utf8.len
   // lua-5.3.4/src/lutf8lib.c#utflen()
   int utfLen(LuaState ls) {
-    final s = ls.checkString(1)!;
+    final s = ls.checkString(1);
     final sLen = s.length;
     final i = posRelat(ls.optInt(2, 1), sLen);
     final j = posRelat(ls.optInt(3, -1), sLen);
@@ -48,7 +48,7 @@ class LuaStdlibUTF8 {
   // utf8.offset (s, n [, i])
   // http://www.lua.org/manual/5.3/manual.html#pdf-utf8.offset
   int utfByteOffset(LuaState ls) {
-    final s = ls.checkString(1)!;
+    final s = ls.checkString(1);
     final sLen = s.length;
     var n = ls.checkInt(2);
     var i = 1;
@@ -108,7 +108,7 @@ class LuaStdlibUTF8 {
   // http://www.lua.org/manual/5.3/manual.html#pdf-utf8.codepoint
   // lua-5.3.4/src/lutf8lib.c#codepoint()
   int utfCodePoint(LuaState ls) {
-    var s = ls.checkString(1)!;
+    var s = ls.checkString(1);
     final sLen = s.length;
     var i = posRelat(ls.optInt(2, 1), sLen);
     final j = posRelat(ls.optInt(3, i), sLen);
@@ -118,7 +118,7 @@ class LuaStdlibUTF8 {
     if (i > j) {
       return 0; /* empty interval; return no values */
     }
-    if (j - i >= LUA_MAXINTEGER) {
+    if (j - i >= luaMaxInteger) {
       /* (lua_Integer -> int) overflow? */
       return ls.error2('string slice too long');
     }
@@ -128,7 +128,7 @@ class LuaStdlibUTF8 {
     n = 0;
     s = s.substring(i - 1);
     while (i <= j) {
-      var code = Runes(s).first;
+      final code = Runes(s).first;
       ls.pushInt(code);
       n++;
       i++;
@@ -142,11 +142,11 @@ class LuaStdlibUTF8 {
   // lua-5.3.4/src/lutf8lib.c#utfchar()
   int utfChar(LuaState ls) {
     final n = ls.getTop(); /* number of arguments */
-    var codePoints = List.filled(n, 0);
+    final codePoints = List.filled(n, 0);
 
     for (var i = 1; i <= n; i++) {
       final cp = ls.checkInt(i);
-      ls.argCheck(0 <= cp && cp <= MAX_UNICODE, i, 'value out of range');
+      ls.argCheck(0 <= cp && cp <= maxUnicode, i, 'value out of range');
       codePoints[i - 1] = cp;
     }
 
@@ -165,7 +165,7 @@ class LuaStdlibUTF8 {
   }
 
   int _iterAux(LuaState ls) {
-    final s = ls.checkString(1)!;
+    final s = ls.checkString(1);
     final sLen = s.length;
     var n = ls.toInt(2) - 1;
     if (n < 0) {

@@ -72,7 +72,7 @@ void cgWhileStat(LuaFuncInfo fi, LuaWhileStat node) {
   final pcBeforeExp = fi.pc;
 
   final oldRegs = fi.usedRegs;
-  final a = expToOpArg(fi, node.exp, ARG_REG).arg;
+  final a = expToOpArg(fi, node.exp, argReg).arg;
   fi.usedRegs = oldRegs;
 
   final line = lastLineOf(node.exp);
@@ -101,7 +101,7 @@ void cgRepeatStat(LuaFuncInfo fi, LuaRepeatStat node) {
   cgBlock(fi, node.block);
 
   final oldRegs = fi.usedRegs;
-  final a = expToOpArg(fi, node.exp, ARG_REG).arg;
+  final a = expToOpArg(fi, node.exp, argReg).arg;
   fi.usedRegs = oldRegs;
 
   final line = lastLineOf(node.exp);
@@ -132,7 +132,7 @@ void cgIfStat(LuaFuncInfo fi, LuaIfStat node) {
     }
 
     final oldRegs = fi.usedRegs;
-    final a = expToOpArg(fi, exp, ARG_REG).arg;
+    final a = expToOpArg(fi, exp, argReg).arg;
     fi.usedRegs = oldRegs;
 
     final line = lastLineOf(exp);
@@ -151,15 +151,15 @@ void cgIfStat(LuaFuncInfo fi, LuaIfStat node) {
     }
   }
 
-  for (var pc in pcJmpToEnds) {
+  for (final pc in pcJmpToEnds) {
     fi.fixSbx(pc, fi.pc - pc);
   }
 }
 
 void cgForNumStat(LuaFuncInfo fi, LuaForNumStat node) {
-  final forIndexVar = '(for index)';
-  final forLimitVar = '(for limit)';
-  final forStepVar = '(for step)';
+  const forIndexVar = '(for index)';
+  const forLimitVar = '(for limit)';
+  const forStepVar = '(for step)';
 
   fi.enterScope(true);
 
@@ -189,9 +189,9 @@ void cgForNumStat(LuaFuncInfo fi, LuaForNumStat node) {
 }
 
 void cgForInStat(LuaFuncInfo fi, LuaForInStat node) {
-  final forGeneratorVar = '(for generator)';
-  final forStateVar = '(for state)';
-  final forControlVar = '(for control)';
+  const forGeneratorVar = '(for generator)';
+  const forStateVar = '(for state)';
+  const forControlVar = '(for control)';
 
   fi.enterScope(true);
 
@@ -203,7 +203,7 @@ void cgForInStat(LuaFuncInfo fi, LuaForInStat node) {
       expList: node.expList,
     ),
   );
-  for (var name in node.nameList) {
+  for (final name in node.nameList) {
     fi.addLocVar(name, fi.pc + 2);
   }
 
@@ -230,7 +230,7 @@ void cgLocalVarDeclStat(LuaFuncInfo fi, LuaLocalVarDeclStat node) {
 
   final oldRegs = fi.usedRegs;
   if (nExps == nNames) {
-    for (var exp in exps) {
+    for (final exp in exps) {
       final a = fi.allocReg();
       cgExp(fi, exp, a, 1);
     }
@@ -268,7 +268,7 @@ void cgLocalVarDeclStat(LuaFuncInfo fi, LuaLocalVarDeclStat node) {
 
   fi.usedRegs = oldRegs;
   final startPC = fi.pc + 1;
-  for (var name in node.nameList) {
+  for (final name in node.nameList) {
     fi.addLocVar(name, startPC);
   }
 }

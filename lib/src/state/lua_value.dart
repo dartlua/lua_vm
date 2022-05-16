@@ -1,7 +1,7 @@
 import 'package:luart/luart.dart';
+import 'package:luart/src/api/lua_result.dart';
 import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_table.dart';
-import 'package:luart/src/api/lua_result.dart';
 
 // class Object extends Object {
 //   dynamic luaValue;
@@ -31,28 +31,33 @@ bool convert2Boolean(Object? v) {
   return true;
 }
 
-LuaResult convert2Float(Object? value) {
-  if (value is double) return LuaResult.double(value, true);
-  if (value is int) return LuaResult.double(value.toDouble(), true);
-  if (value is String) return LuaResult.double(double.parse(value), true);
-  return LuaResult.double(0, false);
+LuaResult<double> convert2Float(Object? value) {
+  if (value is double) return LuaResult<double>(value, true);
+  if (value is int) return LuaResult<double>(value.toDouble(), true);
+  if (value is String) return LuaResult<double>(double.parse(value), true);
+  return LuaResult<double>(0, false);
 }
 
-String? convert2String(Object? value) {
-  if (value is String) return value;
-  if (value is int) return value.toString();
-  if (value is double) return value.toString();
-  return null;
-}
-
-LuaResult convert2Int(Object? value) {
-  if (value is String) return LuaResult.int(num.parse(value).toInt(), true);
-  if (value is double) {
-    var ceil = value.ceil();
-    return LuaResult.int(ceil, ceil.floorToDouble() == value);
+LuaResult<String> convert2String(Object? value) {
+  switch (value.runtimeType) {
+    case String:
+      return LuaResult(value! as String, true);
+    case int:
+    case double:
+      return LuaResult(value!.toString(), true);
+    default:
+      return LuaResult('', false);
   }
-  if (value is int) return LuaResult.int(value, true);
-  return LuaResult.int(0, false);
+}
+
+LuaResult<int> convert2Int(Object? value) {
+  if (value is String) return LuaResult(num.parse(value).toInt(), true);
+  if (value is double) {
+    final ceil = value.ceil();
+    return LuaResult(ceil, ceil.floorToDouble() == value);
+  }
+  if (value is int) return LuaResult<int>(value, true);
+  return LuaResult(0, false);
 }
 
 void setMetaTableFor(Object value, LuaTable? metaTable, LuaState luaState) {
@@ -93,7 +98,7 @@ LuaResult callMetaMethod(
 }
 
 Object? getMetaField(Object? val, String fieldName, LuaState ls) {
-  var mt = getMetaTable(val, ls);
+  final mt = getMetaTable(val, ls);
   if (mt != null) return mt.get(fieldName);
   return null;
 }

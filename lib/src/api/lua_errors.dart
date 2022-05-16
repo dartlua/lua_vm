@@ -1,3 +1,5 @@
+// ignore_for_file: overridden_fields
+
 class LuaError {
   LuaError([this.message = 'lua error']);
 

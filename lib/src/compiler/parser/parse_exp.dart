@@ -172,7 +172,7 @@ LuaExp parseExp6(LuaLexer lexer) {
 
 // a .. b
 LuaExp parseExp5(LuaLexer lexer) {
-  var exp = parseExp4(lexer);
+  final exp = parseExp4(lexer);
   if (lexer.lookAhead() != LuaTokens.opConcat) {
     return exp;
   }

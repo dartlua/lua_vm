@@ -15,22 +15,22 @@ int hexDigitValue(int char) {
   const f = 0x66;
   final digit = char ^ digit0;
   if (digit <= 9) return digit;
-  final letter = (char | 0x20);
+  final letter = char | 0x20;
   if (a <= letter && letter <= f) return letter - (a - 10);
   return -1;
 }
 
 ByteData convert2ByteData(String data) {
-  return ByteData.sublistView(Utf8Encoder().convert(data));
+  return ByteData.sublistView(const Utf8Encoder().convert(data));
 }
 
 String hex2String(String hex) {
   final len = hex.length ~/ 2;
-  var s = '';
+  final sb = StringBuffer();
   for (var i = 0; i < len * 2; i += 2) {
-    s += String.fromCharCode(int.tryParse(hex.substring(i, i + 2), radix: 16)!);
+    sb.writeCharCode(int.tryParse(hex.substring(i, i + 2), radix: 16)!);
   }
-  return s;
+  return sb.toString();
 }
 
 int hex2Int(String hex) {
@@ -38,11 +38,11 @@ int hex2Int(String hex) {
 }
 
 String uint8List2String(Uint8List uint8list) {
-  var s = '';
-  uint8list.forEach((element) {
-    s += (element.toRadixString(16).padLeft(2, '0'));
-  });
-  return s;
+  final sb = StringBuffer();
+  for (final element in uint8list) {
+    sb.write(element.toRadixString(16).padLeft(2, '0'));
+  }
+  return sb.toString();
 }
 
 String byteData2String(ByteData b) {
@@ -64,7 +64,7 @@ int dayInYear(DateTime time) {
 
 /* translate a relative string position: negative means back from end */
 int posRelat(int pos, int _len) {
-  var _pos = pos;
+  final _pos = pos;
   if (_pos >= 0) {
     return _pos;
   } else if (-_pos > _len) {
@@ -74,14 +74,14 @@ int posRelat(int pos, int _len) {
   }
 }
 
-var tagPattern = RegExp('%[ #+-0]?[0-9]*(\.[0-9]+)?[cdeEfgGioqsuxX%]');
+RegExp tagPattern = RegExp(r'%[ #+-0]?[0-9]*(\.[0-9]+)?[cdeEfgGioqsuxX%]');
 
 List<String> parseFmtStr(String fmt) {
   if (fmt == '' || !fmt.contains('%')) {
     return [fmt];
   }
 
-  var parsed = List<String>.empty(growable: true);
+  final parsed = List<String>.empty(growable: true);
   while (true) {
     if (fmt == '') {
       break;
@@ -106,9 +106,10 @@ List<String> parseFmtStr(String fmt) {
   return parsed;
 }
 
-TwoResult find(String s, String pattern, int init, bool plain) {
+TwoResult<int, int> find(String s, String pattern, int init, bool plain) {
   var tail = s;
-  var start, end;
+  int start;
+  int end;
   if (init > 1) {
     tail = s.substring(init - 1);
   }
@@ -148,15 +149,15 @@ String replaceFormatter(String s) {
   return s.replaceAll('%d', '[0-9]').replaceAll('%a', '[A-z]');
 }
 
-class TwoResult {
-  dynamic a;
-  dynamic b;
+class TwoResult<T, U> {
+  T a;
+  U b;
   TwoResult(this.a, this.b);
 }
 
 // todo
 // return String, int
-TwoResult gsub(String s, String pattern, String repl, int n) {
+TwoResult<String, int> gsub(String s, String pattern, String repl, int n) {
   final re = RegExp(pattern);
   final matches = re.allMatches(s).toList();
   for (var i = 0; i < n && i <= matches.length; i++) {

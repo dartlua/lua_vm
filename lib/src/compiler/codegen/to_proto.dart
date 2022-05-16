@@ -35,7 +35,7 @@ List<LuaPrototype> toProtos(List<LuaFuncInfo> fis) {
 
 List<Object?> getConstants(LuaFuncInfo fi) {
   final consts = List<Object?>.filled(fi.constants.length, null);
-  for (var entry in fi.constants.entries) {
+  for (final entry in fi.constants.entries) {
     consts[entry.value] = entry.key;
   }
   return consts;
@@ -43,19 +43,21 @@ List<Object?> getConstants(LuaFuncInfo fi) {
 
 List<LocVar> getLocVars(LuaFuncInfo fi) {
   final locVars = <LocVar>[];
-  for (var locVar in fi.locVars) {
-    locVars.add(LocVar(
-      locVar.name,
-      locVar.startPC,
-      locVar.endPC,
-    ));
+  for (final locVar in fi.locVars) {
+    locVars.add(
+      LocVar(
+        locVar.name,
+        locVar.startPC,
+        locVar.endPC,
+      ),
+    );
   }
   return locVars;
 }
 
 List<Upvalue> getUpvalues(LuaFuncInfo fi) {
   final upvals = List<Upvalue?>.filled(fi.upvalues.length, null);
-  for (var uv in fi.upvalues.values) {
+  for (final uv in fi.upvalues.values) {
     if (uv.locVarSlot >= 0) {
       // instack
       upvals[uv.index] = Upvalue(1, uv.locVarSlot);
@@ -68,7 +70,7 @@ List<Upvalue> getUpvalues(LuaFuncInfo fi) {
 
 List<String> getUpvalueNames(LuaFuncInfo fi) {
   final names = List<String?>.filled(fi.upvalues.length, null);
-  for (var entry in fi.upvalues.entries) {
+  for (final entry in fi.upvalues.entries) {
     names[entry.value.index] = entry.key;
   }
   return names.cast();

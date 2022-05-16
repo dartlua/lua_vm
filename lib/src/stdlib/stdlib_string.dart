@@ -50,7 +50,7 @@ class LuaStdlibString {
   // lua-5.3.4/src/lstrlib.c#str_len()
   int strLen(LuaState ls) {
     final s = ls.checkString(1);
-    ls.pushInt(s!.length);
+    ls.pushInt(s.length);
     return 1;
   }
 
@@ -65,11 +65,11 @@ class LuaStdlibString {
     if (n <= 0) {
       ls.pushString('');
     } else if (n == 1) {
-      ls.pushString(s!);
+      ls.pushString(s);
     } else {
-      var a = List.filled(n, '');
+      final a = List.filled(n, '');
       for (var i = 0; i < n; i++) {
-        a[i] = s!;
+        a[i] = s;
       }
       ls.pushString(a.join(sep!));
     }
@@ -82,7 +82,7 @@ class LuaStdlibString {
   // lua-5.3.4/src/lstrlib.c#str_reverse()
   int strReverse(LuaState ls) {
     final s = ls.checkString(1);
-    final strLen = s!.length;
+    final strLen = s.length;
     if (strLen > 1) {
       ls.pushString(s.split('').reversed.join());
     }
@@ -95,7 +95,7 @@ class LuaStdlibString {
   // lua-5.3.4/src/lstrlib.c#str_lower()
   int strLower(LuaState ls) {
     final s = ls.checkString(1);
-    ls.pushString(s!.toLowerCase());
+    ls.pushString(s.toLowerCase());
     return 1;
   }
 
@@ -104,7 +104,7 @@ class LuaStdlibString {
   // lua-5.3.4/src/lstrlib.c#str_upper()
   int strUpper(LuaState ls) {
     final s = ls.checkString(1);
-    ls.pushString(s!.toUpperCase());
+    ls.pushString(s.toUpperCase());
     return 1;
   }
 
@@ -113,7 +113,7 @@ class LuaStdlibString {
   // lua-5.3.4/src/lstrlib.c#str_sub()
   int strSub(LuaState ls) {
     final s = ls.checkString(1);
-    final sLen = s!.length;
+    final sLen = s.length;
     var i = posRelat(ls.checkInt(2), sLen);
     var j = posRelat(ls.optInt(3, -1), sLen);
 
@@ -138,7 +138,7 @@ class LuaStdlibString {
   // lua-5.3.4/src/lstrlib.c#str_byte()
   int strByte(LuaState ls) {
     final s = ls.checkString(1);
-    final sLen = s!.length;
+    final sLen = s.length;
     var i = posRelat(ls.optInt(2, 1), sLen);
     var j = posRelat(ls.optInt(3, i), sLen);
 
@@ -226,7 +226,7 @@ class LuaStdlibString {
   // http://www.lua.org/manual/5.3/manual.html#pdf-string.format
   int strFormat(LuaState ls) {
     final fmtStr = ls.checkString(1);
-    if (fmtStr!.length <= 1 || !fmtStr.contains('%')) {
+    if (fmtStr.length <= 1 || !fmtStr.contains('%')) {
       ls.pushString(fmtStr);
       return 1;
     }
@@ -246,7 +246,7 @@ class LuaStdlibString {
       }
     }
 
-    ls.pushString(arr.join(''));
+    ls.pushString(arr.join());
     return 1;
   }
 
@@ -256,15 +256,15 @@ class LuaStdlibString {
       case 'c': // character
         return ls.toInt(argIdx).toRadixString(16);
       case 'i':
-        tag = tag.substring(0, tag.length - 1) + 'd'; // %i -> %d
-        return sprintf(tag, [ls.toInt(argIdx)]);
+        final tag2 = '${tag.substring(0, tag.length - 1)}d'; // %i -> %d
+        return sprintf(tag2, [ls.toInt(argIdx)]);
       case 'd': // integer, octal
         return sprintf(tag, [ls.toInt(argIdx)]);
       case 'o':
         return sprintf(tag, [ls.toInt(argIdx)]);
       case 'u': // unsigned integer
-        tag = tag.substring(0, tag.length - 1) + 'd'; // %u -> %d
-        return sprintf(tag, [ls.toInt(argIdx)]);
+        final tag2 = '${tag.substring(0, tag.length - 1)}d'; // %u -> %d
+        return sprintf(tag2, [ls.toInt(argIdx)]);
       case 'x': // hex integer
         return sprintf(tag, [ls.toInt(argIdx)]);
       case 'X':
@@ -288,8 +288,8 @@ class LuaStdlibString {
   // http://www.lua.org/manual/5.3/manual.html#pdf-string.find
   int strFind(LuaState ls) {
     final s = ls.checkString(1);
-    final sLen = s!.length;
-    final pattern = ls.checkString(2)!;
+    final sLen = s.length;
+    final pattern = ls.checkString(2);
     var init = posRelat(ls.optInt(3, 1), sLen);
     if (init < 1) {
       init = 1;
@@ -301,8 +301,8 @@ class LuaStdlibString {
     final plain = ls.toBool(4);
 
     final result = find(s, pattern, init, plain);
-    final start = result.a!;
-    final end = result.b!;
+    final start = result.a;
+    final end = result.b;
 
     if (start < 0) {
       ls.pushNil();
@@ -317,8 +317,8 @@ class LuaStdlibString {
   // http://www.lua.org/manual/5.3/manual.html#pdf-string.match
   int strMatch(LuaState ls) {
     final s = ls.checkString(1);
-    final sLen = s!.length;
-    final pattern = ls.checkString(2)!;
+    final sLen = s.length;
+    final pattern = ls.checkString(2);
     var init = posRelat(ls.optInt(3, 1), sLen);
     if (init < 1) {
       init = 1;
@@ -328,7 +328,7 @@ class LuaStdlibString {
       return 1;
     }
 
-    var captures = match(s, pattern, init);
+    final captures = match(s, pattern, init);
 
     if (captures == null) {
       ls.pushNil();
@@ -350,7 +350,7 @@ class LuaStdlibString {
     final repl = ls.checkString(3); // todo
     final n = ls.optInt(4, -1);
 
-    final r = gsub(s!, pattern!, repl!, n);
+    final r = gsub(s, pattern, repl, n);
     final newStr = r.a;
     final nMatches = r.b;
     ls.pushString(newStr);
@@ -361,10 +361,12 @@ class LuaStdlibString {
   // string.gmatch (s, pattern)
   // http://www.lua.org/manual/5.3/manual.html#pdf-string.gmatch
   int strGmatch(LuaState ls) {
-    var s = ls.checkString(1)!;
+    var s = ls.checkString(1);
     final pattern = ls.checkString(2);
+    // TODO: convert to func, not var
+    // ignore: prefer_function_declarations_over_variables
     final gmatchAux = (_) {
-      var captures = match(s, pattern!, 1)!;
+      final captures = match(s, pattern, 1)!;
       if (captures.isNotEmpty) {
         for (var i = 0; i < captures.length; i++) {
           final capture = s.substring(captures[i].start, captures[i].end);

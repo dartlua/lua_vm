@@ -28,7 +28,7 @@ class LuaStack {
   }
 
   void push(Object? val) {
-    if (top == slots.length) throw StackOverflowError();
+    if (top == slots.length) throw const StackOverflowError();
     slots[top] = val;
     top++;
   }
@@ -42,32 +42,32 @@ class LuaStack {
   }
 
   int absIndex(int idx) {
-    if (idx >= 0 || idx <= LUA_REGISTRYINDEX) return idx;
+    if (idx >= 0 || idx <= luaRegistryIndex) return idx;
     return idx + top + 1;
   }
 
   bool isValid(int idx) {
-    if (idx < LUA_REGISTRYINDEX) {
-      final uvIndex = LUA_REGISTRYINDEX - idx - 1;
+    if (idx < luaRegistryIndex) {
+      final uvIndex = luaRegistryIndex - idx - 1;
       final c = closure;
       return c != null && uvIndex < c.upValues.length;
     }
 
-    if (idx == LUA_REGISTRYINDEX) return true;
+    if (idx == luaRegistryIndex) return true;
 
     final absIdx = absIndex(idx);
     return absIdx > 0 && absIdx <= top;
   }
 
   Object? get(int idx) {
-    if (idx < LUA_REGISTRYINDEX) {
-      final uvIndex = LUA_REGISTRYINDEX - idx - 1;
+    if (idx < luaRegistryIndex) {
+      final uvIndex = luaRegistryIndex - idx - 1;
       final c = closure;
       if (c == null || uvIndex >= c.upValues.length) return null;
       return c.upValues[uvIndex];
     }
 
-    if (idx == LUA_REGISTRYINDEX) return state.registry;
+    if (idx == luaRegistryIndex) return state.registry;
 
     final absIdx = absIndex(idx);
     if (absIdx > 0 && absIdx <= top) return slots[absIdx - 1];
@@ -75,15 +75,15 @@ class LuaStack {
   }
 
   void set(int idx, Object? value) {
-    if (idx < LUA_REGISTRYINDEX) {
-      final uvIndex = LUA_REGISTRYINDEX - idx - 1;
+    if (idx < luaRegistryIndex) {
+      final uvIndex = luaRegistryIndex - idx - 1;
       if (closure != null && uvIndex < closure!.upValues.length) {
         closure!.upValues[uvIndex] = value;
       }
       return;
     }
 
-    if (idx == LUA_REGISTRYINDEX) {
+    if (idx == luaRegistryIndex) {
       if (value is LuaTable) {
         state.registry = value;
         return;
@@ -91,12 +91,12 @@ class LuaStack {
       throw ArgumentError('val must be LuaTable');
     }
 
-    var absIdx = absIndex(idx);
+    final absIdx = absIndex(idx);
     if (absIdx > 0 && absIdx <= top) {
       slots[absIdx - 1] = value;
       return;
     }
-    throw StackUnderflowError(); //IndexError(absIdx, slots);
+    throw const StackUnderflowError(); //IndexError(absIdx, slots);
   }
 
   void reverse(int from, int to) {

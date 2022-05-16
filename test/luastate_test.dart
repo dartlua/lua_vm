@@ -52,8 +52,8 @@ void main() async {
     });
 
     test('call function in source code', () {
-      var nArgs;
-      var arg;
+      int nArgs = 0;
+      Object? arg;
 
       int _func(LuaState ls) {
         nArgs = ls.getTop();

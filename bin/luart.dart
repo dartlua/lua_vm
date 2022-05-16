@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 
 import 'package:luart/auxlib.dart';
@@ -32,13 +34,13 @@ void repl() {
       startCount++;
     }
     if (line.endsWith('end')) {
-      blockLines += line + ' ';
+      blockLines += '$line ';
       endCount++;
     }
 
-    var isBlock = startCount == endCount;
+    final isBlock = startCount == endCount;
     if (!isBlock) {
-      blockLines += line + ' ';
+      blockLines += '$line ';
       continue;
     }
 
@@ -60,6 +62,28 @@ void repl() {
   }
 }
 
-void main() {
+void run(String file) {
+  final ls = LuaState();
+  ls.openLibs();
+  try {
+    ls.loadFile(file);
+  } catch (e) {
+    print(e);
+  }
+
+  ls.pCall(0, -1, 0);
+}
+
+void main(List<String> args) {
+  if (args.isNotEmpty) {
+    if (args.length == 2) {
+      if (args[0] == 'run') {
+        run(args[1]);
+        return;
+      }
+    }
+    print('unknown arg: [${args[0]}]');
+    return;
+  }
   repl();
 }

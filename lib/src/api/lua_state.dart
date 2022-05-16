@@ -2,8 +2,8 @@ import 'dart:typed_data';
 
 import 'package:luart/src/api/lua_result.dart';
 import 'package:luart/src/state/lua_stack.dart';
-import 'package:luart/src/state/lua_table.dart';
 import 'package:luart/src/state/lua_state.dart';
+import 'package:luart/src/state/lua_table.dart';
 
 enum LuaArithOp {
   add,
@@ -215,7 +215,7 @@ abstract class LuaState {
   /// must be an integer, or a number or string convertible to an integer;
   /// otherwise, a [TypeError] is thrown.
   int toInt(int idx);
-  LuaResult toIntX(int idx);
+  LuaResult<int> toIntX(int idx);
 
   /// Converts the Lua value at the given index to a Dart double. The Lua value
   /// must be an number, or a number or string convertible to an number;
@@ -225,7 +225,7 @@ abstract class LuaState {
 
   /// Converts the Lua value at the given index to a Dart string. The Lua value
   /// must be a string or a number; otherwise, [null] is returned.
-  String? toDartString(int idx);
+  String toDartString(int idx);
 
   /// Converts a value at the given index to a Dart function. That value must be
   /// a Dart function; otherwise, returns [null].

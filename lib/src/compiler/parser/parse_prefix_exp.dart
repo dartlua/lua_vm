@@ -52,14 +52,20 @@ LuaExp _finishPrefixExp(LuaLexer lexer, LuaExp exp) {
         final keyExp = parseExp(lexer); // exp
         lexer.nextTokenOfKind(LuaTokens.sepRbrack); // ‘]’
         exp = LuaTableAccessExp(
-            lastLine: lexer.line, prefixExp: exp, keyExp: keyExp);
+          lastLine: lexer.line,
+          prefixExp: exp,
+          keyExp: keyExp,
+        );
         break;
       case LuaTokens.sepDot: // prefixexp ‘.’ Name
         lexer.nextToken(); // ‘.’
         final ident = lexer.nextIdentifier(); // Name
         final keyExp = LuaStringExp(line: ident.line, value: ident.value);
         exp = LuaTableAccessExp(
-            lastLine: lexer.line, prefixExp: exp, keyExp: keyExp);
+          lastLine: lexer.line,
+          prefixExp: exp,
+          keyExp: keyExp,
+        );
         break;
       case LuaTokens.sepColon: // prefixexp ‘:’ Name args
       case LuaTokens.sepLparen:
@@ -80,11 +86,12 @@ LuaFuncCallExp _finishFuncCallExp(LuaLexer lexer, LuaExp prefixExp) {
   final args = _parseArgs(lexer);
   final lastLine = lexer.line;
   return LuaFuncCallExp(
-      line: line,
-      lastLine: lastLine,
-      prefixExp: prefixExp,
-      nameExp: nameExp,
-      args: args);
+    line: line,
+    lastLine: lastLine,
+    prefixExp: prefixExp,
+    nameExp: nameExp,
+    args: args,
+  );
 }
 
 LuaStringExp? _parseNameExp(LuaLexer lexer) {

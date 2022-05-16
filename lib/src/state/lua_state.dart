@@ -11,8 +11,8 @@ import 'package:luart/src/state/lua_closure.dart';
 import 'package:luart/src/state/lua_stack.dart';
 import 'package:luart/src/state/lua_table.dart';
 import 'package:luart/src/state/lua_value.dart';
-import 'package:luart/src/state/state_arith.dart';
 import 'package:luart/src/state/state_access.dart';
+import 'package:luart/src/state/state_arith.dart';
 import 'package:luart/src/state/state_compare.dart';
 import 'package:luart/src/state/state_get.dart';
 import 'package:luart/src/state/state_misc.dart';
@@ -42,8 +42,8 @@ class LuaStateImpl
 
   LuaStateImpl() {
     registry = LuaTable(<KV>[]);
-    registry!.put(LUA_RIDX_GLOBALS, LuaTable(<KV>[]));
-    pushLuaStack(LuaStack(LUA_MINSTACK, this));
+    registry!.put(luaRIdxGlobals, LuaTable(<KV>[]));
+    pushLuaStack(LuaStack(luaMinStack, this));
   }
 
   void pushLuaStack(LuaStack newStack) {
@@ -53,7 +53,7 @@ class LuaStateImpl
 
   void popLuaStack() {
     final oldStack = stack;
-    stack = oldStack!.prev!;
+    stack = oldStack!.prev;
     oldStack.prev = null;
   }
 
@@ -73,7 +73,7 @@ class LuaStateImpl
     final c = LuaClosure.fromLuaProto(subProto);
 
     var i = 0;
-    for (var val in subProto.upvalues) {
+    for (final val in subProto.upvalues) {
       final uvIndex = val.idx;
       if (val.inStack == 1) {
         stack!.openUVs ??= <int, LuaUpValue?>{};
@@ -106,7 +106,7 @@ class LuaStateImpl
   }
 
   @override
-  void pushGlobalTable() => getI(LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+  void pushGlobalTable() => getI(luaRegistryIndex, luaRIdxGlobals);
 
   @override
   void register(String name, LuaDartFunction dartFunc) {
@@ -152,7 +152,7 @@ class LuaStateImpl
     final c = LuaClosure.fromLuaProto(proto);
     stack!.push(c);
     if (proto.upvalues.isNotEmpty) {
-      final env = registry!.get(LUA_RIDX_GLOBALS);
+      final env = registry!.get(luaRIdxGlobals);
       final upEnv = env;
       if (c.upValues.isEmpty) {
         c.upValues.add(upEnv);
@@ -222,7 +222,7 @@ class LuaStateImpl
     final nParams = c.proto!.numParams;
     final isVararg = c.proto!.isVararg == 1;
 
-    final newStack = LuaStack(nRegs + LUA_MINSTACK, this);
+    final newStack = LuaStack(nRegs + luaMinStack, this);
     newStack.closure = c;
 
     final funcAndArgs = stack!.popN(nArgs + 1);
@@ -244,7 +244,7 @@ class LuaStateImpl
   }
 
   void callDartClosure(int nArgs, int nResults, LuaClosure c) {
-    final newStack = LuaStack(nArgs + LUA_MINSTACK, this);
+    final newStack = LuaStack(nArgs + luaMinStack, this);
     newStack.closure = c;
 
     if (nArgs > 0) {
@@ -268,9 +268,9 @@ class LuaStateImpl
     while (true) {
       final instruction = fetch();
       instruction.execute(this);
-      if (instruction.opCode == OP_RETURN) break;
+      if (instruction.opCode == opReturn) break;
     }
   }
 }
 
-int luaUpvalueIndex(int i) => LUA_REGISTRYINDEX - i;
+int luaUpvalueIndex(int i) => luaRegistryIndex - i;

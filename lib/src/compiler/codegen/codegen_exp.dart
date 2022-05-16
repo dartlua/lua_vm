@@ -2,17 +2,17 @@
 import 'package:luart/luart.dart';
 import 'package:luart/src/compiler/ast/lua_exp.dart';
 import 'package:luart/src/compiler/codegen/codegen_block.dart';
-import 'package:luart/src/compiler/helpers.dart';
 import 'package:luart/src/compiler/codegen/lua_func_info.dart';
+import 'package:luart/src/compiler/helpers.dart';
 import 'package:luart/src/compiler/lexer/token.dart';
 import 'package:luart/src/constants.dart';
 
-const ARG_CONST = 1; // const index
-const ARG_REG = 2; // register index
-const ARG_UPVAL = 4; // upvalue index
-const ARG_RK = ARG_REG | ARG_CONST;
-const ARG_RU = ARG_REG | ARG_UPVAL;
-const ARG_RUK = ARG_REG | ARG_UPVAL | ARG_CONST;
+const argConst = 1; // const index
+const argReg = 2; // register index
+const argUpVal = 4; // upvalue index
+const argRK = argReg | argConst;
+const argRU = argReg | argUpVal;
+const argRUK = argReg | argUpVal | argConst;
 
 // todo: rename to evalExp()?
 void cgExp(LuaFuncInfo fi, LuaExp node, int a, int n) {
@@ -78,7 +78,7 @@ void cgFuncDefExp(LuaFuncInfo fi, LuaFuncDefExp node, int a) {
   final subFI = LuaFuncInfo(node, fi);
   fi.subFuncs.add(subFI);
 
-  for (var param in node.parList) {
+  for (final param in node.parList) {
     subFI.addLocVar(param, 0);
   }
 
@@ -92,7 +92,7 @@ void cgFuncDefExp(LuaFuncInfo fi, LuaFuncDefExp node, int a) {
 
 void cgTableConstructorExp(LuaFuncInfo fi, LuaTableConstructorExp node, int a) {
   var nArr = 0;
-  for (var keyExp in node.keyExps) {
+  for (final keyExp in node.keyExps) {
     if (keyExp == null) {
       nArr++;
     }
@@ -149,7 +149,7 @@ void cgTableConstructorExp(LuaFuncInfo fi, LuaTableConstructorExp node, int a) {
 // r[a] := op exp
 void cgUnopExp(LuaFuncInfo fi, LuaUnopExp node, int a) {
   final oldRegs = fi.usedRegs;
-  final b = expToOpArg(fi, node.exp, ARG_REG).arg;
+  final b = expToOpArg(fi, node.exp, argReg).arg;
   fi.emitUnaryOp(node.line, node.op, a, b);
   fi.usedRegs = oldRegs;
 }
@@ -161,7 +161,7 @@ void cgBinopExp(LuaFuncInfo fi, LuaBinopExp node, int a) {
     case LuaTokens.opOr:
       final oldRegs = fi.usedRegs;
 
-      var b = expToOpArg(fi, node.exp1, ARG_REG).arg;
+      var b = expToOpArg(fi, node.exp1, argReg).arg;
       fi.usedRegs = oldRegs;
       if (node.op == LuaTokens.opAnd) {
         fi.emitTestSet(node.line, a, b, 0);
@@ -170,15 +170,15 @@ void cgBinopExp(LuaFuncInfo fi, LuaBinopExp node, int a) {
       }
       final pcOfJmp = fi.emitJmp(node.line, 0, 0);
 
-      b = expToOpArg(fi, node.exp2, ARG_REG).arg;
+      b = expToOpArg(fi, node.exp2, argReg).arg;
       fi.usedRegs = oldRegs;
       fi.emitMove(node.line, a, b);
       fi.fixSbx(pcOfJmp, fi.pc - pcOfJmp);
       break;
     default:
       final oldRegs = fi.usedRegs;
-      final b = expToOpArg(fi, node.exp1, ARG_RK).arg;
-      final c = expToOpArg(fi, node.exp2, ARG_RK).arg;
+      final b = expToOpArg(fi, node.exp1, argRK).arg;
+      final c = expToOpArg(fi, node.exp2, argRK).arg;
       fi.emitBinaryOp(node.line, node.op, a, b, c);
       fi.usedRegs = oldRegs;
   }
@@ -186,7 +186,7 @@ void cgBinopExp(LuaFuncInfo fi, LuaBinopExp node, int a) {
 
 // r[a] := exp1 .. exp2
 void cgConcatExp(LuaFuncInfo fi, LuaConcatExp node, int a) {
-  for (var subExp in node.exps) {
+  for (final subExp in node.exps) {
     final a = fi.allocReg();
     cgExp(fi, subExp, a, 1);
   }
@@ -194,7 +194,7 @@ void cgConcatExp(LuaFuncInfo fi, LuaConcatExp node, int a) {
   final c = fi.usedRegs - 1;
   final b = c - node.exps.length + 1;
   fi.freeRegs(c - b + 1);
-  fi.emitABC(node.line, OP_CONCAT, a, b, c);
+  fi.emitABC(node.line, opConcat, a, b, c);
 }
 
 // r[a] := name
@@ -221,11 +221,11 @@ void cgNameExp(LuaFuncInfo fi, LuaNameExp node, int a) {
 // r[a] := prefix[key]
 void cgTableAccessExp(LuaFuncInfo fi, LuaTableAccessExp node, int a) {
   final oldRegs = fi.usedRegs;
-  final b = expToOpArg(fi, node.prefixExp, ARG_RU);
-  final c = expToOpArg(fi, node.keyExp, ARG_RK).arg;
+  final b = expToOpArg(fi, node.prefixExp, argRU);
+  final c = expToOpArg(fi, node.keyExp, argRK).arg;
   fi.usedRegs = oldRegs;
 
-  if (b.argKind == ARG_UPVAL) {
+  if (b.argKind == argUpVal) {
     fi.emitGetTabUp(node.lastLine, a, b.arg, c);
   } else {
     fi.emitGetTable(node.lastLine, a, b.arg, c);
@@ -252,9 +252,9 @@ int prepFuncCall(LuaFuncInfo fi, LuaFuncCallExp node, int a) {
   final nameExp = node.nameExp;
   if (nameExp != null) {
     fi.allocReg();
-    final c = expToOpArg(fi, nameExp, ARG_RK);
+    final c = expToOpArg(fi, nameExp, argRK);
     fi.emitSelf(node.line, a, a, c.arg);
-    if (c.argKind == ARG_REG) {
+    if (c.argKind == argReg) {
       fi.freeRegs(1);
     }
   }
@@ -289,7 +289,7 @@ class _Arg {
 }
 
 _Arg expToOpArg(LuaFuncInfo fi, LuaExp node, int argKinds) {
-  if (argKinds & ARG_CONST > 0) {
+  if (argKinds & argConst > 0) {
     var idx = -1;
     if (node is LuaNilExp) {
       idx = fi.indexOfConstant(null);
@@ -305,26 +305,26 @@ _Arg expToOpArg(LuaFuncInfo fi, LuaExp node, int argKinds) {
       idx = fi.indexOfConstant(node.value);
     }
     if (idx >= 0 && idx <= 0xFF) {
-      return _Arg(0x100 + idx, ARG_CONST);
+      return _Arg(0x100 + idx, argConst);
     }
   }
 
   if (node is LuaNameExp) {
-    if (argKinds & ARG_REG > 0) {
+    if (argKinds & argReg > 0) {
       final r = fi.slotOfLocVar(node.name);
       if (r >= 0) {
-        return _Arg(r, ARG_REG);
+        return _Arg(r, argReg);
       }
     }
-    if (argKinds & ARG_UPVAL > 0) {
+    if (argKinds & argUpVal > 0) {
       final idx = fi.indexOfUpval(node.name);
       if (idx >= 0) {
-        return _Arg(idx, ARG_UPVAL);
+        return _Arg(idx, argUpVal);
       }
     }
   }
 
   final a = fi.allocReg();
   cgExp(fi, node, a, 1);
-  return _Arg(a, ARG_REG);
+  return _Arg(a, argReg);
 }

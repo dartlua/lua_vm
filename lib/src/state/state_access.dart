@@ -13,7 +13,7 @@ mixin LuaStateAccess implements LuaVM {
   @override
   LuaType type(int idx) {
     if (stack!.isValid(idx)) {
-      var val = stack!.get(idx);
+      final val = stack!.get(idx);
       return typeOf(val);
     }
     return LuaType.none;
@@ -51,7 +51,7 @@ mixin LuaStateAccess implements LuaVM {
   int toInt(int idx) => convert2Int(stack!.get(idx)).result;
 
   @override
-  LuaResult toIntX(int idx) => convert2Int(stack!.get(idx));
+  LuaResult<int> toIntX(int idx) => convert2Int(stack!.get(idx));
 
   @override
   double toNumber(int idx) => convert2Float(stack!.get(idx)).result;
@@ -60,7 +60,7 @@ mixin LuaStateAccess implements LuaVM {
   LuaResult toNumberX(int idx) => convert2Float(stack!.get(idx));
 
   @override
-  String? toDartString(int idx) => convert2String(stack!.get(idx));
+  String toDartString(int idx) => convert2String(stack!.get(idx)).result;
 
   @override
   LuaDartFunction? toDartFunction(int idx) {

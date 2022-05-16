@@ -315,7 +315,7 @@ LuaAssignStat parseFuncDefStat(LuaLexer lexer) {
   lexer.nextTokenOfKind(LuaTokens.kwFunction); // function
   final funcName = _parseFuncName(lexer); // funcname
 
-  var fdExp = parseFuncDefExp(lexer); // funcbody
+  final fdExp = parseFuncDefExp(lexer); // funcbody
   if (funcName.hasColon) {
     fdExp.parList.insert(0, 'self'); // insert self
   }
