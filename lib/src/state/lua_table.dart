@@ -7,7 +7,8 @@ class LuaTable {
   @override
   String toString() => 'Table<$list, $metaTable>';
 
-  Object? get(Object value) {
+  Object? get(Object? value) {
+    if (value == null) return null;
     if (value is int) {
       //
       if (value > list.length) {

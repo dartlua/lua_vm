@@ -198,8 +198,20 @@ class LuaStdlibOs {
   // os.execute ([command])
   // http://www.lua.org/manual/5.3/manual.html#pdf-os.execute
   int execute(LuaState ls) {
-    // TODO
-    return 2;
+    final cmd = ls.checkString(1).replaceAll('"', '').replaceAll("'", '');
+    final result = Process.runSync(
+        cmd.split(' ').first, cmd.split(' ').skip(1).toList(),
+        runInShell: true);
+    if (result.exitCode != 0) {
+      ls.pushString(result.stderr.toString());
+      ls.pushNil();
+    } else {
+      ls.pushString(result.stdout.toString());
+      ls.pushBool(true);
+    }
+    ls.pushString('exit');
+    ls.pushInt(result.exitCode);
+    return 4;
   }
 
   // os.exit ([code [, close]])

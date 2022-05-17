@@ -28,7 +28,7 @@ mixin LuaStateGet implements LuaState {
       t = t.result;
     }
     if (t is LuaTable) {
-      final v = t.get(k!);
+      final v = t.get(k);
       if (raw || v != null || !t.hasMetaField('__index')) {
         stack!.push(v);
         return typeOf(v);

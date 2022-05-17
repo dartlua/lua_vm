@@ -22,7 +22,7 @@ LuaType typeOf(Object? value) {
   if (value is LuaState) return LuaType.thread;
   if (value is LuaResult) return typeOf(value.result);
 
-  throw TypeError();
+  throw Exception('Unsupported type: ${value.runtimeType}');
 }
 
 bool convert2Boolean(Object? v) {

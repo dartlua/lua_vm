@@ -17,7 +17,8 @@ int openPackageLib(LuaState ls) {
   ls.setField(-2, 'path');
   /* store config information */
   ls.pushString(
-      '$luaDirSep\n$luaPathSep\n$luaPathMark\n$luaExecDir\n$luaIGMark\n');
+    '$luaDirSep\n$luaPathSep\n$luaPathMark\n$luaExecDir\n$luaIGMark\n',
+  );
   ls.setField(-2, 'config');
   /* set field 'loaded' */
   ls.getSubTable(luaRegistryIndex, luaLoadedTable);
