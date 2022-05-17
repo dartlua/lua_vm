@@ -1,0 +1,10 @@
+zzza    3
+7       9
+auL
+the value is:4
+abcd
+abcdabcd
+2 questions
+Hello
+Lua
+user
